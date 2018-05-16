@@ -1,6 +1,6 @@
 # Drupal Go
 
-It's a starting point for a new Drupal project. Drupal GO will automatically prepare a local development environment and install Drupal project using best practices. Also, it supplies a number of useful tools/commands/aliases you can work with.
+It's a starting point for a new Drupal 8 project. Drupal GO will automatically prepare a local development environment and install Drupal project using best practices. Also, it supplies a number of useful tools/commands/aliases you can work with.
 
 The Drupal Go based on [Composer template for Drupal project](https://github.com/drupal-composer/drupal-project), [Robo](https://robo.li) and [drupal4docker](https://github.com/wodby/docker4drupal).
 
@@ -11,6 +11,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Installation
+Run the following commands from the project root folder:
 * `composer install`
 * `robo install && robo configure`
 
