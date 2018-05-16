@@ -1,13 +1,13 @@
 # Drupal Go
 
-It's a starting point for new Drupal project. Drupal GO will automatically prepare a local development environment and install drupal project using best practices. Also it supplies a number of useful tools/commands/aliases you can work with.
+It's a starting point for new Drupal project. Drupal GO will automatically prepare a local development environment and install Drupal project using best practices. Also, it supplies a number of useful tools/commands/aliases you can work with.
 
 The Drupal Go based on [Composer template for Drupal project](https://github.com/drupal-composer/drupal-project), [Robo](https://robo.li) and [drupal4docker](https://github.com/wodby/docker4drupal).
 
 # Requirements
-* [Install Composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx).
-* [Install Robo](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx).
-* [Install Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/) (For Ubuntu only. User of Mac OS can miss this step)
+* [Install Composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx)
+* [Install Robo](https://github.com/consolidation/Robo#installing)
+* [Install Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/) (Mac OS users can miss this step)
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 ## What does it do?
