@@ -1,0 +1,29 @@
+drush:
+  paths:
+    config:
+      - '${env.home}/.drush/config/drush.yml'
+    include:
+      - './drush/contrib'
+options:
+  uri: 'http://{{ project_name }}.docker.localhost:8000'
+command:
+  core:
+    rsync:
+      options:
+        mode: 'rlDzq'
+  sql:
+    dump:
+      options:
+        structure-tables-key: 'common'
+        skip-tables-key: 'common'
+sql:
+  structure-tables:
+    common:
+{% for table in drush.sql.tables.structure %}
+      - '{{ table }}'
+{% endfor %}
+  skip-tables:
+    common:
+{% for table in drush.sql.tables.skip %}
+      - '{{ table }}'
+{% endfor %}
