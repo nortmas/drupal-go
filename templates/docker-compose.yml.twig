@@ -67,11 +67,11 @@ services:
       APACHE_LOG_LEVEL: debug
 {% endif %}
       {{ webserver.type|upper }}_BACKEND_HOST: php
-      {{ webserver.type|upper }}_SERVER_ROOT: /var/www/html/{{ webRoot }}
+      {{ webserver.type|upper }}_SERVER_ROOT: /var/www/html/web
     volumes:
       - ./:/var/www/html
     labels:
-      traefik.backend: '{{ project_name }}_{{ webserver.type }}_1'
+      traefik.backend: '{{ project_machine_name }}_{{ webserver.type }}_1'
       traefik.port: '80'
       traefik.frontend.rule: 'HostRegexp:{subdomain:[a-z]+}.docker.localhost'
 {% if varnish.enable %}
@@ -85,9 +85,9 @@ services:
       VARNISH_BACKEND_HOST: {{ webserver.type }}
       VARNISH_BACKEND_PORT: 80
     labels:
-      traefik.backend: '{{ project_name }}_varnish_1'
+      traefik.backend: '{{ project_machine_name }}_varnish_1'
       traefik.port: '6081'
-      traefik.frontend.rule: 'Host:varnish.{{ project_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:varnish.{{ project_machine_name }}.docker.localhost'
 {% endif %}
 {% if redis.enable %}
 
@@ -101,9 +101,9 @@ services:
     environment:
       ADMINER_SALT: adminer-salt
     labels:
-      traefik.backend: '{{ project_name }}_adminer_1'
+      traefik.backend: '{{ project_machine_name }}_adminer_1'
       traefik.port: '9000'
-      traefik.frontend.rule: 'Host:adminer.{{ project_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:adminer.{{ project_machine_name }}.docker.localhost'
 {% elseif dbbrowser.type == 'pma' %}
   pma:
     image: 'phpmyadmin/phpmyadmin'
@@ -114,9 +114,9 @@ services:
       PHP_UPLOAD_MAX_FILESIZE: 1G
       PHP_MAX_INPUT_VARS: 1G
     labels:
-      traefik.backend: '{{ project_name }}_pma_1'
+      traefik.backend: '{{ project_machine_name }}_pma_1'
       traefik.port: '80'
-      traefik.frontend.rule: 'Host:pma.{{ project_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:pma.{{ project_machine_name }}.docker.localhost'
 {% endif %}
 {% if solr.enable %}
 
@@ -125,17 +125,17 @@ services:
     environment:
       SOLR_HEAP: 1024m
     labels:
-      traefik.backend: '{{ project_name }}_solr_1'
+      traefik.backend: '{{ project_machine_name }}_solr_1'
       traefik.port: '8983'
-      traefik.frontend.rule: 'Host:solr.{{ project_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:solr.{{ project_machine_name }}.docker.localhost'
 {% endif %}
 
   mailhog:
     image: 'mailhog/mailhog'
     labels:
-      traefik.backend: '{{ project_name }}_mailhog_1'
+      traefik.backend: '{{ project_machine_name }}_mailhog_1'
       traefik.port: '8025'
-      traefik.frontend.rule: 'Host:mailhog.{{ project_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:mailhog.{{ project_machine_name }}.docker.localhost'
 {% if node.enable %}
 
   nodejs:
@@ -145,7 +145,7 @@ services:
     labels:
       traefik.backend: 'nodejs'
       traefik.port: '8080'
-      traefik.frontend.rule: 'Host:nodejs.{{ project_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:nodejs.{{ project_machine_name }}.docker.localhost'
     volumes:
       - ./{{ node.path }}:/app
     command: sh -c 'npm install && npm run start'
@@ -154,9 +154,9 @@ services:
     image: 'node:alpine'
     working_dir: /app
     labels:
-      traefik.backend: '{{ project_name }}_node_1'
+      traefik.backend: '{{ project_machine_name }}_node_1'
       traefik.port: '3000'
-      traefik.frontend.rule: 'Host:front.{{ project_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:front.{{ project_machine_name }}.docker.localhost'
     expose:
       - '3000'
     volumes:
@@ -201,27 +201,27 @@ services:
     environment:
       WEBGRIND_PROFILER_DIR: '/mnt/files/xdebug/profiler'
     labels:
-      traefik.backend: '{{ project_name }}_webgrind_1'
+      traefik.backend: '{{ project_machine_name }}_webgrind_1'
       traefik.port: '8080'
-      traefik.frontend.rule: 'Host:webgrind.{{ project_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:webgrind.{{ project_machine_name }}.docker.localhost'
     volumes:
       - files:/mnt/files
 {% endif %}
 
   portainer:
     image: portainer/portainer
-    container_name: "{{ project_name }}_portainer"
+    container_name: "{{ project_machine_name }}_portainer"
     command: --no-auth -H unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - 'traefik.backend=portainer'
       - 'traefik.port=9000'
-      - 'traefik.frontend.rule=Host:portainer.{{ project_name }}.docker.localhost'
+      - 'traefik.frontend.rule=Host:portainer.{{ project_machine_name }}.docker.localhost'
 
   traefik:
     image: traefik
-    container_name: "{{ project_name }}_traefik"
+    container_name: "{{ project_machine_name }}_traefik"
     command: -c /dev/null --web --docker --logLevel=INFO
     ports:
       - '8000:80'
@@ -230,4 +230,4 @@ services:
 {#networks:#}
   {#default:#}
     {#external:#}
-      {#name: traefik_{{ project_name }}#}
+      {#name: traefik_{{ project_machine_name }}#}

@@ -38,6 +38,36 @@ class RoboFile extends Tasks {
     $this->config = $this->getConfig();
   }
 
+  function global_install() {
+    $this->configureProject();
+    $this->install();
+
+    $this->getConfig();
+
+    $remove_lines = [
+      4 => 'homepage',
+      5 => 'type',
+      6 => 'license',
+    ];
+
+    $this->removeLines('composer.json', $remove_lines);
+
+    $this->taskComposerConfig()->set('name', $this->config['name'])->run();
+    $this->taskComposerConfig()->set('description', 'Drupal 8 project.')->run();
+
+    if ($this->config['include_module_list'] == TRUE) {
+      foreach ($this->getBuildSet() as $name => $version) {
+        $this->taskComposerRequire()->dependency($name, $version)->run();
+      }
+    }
+
+    $drush_set_theme = $this->taskDrushStack()->drush('config-set system.theme default adminimal_theme')->getCommand();
+    $drush_en_modules = $this->taskDrushStack()->drush('en admin_toolbar adminimal_admin_toolbar config_split memcache session_based_temp_store')->getCommand();
+
+    $this->dockerComposeExec($drush_set_theme);
+    $this->dockerComposeExec($drush_en_modules);
+  }
+
   function configure() {
     $this->configureProject();
   }
@@ -52,7 +82,7 @@ class RoboFile extends Tasks {
 
     $drush_install = $this->taskDrushStack()
       ->siteName($this->config['project_name'])
-      ->siteMail($this->config['project_name'] . '@example.com')
+      ->siteMail($this->config['project_machine_name'] . '@example.com')
       ->locale('en')
       ->sitesSubdir('default')
       ->accountMail('admin@example.com')
@@ -64,9 +94,6 @@ class RoboFile extends Tasks {
       ->getCommand();
 
     $this->dockerComposeExec($drush_install);
-    
-    //drush config-set system.theme default adminimal_theme
-    //drush en admin_toolbar adminimal_admin_toolbar config_split memcache session_based_temp_store
   }
 
   function db_export() {
@@ -133,6 +160,29 @@ class RoboFile extends Tasks {
    */
   protected function dockerComposeExec($command) {
     $this->taskDockerComposeExecute()->disablePseudoTty()->arg('php')->exec($command)->run();
+  }
+
+  /**
+   * Removes specified lines containing string form the file.
+   *
+   * @param $file
+   * @param $remove_lines array
+   */
+  protected function removeLines($file, $remove_lines) {
+    $lines_array = [];
+    $data = file_get_contents($file);
+    $lines = explode(PHP_EOL, $data);
+    $line_no = 1;
+    foreach($lines as $line) {
+      $lines_array[$line_no] = $line;
+      $line_no++;
+    }
+    foreach ($remove_lines as $line_num => $line_val) {
+      if (strstr($lines_array[$line_num], $line_val)) {
+        unset($lines_array[$line_num]);
+      }
+    }
+    file_put_contents($file, implode("\n", $lines_array));
   }
 
   /**
@@ -403,103 +453,28 @@ class RoboFile extends Tasks {
    * Return configurations.
    */
   protected function getConfig() {
-    $config = [
-      'project_name' => 'beg',
-      'webRoot' => 'web',
-      'drush' => [
-        'sql' => [
-          'tables' => [
-            'structure' => [
-              'cache',
-              'cache_*',
-              'history',
-              'search_*',
-              'sessions',
-              'watchdog',
-            ],
-            'skip' => [
-              'migration_*',
-            ],
-          ],
-        ],
-        'aliases' => [
-          'dev' => [
-            'host' => '',
-            'user' => '',
-            'root' => '',
-            'uri' => '',
-          ],
-          'stage' => [
-            'host' => '',
-            'user' => '',
-            'root' => '',
-            'uri' => '',
-          ],
-          'prod' => [
-            'host' => '',
-            'user' => '',
-            'root' => '',
-            'uri' => '',
-          ],
-        ]
-      ],
-      'multisite' => [
-        'teko' => 'teko.ch',
-        'gbssg' => 'gbssg.ch',
-        'abbts' => 'abbts.ch',
-        'hftm' => 'hftm.ch',
-        'zbw' => 'zbw.ch',
-        'ibw' => 'ibw.ch',
-        'gibb' => 'gibb.ch',
-        'stfw' => 'stfw.ch',
-        'wiss' => 'wiss.ch',
-        'akad' => 'akad.ch',
-        'sfb' => 'sfb.ch',
-        'bzbuchs' => 'bzbuchs.ch',
-      ],
-      'php' => [
-        'xdebug' => 1,
-      ],
-      'webserver' => [
-        'type' => 'apache',
-      ],
-      'varnish' => [
-        'enable' => 0,
-      ],
-      'dbbrowser' => [
-        'type' => 'adminer',
-      ],
-      'solr' => [
-        'enable' => 0,
-      ],
-      'redis' => [
-        'enable' => 0,
-      ],
-      'node' => [
-        'enable' => 0,
-        'key' => '',
-        'path' => '',
-      ],
-      'memcached' => [
-        'enable' => 1,
-      ],
-      'rsyslog' => [
-        'enable' => 0,
-      ],
-      'athenapdf' => [
-        'enable' => 0,
-        'key' => '',
-      ],
-      'blackfire' => [
-        'enable' => 0,
-        'id' => '',
-        'token' => '',
-      ],
-      'webgrind' => [
-        'enable' => 0,
-      ],
+    if (!file_exists('roboconf.php') && file_exists('example.roboconf.php')) {
+      $this->taskFilesystemStack()->copy('example.roboconf.php', 'roboconf.php')->run();
+    }
+
+    if (file_exists('roboconf.php')) {
+      $config = include 'roboconf.php';
+      return $config;
+    }
+  }
+
+  protected function getBuildSet() {
+    return [
+      "drupal/admin_toolbar" => "^1.19",
+      "drupal/adminimal_admin_toolbar" => "^1.3",
+      "drupal/adminimal_theme" => "^1.3",
+      "drupal/config_split" => "^1.3",
+      "drupal/devel" => "^1.0",
+      "drupal/environment_indicator" => "^3.3",
+      "drupal/memcache" => "^2.0",
+      "drupal/custom_configurations" => "dev-1.x",
+      "drupal/session_based_temp_store" => "dev-1.x",
     ];
-    return $config;
   }
 
 }

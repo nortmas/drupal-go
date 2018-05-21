@@ -1,7 +1,7 @@
 # See https://github.com/drush-ops/drush/blob/master/examples/example.site.yml
 self:
-  root: '/var/www/html/{{ webRoot }}'
-  uri: '{{ project_name }}.docker.localhost:8000'
+  root: '/var/www/html/web'
+  uri: '{{ project_machine_name }}.docker.localhost:8000'
 dev:
   host: '{{ drush.aliases.dev.host }}'
   user: '{{ drush.aliases.dev.user }}'

@@ -12,8 +12,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 
 ## Installation
 Run the following commands from the project root folder:
-* `composer install`
-* `robo configure && robo install`
+* `composer install && robo global_install`
 
 ## Available commands:
 * `robo db_export` Implement an export of current DB state to the DB folder.
