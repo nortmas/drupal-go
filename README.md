@@ -15,7 +15,7 @@ Run the following commands from the project root folder:
 * `composer install`
 * `robo configure && robo install`
 
-## Availabe commands:
+## Available commands:
 * `robo db_export` Implement an export of current DB state to the DB folder.
 * `robo db_import` Implement an import of latest DB dump from the DB folder.
 * `robo rebuild` Execute necessary actions after a pull from the repository.
