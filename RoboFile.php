@@ -64,6 +64,9 @@ class RoboFile extends Tasks {
       ->getCommand();
 
     $this->dockerComposeExec($drush_install);
+    
+    //drush config-set system.theme default adminimal_theme
+    //drush en admin_toolbar adminimal_admin_toolbar config_split memcache session_based_temp_store
   }
 
   function db_export() {
@@ -481,7 +484,7 @@ class RoboFile extends Tasks {
         'path' => '',
       ],
       'memcached' => [
-        'enable' => 0,
+        'enable' => 1,
       ],
       'rsyslog' => [
         'enable' => 0,
