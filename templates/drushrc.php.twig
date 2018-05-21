@@ -1,8 +1,0 @@
-<?php
-
-$options['structure-tables']['common'] = array('{{ drush.sql.tables.structure|join('\', \'')|raw }}');
-$options['skip-tables']['common'] = array('{{ drush.sql.tables.skip|join('\', \'')|raw }}');
-
-$options['shell-aliases']['pull-sql'] = '!drush -y --create-db --structure-tables-key=common --skip-tables-list={{ drush.sql.tables.skip|join(',') }} sql-sync @live @dev && drush -y @dev cr && drush -y @dev dev on';
-$options['shell-aliases']['pull-files'] = '!drush -y rsync @live:%files @dev:%files --mode=rlDzq --chown=www-data:www-data --safe-links --max-size=20M && drush -y rsync @live:%private @dev:%private --mode=rlDzq --chown=www-data:www-data --safe-links --max-size=20M';
-$options['shell-aliases']['pull-all'] = $options['shell-aliases']['pull-sql'] . ' && ' . $options['shell-aliases']['pull-files'];

@@ -359,9 +359,6 @@ class RoboFile extends Tasks {
         'dest' => $this->projectRoot,
         'add2yaml' => TRUE,
       ],
-      'drushrc.php' => [
-        'dest' => $this->projectRoot . '/drush',
-      ],
       'default.site.yml' => [
         'dest' => $this->projectRoot . '/drush/sites',
         'add2yaml' => TRUE,
