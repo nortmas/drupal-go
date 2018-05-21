@@ -1,0 +1,5 @@
+<?php
+
+{% for alias, site in multisite %}
+$sites['{{ alias }}.docker.localhost'] = '{{ site }}';
+{% endfor %}

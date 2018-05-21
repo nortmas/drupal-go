@@ -1,6 +1,8 @@
 <?php
 
-require 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
+require_once 'web/core/includes/bootstrap.inc';
+require_once 'web/core/includes/install.inc';
 
 use Robo\Tasks;
 use DrupalFinder\DrupalFinder;
@@ -15,286 +17,354 @@ use Symfony\Component\Yaml\Yaml;
  */
 class RoboFile extends Tasks {
 
-  function install() {
-    $this->say("Hello I'm going to set up Drupal project for you!");
-    $this->createRequiredFiles();
+  use Boedah\Robo\Task\Drush\loadTasks;
+  use Droath\RoboDockerCompose\Task\loadTasks;
+
+  /** var string */
+  protected $projectRoot;
+  /** var string */
+  protected $drupalRoot;
+  /** var string */
+  protected $defaultSettingsPath;
+  /** var string */
+  protected $config;
+
+  function __construct() {
+    $drupalFinder = new DrupalFinder();
+    $drupalFinder->locateRoot(getcwd());
+    $this->projectRoot = $drupalFinder->getComposerRoot();
+    $this->drupalRoot = $drupalFinder->getDrupalRoot();
+    $this->defaultSettingsPath = $this->drupalRoot . '/sites/default';
+    $this->config = $this->getConfig();
   }
 
   function configure() {
     $this->configureProject();
   }
 
+  function multisite() {
+    $this->setUpMultisite();
+  }
+
+  function install() {
+    $drush_drop = $this->taskDrushStack()->drush('sql-drop')->getCommand();
+    $this->dockerComposeExec($drush_drop);
+
+    $drush_install = $this->taskDrushStack()
+      ->siteName($this->config['project_name'])
+      ->siteMail($this->config['project_name'] . '@example.com')
+      ->locale('en')
+      ->sitesSubdir('default')
+      ->accountMail('admin@example.com')
+      ->accountName('admin')
+      ->accountPass('admin')
+      ->mysqlDbUrl('drupal:drupal@mariadb:3306/drupal')
+      ->disableUpdateStatusModule()
+      ->siteInstall('standard')
+      ->getCommand();
+
+    $this->dockerComposeExec($drush_install);
+  }
+
+  function db_export() {
+    $file_name = 'db/' . date('d.m.Y-h.i.s') . '.sql';
+    $drush_db_exp = $this->taskDrushStack()
+      ->siteAlias('@self')
+      ->drush('sql-dump --structure-tables-key=common > ' . $file_name)
+      ->getCommand();
+    $this->dockerComposeExec($drush_db_exp);
+  }
+
+  function db_import() {
+    // Drop DB
+    $drush_drop = $this->taskDrushStack()->drush('sql-drop')->getCommand();
+    $this->dockerComposeExec($drush_drop);
+
+    // Get last db dump.
+    $file_name = $this->taskExec('ls db/* | sort -k1 -r| head -1')
+      ->interactive(FALSE)
+      ->run()->getMessage();
+    $file_name = trim(preg_replace('/\s+/', ' ', $file_name));
+
+    // Import DB
+    $drush_db_im = $this->taskDrushStack()
+      ->siteAlias('@self')
+      ->drush('sqlc < ' . $file_name)
+      ->getCommand();
+    $this->dockerComposeExec($drush_db_im);
+  }
+
+  function rebuild() {
+    $drush_cc_drush = $this->taskDrushStack()->clearCache('drush')->getCommand();
+    $drush_csim = $this->taskDrushStack()->drush('csim')->getCommand();
+    $drush_updb = $this->taskDrushStack()->drush('updb')->getCommand();
+    $drush_eu = $this->taskDrushStack()->drush('entity-updates')->getCommand();
+
+    $this->dockerComposeExec($drush_cc_drush);
+    $this->dockerComposeExec($drush_csim);
+    $this->taskComposerInstall()->run();
+    $this->dockerComposeExec($drush_updb);
+    $this->dockerComposeExec($drush_csim);
+    $this->dockerComposeExec($drush_eu);
+  }
+
+  function get_db($alias) {
+    $drush_create_db = $this->taskDrushStack()->drush('sql-create')->getCommand();
+    $drush_sync = $this->taskDrushStack()->drush('sql-sync @' . $alias . ' @self')->getCommand();
+    $drush_csim = $this->taskDrushStack()->drush('csim')->getCommand();
+
+    $this->dockerComposeExec($drush_create_db);
+    $this->dockerComposeExec($drush_sync);
+    $this->dockerComposeExec($drush_csim);
+  }
+
+  function get_files($alias) {
+    $drush_sync = $this->taskDrushStack()->drush('rsync @' . $alias . ':%files/ @self:%files')->getCommand();
+    $this->dockerComposeExec($drush_sync);
+  }
+
   /**
-   * Create necessary directories.
+   * Wrapper to execute docker-compose command.
+   *
+   * @param $command string
    */
-  protected function createRequiredFiles() {
-    $fs = new Filesystem();
-    $drupalFinder = new DrupalFinder();
-    $drupalFinder->locateRoot(getcwd());
-    $projectRoot = $drupalFinder->getComposerRoot();
-    $drupalRoot = $drupalFinder->getDrupalRoot();
-
-    $dirs = [
-      'modules',
-      'profiles',
-      'themes',
-    ];
-
-    // Required for unit testing
-    foreach ($dirs as $dir) {
-      if (!$fs->exists($drupalRoot . '/'. $dir)) {
-        $fs->mkdir($drupalRoot . '/'. $dir);
-        $fs->touch($drupalRoot . '/'. $dir . '/.gitkeep');
-      }
-    }
-
-    // Prepare the settings file for installation
-    if (!$fs->exists($drupalRoot . '/sites/default/settings.php') and $fs->exists($drupalRoot . '/sites/default/default.settings.php')) {
-      $fs->copy($drupalRoot . '/sites/default/default.settings.php', $drupalRoot . '/sites/default/settings.php');
-      require_once $drupalRoot . '/core/includes/bootstrap.inc';
-      require_once $drupalRoot . '/core/includes/install.inc';
-      $settings['config_directories'] = [
-        CONFIG_SYNC_DIRECTORY => (object) [
-          'value' => Path::makeRelative($drupalFinder->getComposerRoot() . '/config/sync', $drupalRoot),
-          'required' => TRUE,
-        ],
-      ];
-      drupal_rewrite_settings($settings, $drupalRoot . '/sites/default/settings.php');
-      $fs->chmod($drupalRoot . '/sites/default/settings.php', 0666);
-      $this->say("Create a sites/default/settings.php file with chmod 0666");
-    }
-
-    // Create the files directory with chmod 0777
-    if (!$fs->exists($drupalRoot . '/sites/default/files')) {
-      $oldmask = umask(0);
-      $fs->mkdir($drupalRoot . '/sites/default/files', 0777);
-      umask($oldmask);
-      $this->say("Create a sites/default/files directory with chmod 0777");
-    }
-    // Create the custom directory with chmod 0666
-    if (!$fs->exists($drupalRoot . '/modules/custom')) {
-      $oldmask = umask(0);
-      $fs->mkdir($drupalRoot . '/modules/custom', 0666);
-      umask($oldmask);
-      $this->say("Create a /modules/custom directory with chmod 0666");
-    }
-
-    // Create the patches directory with chmod 0666
-    if (!$fs->exists($projectRoot . '/patches')) {
-      $oldmask = umask(0);
-      $fs->mkdir($projectRoot . '/patches', 0666);
-      umask($oldmask);
-      $this->say("Create a /patches directory with chmod 0666");
-    }
-
-    // Create the custom directory with chmod 0666
-    if (!$fs->exists($drupalRoot . '/themes/custom')) {
-      $oldmask = umask(0);
-      $fs->mkdir($drupalRoot . '/themes/custom', 0666);
-      umask($oldmask);
-      $this->say("Create a /themes/custom directory with chmod 0666");
-    }
-
-    // Create the test directory with chmod 0666
-    if (!$fs->exists($projectRoot . '/test')) {
-      $oldmask = umask(0);
-      $fs->mkdir($projectRoot . '/test', 0666);
-      umask($oldmask);
-      $this->say("Create a /test directory with chmod 0666");
-    }
-
+  protected function dockerComposeExec($command) {
+    $this->taskDockerComposeExecute()->disablePseudoTty()->arg('php')->exec($command)->run();
   }
 
   /**
    * Configure Drupal Project for Docker.
    */
   protected function configureProject() {
+    $dirs = [
+      $this->projectRoot . '/config' => 0,
+      $this->projectRoot . '/config/default' => 1,
+      $this->projectRoot . '/config/local' => 1,
+      $this->projectRoot . '/config/dev' => 1,
+      $this->projectRoot . '/config/stage' => 1,
+      $this->projectRoot . '/config/prod' => 1,
+      $this->projectRoot . '/db' => 1,
+      $this->projectRoot . '/test' => 1,
+      $this->projectRoot . '/patches' => 1,
+      $this->drupalRoot . '/profiles' => 1,
+      $this->drupalRoot . '/modules' => 0,
+      $this->drupalRoot . '/themes' => 0,
+      $this->drupalRoot . '/modules/custom' => 1,
+      $this->drupalRoot . '/modules/contrib' => 1,
+      $this->drupalRoot . '/themes/custom' => 1,
+      $this->drupalRoot . '/themes/contrib' => 1,
+      $this->drupalRoot . '/sites/default/files' => 1,
+    ];
 
-    $fs = new Filesystem();
-    $drupalFinder = new DrupalFinder();
-    $drupalFinder->locateRoot(getcwd());
-    $projectRoot = $drupalFinder->getComposerRoot();
-    $webRoot = $drupalFinder->getDrupalRoot();
-    $settingsPath = $webRoot . '/sites/default';
+    foreach ($dirs as $dir => $gitkeep) {
+      $this->mkDir($dir, $gitkeep);
+    }
 
-    $files = $this->getFiles($projectRoot, $webRoot, $settingsPath);
+    $file_settings = $this->defaultSettingsPath . '/settings.php';
+    $file_def_settings = $this->defaultSettingsPath . '/default.settings.php';
 
-    $twig_loader = new \Twig_Loader_Array([]);
-    $twig = new \Twig_Environment($twig_loader);
-
-    $options = [
-      'project_name' => 'beg',
-      'webRoot' => 'web',
-      'drush' => [
-        'sql' => [
-          'tables' => [
-            'structure' => [
-              'cache',
-              'cache_*',
-              'history',
-              'search_*',
-              'sessions',
-              'watchdog',
-            ],
-            'skip' => [
-              'migration_*',
-            ],
-          ],
-        ],
-      ],
-      'drupal' => [
-        'version' => '8',
-      ],
-      'php' => [
-        'version' => '7.0',
-        'xdebug' => 1,
-      ],
-      'webserver' => [
-        'type' => 'apache',
-      ],
-      'varnish' => [
-        'enable' => 0,
-      ],
-      'redis' => [
-        'version' => '4.0',
-      ],
-      'dbbrowser' => [
-        'type' => 'pma',
-      ],
-      'solr' => [
-        'enable' => 0,
-        'version' => '6.6',
-      ],
-      'node' => [
-        'enable' => 0,
-        'key' => '',
-        'path' => '',
-      ],
-      'memcached' => [
-        'enable' => 0,
-      ],
-      'rsyslog' => [
-        'enable' => 0,
-      ],
-      'athenapdf' => [
-        'enable' => 0,
-        'key' => '',
-      ],
-      'blackfire' => [
-        'enable' => 0,
-        'id' => '',
-        'token' => '',
-      ],
-      'webgrind' => [
-        'enable' => 0,
+    $settings['config_directories'] = [
+      CONFIG_SYNC_DIRECTORY => (object) [
+        'value' => Path::makeRelative($this->projectRoot . '/config/default', $this->drupalRoot),
+        'required' => TRUE,
       ],
     ];
 
-    // Check if SSH auth sockets are supported.
-    $ssh_auth_sock = getenv('SSH_AUTH_SOCK');
-    $options['php']['ssh'] = !empty($ssh_auth_sock);
-    $options['php']['ssh_auth_sock'] = $ssh_auth_sock;
+    // Prepare the settings file for installation
+    $this->makeSettingsFile($file_settings, $file_def_settings, $settings);
 
-    foreach ($files as $template => $def) {
-
-      if (!$fs->exists($def['dest'])) {
-        $fs->mkdir($def['dest']);
-      }
-
-      $twig_loader->setTemplate($template, $template);
-      /** @var \Twig_Environment $twig */
-      $filename = $twig->render($template, $options);
-      $file = $def['dest'] . '/' . $filename;
-
-      if (!$fs->exists($file)) {
-        $twig_loader->setTemplate($filename, file_get_contents($projectRoot . '/scripts/templates/' . $template . '.twig'));
-        $rendered = $twig->render($filename, $options);
-
-        if (!empty($def['add2yaml']) && isset($options[$filename])) {
-          $yaml = Yaml::parse($rendered);
-          $yaml = array_merge_recursive($yaml, $options[$filename]);
-          $rendered = Yaml::dump($yaml, 9, 2);
-        }
-
-        if ($fs->exists($file)) {
-          if (md5_file($file) == md5($rendered)) {
-            continue;
-          }
-          $orig_file = $file . '.orig';
-          if ($fs->exists($orig_file)) {
-            $fs->remove($orig_file);
-          }
-          $fs->rename($file, $orig_file);
-        }
-        file_put_contents($file, $rendered);
-      }
-
-      if (isset($def['link']) && ($def['link'] != $settingsPath)) {
-        $link = $def['link'] . '/' . $filename;
-        if (!$fs->exists($link)) {
-          $rel = substr($fs->makePathRelative($file, $projectRoot . '/' . $link), 3, -1);
-          $fs->symlink($rel, $link);
-        }
-      }
-      $fs->chmod($file, 0664);
-    }
-
-    // Make sure that settings.docker.php gets called from settings.php.
-    $settingsPhpFile = $settingsPath . '/settings.php';
-
-    if ($fs->exists(($settingsPhpFile))) {
-      $settingsPhp = file_get_contents($settingsPhpFile);
-      if (strpos($settingsPhp, 'settings.docker.php') === FALSE) {
-        $settingsPhp .= "\n\nif (file_exists(__DIR__ . '/settings.docker.php')) {\n  include __DIR__ . '/settings.docker.php';\n}\n";
-        file_put_contents($settingsPhpFile, $settingsPhp);
-      }
+    // Add necessary configuration files using prepared templates.
+    foreach ($this->getFiles() as $template => $options) {
+      $this->makeFileTemplate($template, $options);
     }
 
     //$traefik = new Traefik($options['projectname']);
     //$traefik->update();
 
-
-    /*print "<pre>";
-    print_r(getenv('PROJECT_SETTINGS'));
-    die;*/
-
     // Set permissions, see https://wodby.com/stacks/drupal/docs/local/permissions
-    exec('setfacl -dR -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $projectRoot);
-    exec('setfacl -R -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $projectRoot);
+    exec('setfacl -dR -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $this->projectRoot);
+    exec('setfacl -R -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $this->projectRoot);
+  }
+
+  /**
+   * Set Up multisite.
+   */
+  protected function setUpMultisite() {
+
+    if (!empty($this->config['multisite'])) {
+
+      foreach ($this->config['multisite'] as $site_name) {
+
+        $dirs = [
+          $this->drupalRoot . '/config/' . $site_name . '/default' => 1,
+          $this->drupalRoot . '/config/' . $site_name . '/local' => 1,
+          $this->drupalRoot . '/config/' . $site_name . '/dev' => 1,
+          $this->drupalRoot . '/config/' . $site_name . '/stage' => 1,
+          $this->drupalRoot . '/config/' . $site_name . '/prod' => 1,
+          $this->drupalRoot . '/sites/' . $site_name . '/modules' => 0,
+          $this->drupalRoot . '/sites/' . $site_name . '/themes' => 0,
+          $this->drupalRoot . '/sites/' . $site_name . '/modules/custom' => 1,
+          $this->drupalRoot . '/sites/' . $site_name . '/themes/custom' => 1,
+          $this->drupalRoot . '/sites/' . $site_name . '/modules/contrib' => 1,
+          $this->drupalRoot . '/sites/' . $site_name . '/themes/contrib' => 1,
+        ];
+
+        // Create site directory.
+        $this->mkDir($this->drupalRoot . '/sites/' . $site_name);
+
+        // Create all site subdirectories.
+        foreach ($dirs as $dir => $gitkeep) {
+          $this->mkDir($dir, $gitkeep);
+        }
+
+        $file_settings = $this->drupalRoot . '/sites/'. $site_name . '/settings.php';
+        $file_def_settings = $this->defaultSettingsPath . '/default.settings.php';
+
+        $settings['config_directories'] = [
+          CONFIG_SYNC_DIRECTORY => (object) [
+            'value' => Path::makeRelative($this->projectRoot . '/config/' . $site_name . '/default/', $this->drupalRoot),
+            'required' => TRUE,
+          ],
+        ];
+
+        // Create site settings file.
+        $this->makeSettingsFile($file_settings, $file_def_settings, $settings);
+      }
+
+      // Create sites configuration file.
+      $this->makeFileTemplate('sites.php', ['dest' => $this->drupalRoot . '/sites']);
+    }
+  }
+
+  /**
+   * Configure Drupal Project for Docker.
+   *
+   * @param $file_settings
+   * @param $file_def_settings
+   * @param $settings
+   *
+   * @throws \Exception
+   */
+  protected function makeSettingsFile($file_settings, $file_def_settings, $settings) {
+    $fs = new Filesystem();
+    // Prepare the settings file for installation
+    if (!$fs->exists($file_settings) && $fs->exists($file_def_settings)) {
+      $fs->copy($file_def_settings, $file_settings);
+      drupal_rewrite_settings($settings, $file_settings);
+      $fs->chmod($file_settings, 0666);
+      $this->say("Create a ' . $file_settings . ' file with mode 666");
+      // Make sure that settings.docker.php gets called from settings.php.
+      $settings_content = file_get_contents($file_settings);
+      if (strpos($settings_content, 'settings.docker.php') === FALSE) {
+        $relative_path = Path::makeRelative($this->defaultSettingsPath, $this->drupalRoot);
+        $settings_content .= "\nif (file_exists(\$app_root . '/" . $relative_path . "/settings.docker.php')) {\n  include \$app_root . '/" . $relative_path . "/settings.docker.php';\n}\n";
+        file_put_contents($file_settings, $settings_content);
+      }
+    }
+  }
+
+  /**
+   * Create file using prepared templates.
+   *
+   * @param $template
+   * @param $options
+   */
+  protected function makeFileTemplate($template, $options) {
+    $fs = new Filesystem();
+    $twig_loader = new \Twig_Loader_Array([]);
+    $twig = new \Twig_Environment($twig_loader);
+
+    if (!$fs->exists($options['dest'])) {
+      $fs->mkdir($options['dest']);
+    }
+
+    $twig_loader->setTemplate($template, $template);
+    $filename = $twig->render($template, $this->config);
+    $file = $options['dest'] . '/' . $filename;
+
+    if (!$fs->exists($file)) {
+      $twig_loader->setTemplate($filename, file_get_contents($this->projectRoot . '/templates/' . $template . '.twig'));
+      $rendered = $twig->render($filename, $this->config);
+
+      if (!empty($options['add2yaml']) && isset($this->config[$filename])) {
+        $yaml = Yaml::parse($rendered);
+        $yaml = array_merge_recursive($yaml, $this->config[$filename]);
+        $rendered = Yaml::dump($yaml, 9, 2);
+      }
+
+      if ($fs->exists($file)) {
+        if (md5_file($file) == md5($rendered)) {
+          return;
+        }
+        $orig_file = $file . '.orig';
+        if ($fs->exists($orig_file)) {
+          $fs->remove($orig_file);
+        }
+        $fs->rename($file, $orig_file);
+      }
+      file_put_contents($file, $rendered);
+      $this->say("Create a " . $file);
+    }
+
+    if (isset($options['link']) && ($options['link'] != $this->defaultSettingsPath)) {
+      $link = $options['link'] . '/' . $filename;
+      if (!$fs->exists($link)) {
+        $rel = substr($fs->makePathRelative($file, $this->projectRoot . '/' . $link), 3, -1);
+        $fs->symlink($rel, $link);
+      }
+    }
+
+    $fs->chmod($file, 0664);
+  }
+
+  /**
+   * Return configurations.
+   *
+   * @param $dir
+   * @param bool $gitkeep
+   */
+  protected function mkDir($dir, $gitkeep = FALSE) {
+    $fs = new Filesystem();
+    if (!$fs->exists($dir)) {
+      $oldmask = umask(0);
+      $fs->mkdir($dir);
+      umask($oldmask);
+      if ($gitkeep) {
+        $fs->touch($dir . '/.gitkeep');
+      }
+      $this->say("Create a directory " . $dir);
+    }
   }
 
   /**
    * List of files and settings on how to handle them.
    *
-   * @param string $projectRoot
-   *   Name of the project's root directory.
-   * @param string $webRoot
-   *   Name of the web's root directory.
-   * @param string $settingsPath
-   *   Name of the settings directory.
-   *
    * @return array
    *   List of files.
    */
-  protected function getFiles($projectRoot, $webRoot, $settingsPath) {
+  protected function getFiles() {
     return [
       'settings.docker.php' => [
-        'dest' => $settingsPath,
-        'link' => $settingsPath,
+        'dest' => $this->defaultSettingsPath,
+        'link' => $this->defaultSettingsPath,
+      ],
+      'services.docker.yml' => [
+        'dest' => $this->defaultSettingsPath,
+        'link' => $this->defaultSettingsPath,
       ],
       'docker-compose.yml' => [
-        'dest' => $projectRoot,
+        'dest' => $this->projectRoot,
         'add2yaml' => TRUE,
       ],
       'drushrc.php' => [
-        'dest' => $projectRoot . '/drush',
+        'dest' => $this->projectRoot . '/drush',
       ],
       'default.site.yml' => [
-        'dest' => $projectRoot . '/drush/sites',
+        'dest' => $this->projectRoot . '/drush/sites',
         'add2yaml' => TRUE,
       ],
       'drush.yml' => [
-        'dest' => $projectRoot . '/drush',
+        'dest' => $this->projectRoot . '/drush',
         'add2yaml' => TRUE,
       ],
     ];
@@ -329,6 +399,107 @@ class RoboFile extends Tasks {
     return $result;
   }
 
+  /**
+   * Return configurations.
+   */
+  protected function getConfig() {
+    $config = [
+      'project_name' => 'beg',
+      'webRoot' => 'web',
+      'drush' => [
+        'sql' => [
+          'tables' => [
+            'structure' => [
+              'cache',
+              'cache_*',
+              'history',
+              'search_*',
+              'sessions',
+              'watchdog',
+            ],
+            'skip' => [
+              'migration_*',
+            ],
+          ],
+        ],
+        'aliases' => [
+          'dev' => [
+            'host' => '',
+            'user' => '',
+            'root' => '',
+            'uri' => '',
+          ],
+          'stage' => [
+            'host' => '',
+            'user' => '',
+            'root' => '',
+            'uri' => '',
+          ],
+          'prod' => [
+            'host' => '',
+            'user' => '',
+            'root' => '',
+            'uri' => '',
+          ],
+        ]
+      ],
+      'multisite' => [
+        'teko' => 'teko.ch',
+        'gbssg' => 'gbssg.ch',
+        'abbts' => 'abbts.ch',
+        'hftm' => 'hftm.ch',
+        'zbw' => 'zbw.ch',
+        'ibw' => 'ibw.ch',
+        'gibb' => 'gibb.ch',
+        'stfw' => 'stfw.ch',
+        'wiss' => 'wiss.ch',
+        'akad' => 'akad.ch',
+        'sfb' => 'sfb.ch',
+        'bzbuchs' => 'bzbuchs.ch',
+      ],
+      'php' => [
+        'xdebug' => 1,
+      ],
+      'webserver' => [
+        'type' => 'apache',
+      ],
+      'varnish' => [
+        'enable' => 0,
+      ],
+      'dbbrowser' => [
+        'type' => 'adminer',
+      ],
+      'solr' => [
+        'enable' => 0,
+      ],
+      'redis' => [
+        'enable' => 0,
+      ],
+      'node' => [
+        'enable' => 0,
+        'key' => '',
+        'path' => '',
+      ],
+      'memcached' => [
+        'enable' => 0,
+      ],
+      'rsyslog' => [
+        'enable' => 0,
+      ],
+      'athenapdf' => [
+        'enable' => 0,
+        'key' => '',
+      ],
+      'blackfire' => [
+        'enable' => 0,
+        'id' => '',
+        'token' => '',
+      ],
+      'webgrind' => [
+        'enable' => 0,
+      ],
+    ];
+    return $config;
+  }
 
 }
-

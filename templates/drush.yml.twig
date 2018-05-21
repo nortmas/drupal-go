@@ -1,9 +1,8 @@
+# see https://github.com/drush-ops/drush/blob/master/examples/example.drush.yml
 drush:
   paths:
     config:
       - '${env.home}/.drush/config/drush.yml'
-    include:
-      - './drush/contrib'
 options:
   uri: 'http://{{ project_name }}.docker.localhost:8000'
 command:
