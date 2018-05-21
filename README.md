@@ -19,8 +19,8 @@ Run the following commands from the project root folder:
 * `robo db_export` Implement an export of current DB state to the DB folder.
 * `robo db_import` Implement an import of latest DB dump from the DB folder.
 * `robo rebuild` Execute necessary actions after a pull from the repository.
-* `robo get_db` Import DB from the specified environment. Required attribute `alias` (dev,stage,prod)
-* `robo get_files` Import files from the specified environment. Required attribute `alias` (dev,stage,prod)
+* `robo get_db` Import DB from the specified environment. It requires argument `alias` (dev,stage,prod)
+* `robo get_files` Import files from the specified environment. It requires argument `alias` (dev,stage,prod)
 * `robo multisite` Generate directory structure and necessary configuration files for specified domains.
 
 
