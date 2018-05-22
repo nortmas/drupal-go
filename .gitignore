@@ -20,7 +20,7 @@
 /.idea/
 
 # Ignore .env files as they are personal
-#/.env
+/.env
 
 # Ignore linux backup files
 *~
