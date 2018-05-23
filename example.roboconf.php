@@ -1,0 +1,104 @@
+<?php
+
+return [
+  'project_name' => 'Drupal',
+  'project_machine_name' => 'drupal',
+  'include_module_list' => 0,
+  'drush' => [
+    'sql' => [
+      'tables' => [
+        'structure' => [
+          'cache',
+          'cache_*',
+          'history',
+          'search_*',
+          'sessions',
+          'watchdog',
+        ],
+        'skip' => [
+          'migration_*',
+        ],
+      ],
+    ],
+    'aliases' => [
+      'dev' => [
+        'host' => '',
+        'user' => '',
+        'root' => '',
+        'uri' => '',
+      ],
+      'stage' => [
+        'host' => '',
+        'user' => '',
+        'root' => '',
+        'uri' => '',
+      ],
+      'prod' => [
+        'host' => '',
+        'user' => '',
+        'root' => '',
+        'uri' => '',
+      ],
+    ]
+  ],
+  'multisite' => [
+    # Should be in a format 'alias' => 'real production domain'
+    #'subdomain' => 'subdomain.com',
+  ],
+  'mariadb' => [
+    'tag' => '10.2-3.1.3',
+  ],
+  'php' => [
+    'xdebug' => 1,
+    'tag' => '7.1-dev-4.4.2'
+  ],
+  'webserver' => [
+    'type' => 'apache',
+    'nginx_tag' => '8-1.13-4.1.0',
+    'apache_tag' => '2.4-3.0.5',
+  ],
+  'varnish' => [
+    'enable' => 0,
+    'tag' => '4.1-2.4.0'
+  ],
+  'dbbrowser' => [
+    'type' => 'adminer',
+    'adminer_tag' => '4.3-1.1.0',
+  ],
+  'solr' => [
+    'enable' => 0,
+    'tag' => '6.6-2.4.0',
+  ],
+  'redis' => [
+    'enable' => 0,
+    'tag' => '4.0-2.1.5',
+  ],
+  'node' => [
+    'enable' => 0,
+    'key' => '',
+    'path' => '',
+    'tag' => '1.0-2.0.0',
+  ],
+  'memcached' => [
+    'enable' => 0,
+    'tag' => '1.4-2.0.0',
+  ],
+  'rsyslog' => [
+    'enable' => 0,
+    'tag' => 'latest',
+  ],
+  'athenapdf' => [
+    'enable' => 0,
+    'key' => '',
+    'tag' => '2.10.0',
+  ],
+  'webgrind' => [
+    'enable' => 0,
+    'tag' => '1.5-1.3.0',
+  ],
+  'blackfire' => [
+    'enable' => 0,
+    'id' => '',
+    'token' => '',
+  ],
+];
