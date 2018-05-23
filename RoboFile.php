@@ -23,6 +23,8 @@ class RoboFile extends Tasks {
   /** var string */
   protected $projectRoot;
   /** var string */
+  protected $goRoot;
+  /** var string */
   protected $drupalRoot;
   /** var string */
   protected $defaultSettingsPath;
@@ -33,6 +35,7 @@ class RoboFile extends Tasks {
     $drupalFinder = new DrupalFinder();
     $drupalFinder->locateRoot(getcwd());
     $this->projectRoot = $drupalFinder->getComposerRoot();
+    $this->goRoot = $this->projectRoot . '/go';
     $this->drupalRoot = $drupalFinder->getDrupalRoot();
     $this->defaultSettingsPath = $this->drupalRoot . '/sites/default';
     $this->config = $this->getConfig();
@@ -336,7 +339,7 @@ class RoboFile extends Tasks {
     $file = $options['dest'] . '/' . $filename;
 
     if (!$fs->exists($file)) {
-      $twig_loader->setTemplate($filename, file_get_contents($this->projectRoot . '/templates/' . $template . '.twig'));
+      $twig_loader->setTemplate($filename, file_get_contents($this->goRoot . '/templates/' . $template . '.twig'));
       $rendered = $twig->render($filename, $this->config);
 
       if (!empty($options['add2yaml']) && isset($this->config[$filename])) {
@@ -453,12 +456,12 @@ class RoboFile extends Tasks {
    * Return configurations.
    */
   protected function getConfig() {
-    if (!file_exists('roboconf.php') && file_exists('example.roboconf.php')) {
-      $this->taskFilesystemStack()->copy('example.roboconf.php', 'roboconf.php')->run();
+    if (!file_exists($this->goRoot . 'go-conf.php') && file_exists($this->goRoot . 'example.go-conf.php')) {
+      $this->taskFilesystemStack()->copy($this->goRoot . 'example.go-conf.php', $this->goRoot . 'go-conf.php')->run();
     }
 
-    if (file_exists('roboconf.php')) {
-      $config = include 'roboconf.php';
+    if (file_exists($this->goRoot . '/go-conf.php')) {
+      $config = include $this->goRoot . '/go-conf.php';
       return $config;
     }
   }
