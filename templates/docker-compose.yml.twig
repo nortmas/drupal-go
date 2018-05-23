@@ -12,7 +12,7 @@ services:
       - ./db:/docker-entrypoint-initdb.d
 
   php:
-    image: 'wodby/drupal-php:${{ php.tag }}'
+    image: 'wodby/drupal-php:{{ php.tag }}'
     environment:
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
       DB_HOST: mariadb
