@@ -28,10 +28,13 @@ class RoboFile extends Tasks {
   protected $drupalRoot;
   /** var string */
   protected $defaultSettingsPath;
-  /** var string */
+  /** var array */
   protected $config;
+  /** @var \Symfony\Component\Filesystem\Filesystem */
+  protected $fileSystem;
 
   function __construct() {
+    $this->fileSystem = new Filesystem();
     $drupalFinder = new DrupalFinder();
     $drupalFinder->locateRoot(getcwd());
     $this->projectRoot = $drupalFinder->getComposerRoot();
@@ -41,7 +44,7 @@ class RoboFile extends Tasks {
     $this->config = $this->getConfig();
   }
 
-  function global_install() {
+  function go() {
     $this->configureProject();
     $this->install();
 
@@ -71,8 +74,12 @@ class RoboFile extends Tasks {
     $this->dockerComposeExec($drush_en_modules);
   }
 
-  function configure() {
+  function config() {
     $this->configureProject();
+  }
+
+  function reconfig() {
+    $this->recreateConfigFiles();
   }
 
   function multisite() {
@@ -243,6 +250,16 @@ class RoboFile extends Tasks {
   }
 
   /**
+   * Configure Drupal Project for Docker.
+   */
+  protected function recreateConfigFiles() {
+    // Add necessary configuration files using prepared templates.
+    foreach ($this->getFiles() as $template => $options) {
+      $this->makeFileTemplate($template, $options, TRUE);
+    }
+  }
+
+  /**
    * Set Up multisite.
    */
   protected function setUpMultisite() {
@@ -302,12 +319,11 @@ class RoboFile extends Tasks {
    * @throws \Exception
    */
   protected function makeSettingsFile($file_settings, $file_def_settings, $settings) {
-    $fs = new Filesystem();
     // Prepare the settings file for installation
-    if (!$fs->exists($file_settings) && $fs->exists($file_def_settings)) {
-      $fs->copy($file_def_settings, $file_settings);
+    if (!$this->fileSystem->exists($file_settings) && $this->fileSystem->exists($file_def_settings)) {
+      $this->fileSystem->copy($file_def_settings, $file_settings);
       drupal_rewrite_settings($settings, $file_settings);
-      $fs->chmod($file_settings, 0666);
+      $this->fileSystem->chmod($file_settings, 0666);
       $this->say("Create a ' . $file_settings . ' file with mode 666");
       // Make sure that settings.docker.php gets called from settings.php.
       $settings_content = file_get_contents($file_settings);
@@ -324,21 +340,21 @@ class RoboFile extends Tasks {
    *
    * @param $template
    * @param $options
+   * @param $overwrite
    */
-  protected function makeFileTemplate($template, $options) {
-    $fs = new Filesystem();
+  protected function makeFileTemplate($template, $options, $overwrite = FALSE) {
     $twig_loader = new \Twig_Loader_Array([]);
     $twig = new \Twig_Environment($twig_loader);
 
-    if (!$fs->exists($options['dest'])) {
-      $fs->mkdir($options['dest']);
+    if (!$this->fileSystem->exists($options['dest'])) {
+      $this->fileSystem->mkdir($options['dest']);
     }
 
     $twig_loader->setTemplate($template, $template);
     $filename = $twig->render($template, $this->config);
     $file = $options['dest'] . '/' . $filename;
 
-    if (!$fs->exists($file)) {
+    if (!$this->fileSystem->exists($file) || $overwrite) {
       $twig_loader->setTemplate($filename, file_get_contents($this->goRoot . '/templates/' . $template . '.twig'));
       $rendered = $twig->render($filename, $this->config);
 
@@ -348,15 +364,15 @@ class RoboFile extends Tasks {
         $rendered = Yaml::dump($yaml, 9, 2);
       }
 
-      if ($fs->exists($file)) {
+      if ($this->fileSystem->exists($file)) {
         if (md5_file($file) == md5($rendered)) {
           return;
         }
         $orig_file = $file . '.orig';
-        if ($fs->exists($orig_file)) {
-          $fs->remove($orig_file);
+        if ($this->fileSystem->exists($orig_file)) {
+          $this->fileSystem->remove($orig_file);
         }
-        $fs->rename($file, $orig_file);
+        $this->fileSystem->rename($file, $orig_file);
       }
       file_put_contents($file, $rendered);
       $this->say("Create a " . $file);
@@ -364,13 +380,13 @@ class RoboFile extends Tasks {
 
     if (isset($options['link']) && ($options['link'] != $this->defaultSettingsPath)) {
       $link = $options['link'] . '/' . $filename;
-      if (!$fs->exists($link)) {
-        $rel = substr($fs->makePathRelative($file, $this->projectRoot . '/' . $link), 3, -1);
-        $fs->symlink($rel, $link);
+      if (!$this->fileSystem->exists($link)) {
+        $rel = substr($this->fileSystem->makePathRelative($file, $this->projectRoot . '/' . $link), 3, -1);
+        $this->fileSystem->symlink($rel, $link);
       }
     }
 
-    $fs->chmod($file, 0664);
+    $this->fileSystem->chmod($file, 0664);
   }
 
   /**
@@ -380,13 +396,12 @@ class RoboFile extends Tasks {
    * @param bool $gitkeep
    */
   protected function mkDir($dir, $gitkeep = FALSE) {
-    $fs = new Filesystem();
-    if (!$fs->exists($dir)) {
+    if (!$this->fileSystem->exists($dir)) {
       $oldmask = umask(0);
-      $fs->mkdir($dir);
+      $this->fileSystem->mkdir($dir);
       umask($oldmask);
       if ($gitkeep) {
-        $fs->touch($dir . '/.gitkeep');
+        $this->fileSystem->touch($dir . '/.gitkeep');
       }
       $this->say("Create a directory " . $dir);
     }
@@ -456,8 +471,8 @@ class RoboFile extends Tasks {
    * Return configurations.
    */
   protected function getConfig() {
-    if (!file_exists($this->goRoot . 'go-conf.php') && file_exists($this->goRoot . 'example.go-conf.php')) {
-      $this->taskFilesystemStack()->copy($this->goRoot . 'example.go-conf.php', $this->goRoot . 'go-conf.php')->run();
+    if (!file_exists($this->goRoot . '/go-conf.php') && file_exists($this->goRoot . '/example.go-conf.php')) {
+      $this->fileSystem->copy($this->goRoot . '/example.go-conf.php', $this->goRoot . '/go-conf.php');
     }
 
     if (file_exists($this->goRoot . '/go-conf.php')) {
