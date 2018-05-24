@@ -61,17 +61,17 @@ class RoboFile extends Tasks {
     $this->taskComposerConfig()->set('name', $this->config['name'])->run();
     $this->taskComposerConfig()->set('description', 'Drupal 8 project.')->run();
 
-    if ($this->config['include_module_list'] == TRUE) {
-      foreach ($this->getBuildSet() as $name => $version) {
+    if ($this->config['include_basic_modules'] == TRUE) {
+      foreach ($this->getBasicModules() as $name => $version) {
         $this->taskComposerRequire()->dependency($name, $version)->run();
       }
+
+      $drush_set_theme = $this->taskDrushStack()->drush('config-set system.theme default adminimal_theme')->getCommand();
+      $drush_en_modules = $this->taskDrushStack()->drush('en admin_toolbar adminimal_admin_toolbar config_split memcache session_based_temp_store')->getCommand();
+
+      $this->dockerComposeExec($drush_set_theme);
+      $this->dockerComposeExec($drush_en_modules);
     }
-
-    $drush_set_theme = $this->taskDrushStack()->drush('config-set system.theme default adminimal_theme')->getCommand();
-    $drush_en_modules = $this->taskDrushStack()->drush('en admin_toolbar adminimal_admin_toolbar config_split memcache session_based_temp_store')->getCommand();
-
-    $this->dockerComposeExec($drush_set_theme);
-    $this->dockerComposeExec($drush_en_modules);
   }
 
   function conf() {
@@ -485,7 +485,10 @@ class RoboFile extends Tasks {
     }
   }
 
-  protected function getBuildSet() {
+  /**
+   * Return list of basic modules to be included.
+   */
+  protected function getBasicModules() {
     return [
       "drupal/admin_toolbar" => "^1.19",
       "drupal/adminimal_admin_toolbar" => "^1.3",

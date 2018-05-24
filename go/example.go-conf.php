@@ -3,7 +3,7 @@
 return [
   'project_name' => 'Drupal',
   'project_machine_name' => 'drupal',
-  'include_module_list' => 0,
+  'include_basic_modules' => 0,
   'drush' => [
     'sql' => [
       'tables' => [
