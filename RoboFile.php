@@ -74,11 +74,11 @@ class RoboFile extends Tasks {
     $this->dockerComposeExec($drush_en_modules);
   }
 
-  function config() {
+  function conf() {
     $this->configureProject();
   }
 
-  function reconfig() {
+  function reconf() {
     $this->recreateConfigFiles();
   }
 
@@ -253,9 +253,11 @@ class RoboFile extends Tasks {
    * Configure Drupal Project for Docker.
    */
   protected function recreateConfigFiles() {
-    // Add necessary configuration files using prepared templates.
+    $this->io()->caution("This action will overwrite all previously created configs.");
+    $save_origin = $this->ask("Do you want to save backups if they differ from the original ones? Y or N");
+    $save_origin = strtolower($save_origin) == 'y' ? TRUE : FALSE;
     foreach ($this->getFiles() as $template => $options) {
-      $this->makeFileTemplate($template, $options, TRUE);
+      $this->makeFileTemplate($template, $options, TRUE, $save_origin);
     }
   }
 
@@ -340,9 +342,10 @@ class RoboFile extends Tasks {
    *
    * @param $template
    * @param $options
-   * @param $overwrite
+   * @param bool $overwrite
+   * @param bool $save_origin
    */
-  protected function makeFileTemplate($template, $options, $overwrite = FALSE) {
+  protected function makeFileTemplate($template, $options, $overwrite = FALSE, $save_origin = FALSE) {
     $twig_loader = new \Twig_Loader_Array([]);
     $twig = new \Twig_Environment($twig_loader);
 
@@ -364,7 +367,7 @@ class RoboFile extends Tasks {
         $rendered = Yaml::dump($yaml, 9, 2);
       }
 
-      if ($this->fileSystem->exists($file)) {
+      if ($this->fileSystem->exists($file) && $save_origin) {
         if (md5_file($file) == md5($rendered)) {
           return;
         }
@@ -372,6 +375,7 @@ class RoboFile extends Tasks {
         if ($this->fileSystem->exists($orig_file)) {
           $this->fileSystem->remove($orig_file);
         }
+        $this->say("The original file is different so create a backup for" . $orig_file);
         $this->fileSystem->rename($file, $orig_file);
       }
       file_put_contents($file, $rendered);
