@@ -250,7 +250,7 @@ class RoboFile extends Tasks {
   }
 
   /**
-   * Configure Drupal Project for Docker.
+   * Recreate config files.
    */
   protected function recreateConfigFiles() {
     $this->io()->caution("This action will overwrite all previously created configs.");
