@@ -45,37 +45,31 @@ class RoboFile extends Tasks {
   }
 
   function go() {
-    $this->configureProject();
-    $this->install();
-
     $this->getConfig();
+    $this->configureProject(TRUE);
 
-    $remove_lines = [
-      4 => 'homepage',
-      5 => 'type',
-      6 => 'license',
-    ];
+    $this->taskDockerComposeUp()
+      ->detachedMode()
+      ->removeOrphans()
+      ->run();
 
-    $this->removeLines('composer.json', $remove_lines);
-
-    $this->taskComposerConfig()->set('name', $this->config['name'])->run();
-    $this->taskComposerConfig()->set('description', 'Drupal 8 project.')->run();
+    $this->install();
+    $this->prepareComposerJson();
 
     if ($this->config['include_basic_modules'] == TRUE) {
-      foreach ($this->getBasicModules() as $name => $version) {
-        $this->taskComposerRequire()->dependency($name, $version)->run();
-      }
-
-      $drush_set_theme = $this->taskDrushStack()->drush('config-set system.theme default adminimal_theme')->getCommand();
-      $drush_en_modules = $this->taskDrushStack()->drush('en admin_toolbar adminimal_admin_toolbar config_split memcache session_based_temp_store')->getCommand();
-
-      $this->dockerComposeExec($drush_set_theme);
-      $this->dockerComposeExec($drush_en_modules);
+      $this->installBasicModules();
+    }
+    if ($this->config['memcached']['enable'] == TRUE) {
+      $this->setUpMemcache();
     }
   }
 
   function conf() {
     $this->configureProject();
+  }
+
+  function mem() {
+    $this->setUpMemcache();
   }
 
   function reconf() {
@@ -173,32 +167,13 @@ class RoboFile extends Tasks {
   }
 
   /**
-   * Removes specified lines containing string form the file.
-   *
-   * @param $file
-   * @param $remove_lines array
-   */
-  protected function removeLines($file, $remove_lines) {
-    $lines_array = [];
-    $data = file_get_contents($file);
-    $lines = explode(PHP_EOL, $data);
-    $line_no = 1;
-    foreach($lines as $line) {
-      $lines_array[$line_no] = $line;
-      $line_no++;
-    }
-    foreach ($remove_lines as $line_num => $line_val) {
-      if (strstr($lines_array[$line_num], $line_val)) {
-        unset($lines_array[$line_num]);
-      }
-    }
-    file_put_contents($file, implode("\n", $lines_array));
-  }
-
-  /**
    * Configure Drupal Project for Docker.
+   *
+   * @param bool $ovewrite
+   *
+   * @throws \Exception
    */
-  protected function configureProject() {
+  protected function configureProject($ovewrite = FALSE) {
     $dirs = [
       $this->projectRoot . '/config' => 0,
       $this->projectRoot . '/config/default' => 1,
@@ -238,7 +213,7 @@ class RoboFile extends Tasks {
 
     // Add necessary configuration files using prepared templates.
     foreach ($this->getFiles() as $template => $options) {
-      $this->makeFileTemplate($template, $options);
+      $this->makeFileTemplate($template, $options, $ovewrite);
     }
 
     //$traefik = new Traefik($options['projectname']);
@@ -412,6 +387,43 @@ class RoboFile extends Tasks {
   }
 
   /**
+   * Prepare composer.json for the project.
+   */
+  protected function prepareComposerJson() {
+    $remove_lines = [
+      4 => 'homepage',
+      5 => 'type',
+      6 => 'license',
+    ];
+    $this->removeLines('composer.json', $remove_lines);
+    $this->taskComposerConfig()->set('name', $this->config['project_name'])->run();
+    $this->taskComposerConfig()->set('description', 'Drupal 8 project.')->run();
+  }
+
+  /**
+   * Removes specified lines containing string form the file.
+   *
+   * @param $file
+   * @param $remove_lines array
+   */
+  protected function removeLines($file, $remove_lines) {
+    $lines_array = [];
+    $data = file_get_contents($file);
+    $lines = explode(PHP_EOL, $data);
+    $line_no = 1;
+    foreach($lines as $line) {
+      $lines_array[$line_no] = $line;
+      $line_no++;
+    }
+    foreach ($remove_lines as $line_num => $line_val) {
+      if (strstr($lines_array[$line_num], $line_val)) {
+        unset($lines_array[$line_num]);
+      }
+    }
+    file_put_contents($file, implode("\n", $lines_array));
+  }
+
+  /**
    * List of files and settings on how to handle them.
    *
    * @return array
@@ -443,35 +455,6 @@ class RoboFile extends Tasks {
   }
 
   /**
-   * Deeply merges arrays. Borrowed from drupal.org/project/core.
-   *
-   * @param array $arrays
-   *   An array of array that will be merged.
-   * @param bool $preserve_integer_keys
-   *   Whether to preserve integer keys.
-   *
-   * @return array
-   *   The merged array.
-   */
-  public static function mergeDeepArray(array $arrays, $preserve_integer_keys = FALSE) {
-    $result = [];
-    foreach ($arrays as $array) {
-      foreach ($array as $key => $value) {
-        if (is_int($key) && !$preserve_integer_keys) {
-          $result[] = $value;
-        }
-        elseif (isset($result[$key]) && is_array($result[$key]) && is_array($value)) {
-          $result[$key] = self::mergeDeepArray([$result[$key], $value], $preserve_integer_keys);
-        }
-        else {
-          $result[$key] = $value;
-        }
-      }
-    }
-    return $result;
-  }
-
-  /**
    * Return configurations.
    */
   protected function getConfig() {
@@ -486,20 +469,49 @@ class RoboFile extends Tasks {
   }
 
   /**
-   * Return list of basic modules to be included.
+   * Set up memcache.
    */
-  protected function getBasicModules() {
-    return [
+  protected function setUpMemcache() {
+    $this->taskComposerRequire()->dependency("drupal/memcache", "^2.0")->run();
+    $drush_en_memcache = $this->taskDrushStack()->drush('en memcache')->getCommand();
+    $this->dockerComposeExec($drush_en_memcache);
+
+    $file_settings = $this->defaultSettingsPath . '/settings.docker.php';
+
+    $append = "\n/**\n* Memcached configs.\n*/\n";
+    $append .= "\$settings['memcache']['servers'] = ['127.0.0.1:11211' => 'default'];\n";
+    $append .= "\$settings['memcache']['bins'] = ['default' => 'default'];\n";
+    $append .= "\$settings['memcache']['key_prefix'] = '';\n";
+    $append .= "\$settings['cache']['default'] = 'cache.backend.memcache';\n";
+    $append .= "\$settings['cache']['bins']['render'] = 'cache.backend.memcache';\n";
+
+    $this->fileSystem->appendToFile($file_settings, $append);
+  }
+
+  /**
+   * Install basic modules.
+   */
+  protected function installBasicModules() {
+    $modules = [
       "drupal/admin_toolbar" => "^1.19",
       "drupal/adminimal_admin_toolbar" => "^1.3",
       "drupal/adminimal_theme" => "^1.3",
       "drupal/config_split" => "^1.3",
       "drupal/devel" => "^1.0",
       "drupal/environment_indicator" => "^3.3",
-      "drupal/memcache" => "^2.0",
       "drupal/custom_configurations" => "dev-1.x",
       "drupal/session_based_temp_store" => "dev-1.x",
     ];
+
+    foreach ($modules as $name => $version) {
+      $this->taskComposerRequire()->dependency($name, $version)->run();
+    }
+
+    $drush_set_theme = $this->taskDrushStack()->drush('config-set system.theme default adminimal_theme')->getCommand();
+    $drush_en_modules = $this->taskDrushStack()->drush('en admin_toolbar adminimal_admin_toolbar config_split session_based_temp_store')->getCommand();
+
+    $this->dockerComposeExec($drush_set_theme);
+    $this->dockerComposeExec($drush_en_modules);
   }
 
 }

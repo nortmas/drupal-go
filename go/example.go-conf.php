@@ -1,8 +1,8 @@
 <?php
 
 return [
-  'project_name' => 'Drupal',
-  'project_machine_name' => 'drupal',
+  'project_name' => 'Drupal Go',
+  'project_machine_name' => 'dgo',
   'include_basic_modules' => 0,
   'drush' => [
     'sql' => [
