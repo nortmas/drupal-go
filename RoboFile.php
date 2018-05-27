@@ -103,7 +103,6 @@ class RoboFile extends Tasks {
 
     $this->dockerComposeExec($drush_install);
     $this->updateSettingsFile();
-    $this->AddHtaccess();
   }
 
   function db_export() {
@@ -198,11 +197,14 @@ class RoboFile extends Tasks {
       $this->drupalRoot . '/themes/custom' => 1,
       $this->drupalRoot . '/themes/contrib' => 1,
       $this->drupalRoot . '/sites/default/files' => 1,
+      $this->drupalRoot . '/sites/default/files/tmp' => 0,
     ];
 
     foreach ($dirs as $dir => $gitkeep) {
       $this->mkDir($dir, $gitkeep);
     }
+
+    $this->AddHtaccess();
 
     // Add necessary configuration files using prepared templates.
     foreach ($this->getFiles() as $template => $options) {
