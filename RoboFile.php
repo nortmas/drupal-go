@@ -55,7 +55,6 @@ class RoboFile extends Tasks {
 
     $this->taskDockerComposeUp()
       ->detachedMode()
-      ->removeOrphans()
       ->run();
 
     $this->install();
@@ -73,14 +72,13 @@ class RoboFile extends Tasks {
   }
 
   function install() {
-    $config_dir = Path::makeRelative($this->projectRoot . '/config/default', $this->drupalRoot);
+    $this->createSettingsFile();
 
     $drush_install = $this->taskDrushStack()
       ->siteName($this->config['project_name'])
       ->siteMail($this->config['project_machine_name'] . '@example.com')
       ->locale('en')
       ->sitesSubdir('default')
-      ->configDir($config_dir)
       ->accountMail('admin@example.com')
       ->accountName('admin')
       ->accountPass('admin')
@@ -90,7 +88,6 @@ class RoboFile extends Tasks {
       ->getCommand();
 
     $this->dockerComposeExec($drush_install);
-    $this->updateSettingsFile();
   }
 
   function conf() {
@@ -268,8 +265,8 @@ class RoboFile extends Tasks {
           ],
         ];
 
-        // Create site settings file.
-        $this->updateSettingsFile($file_settings, $file_def_settings, $settings);
+        $this->createSettingsFile($file_settings, $file_def_settings, $settings);
+        $this->updateSettingsFile($file_settings);
       }
 
       // Create sites configuration file.
@@ -278,13 +275,13 @@ class RoboFile extends Tasks {
   }
 
   /**
-   * Configure Drupal Project for Docker.
+   * Create settings.php
    *
    * @param $file_settings
    * @param $file_def_settings
    * @param $settings
    */
-  protected function updateSettingsFile($file_settings = NULL, $file_def_settings = NULL, $settings = NULL) {
+  protected function createSettingsFile($file_settings = NULL, $file_def_settings = NULL, $settings = NULL) {
     $file_settings = $file_settings ?: $this->defaultSettingsPath . '/settings.php';
     $file_def_settings = $file_def_settings ?: $this->defaultSettingsPath . '/default.settings.php';
 
@@ -295,15 +292,24 @@ class RoboFile extends Tasks {
           'required' => TRUE,
         ],
       ];
-
     }
 
     // Prepare the settings file for installation
     if (!$this->fileSystem->exists($file_settings) && $this->fileSystem->exists($file_def_settings)) {
       $this->fileSystem->copy($file_def_settings, $file_settings);
       $this->fileSystem->chmod($file_settings, 0666);
+      drupal_rewrite_settings($settings, $file_settings);
       $this->say("Create a ' . $file_settings . ' file with mode 666");
     }
+  }
+
+  /**
+   * Update settings.php
+   *
+   * @param $file_settings
+   */
+  protected function updateSettingsFile($file_settings = NULL) {
+    $file_settings = $file_settings ?: $this->defaultSettingsPath . '/settings.php';
 
     // Make sure that settings.docker.php gets called from settings.php.
     if ($this->fileSystem->exists($file_settings)) {
@@ -322,7 +328,6 @@ class RoboFile extends Tasks {
         $append = "\nif (file_exists(\$app_root . '/" . $relative_path . "/settings.docker.php')) {\n";
         $append .= "\tinclude \$app_root . '/" . $relative_path . "/settings.docker.php';\n";
         $append .= "}\n";
-        drupal_rewrite_settings($settings, $file_settings);
         $this->fileSystem->appendToFile($file_settings, $append);
         $this->fileSystem->chmod($file_settings, 0444);
         $this->fileSystem->chmod($this->defaultSettingsPath, 0555);
@@ -387,7 +392,7 @@ class RoboFile extends Tasks {
   }
 
   /**
-   * Return configurations.
+   * Create directory.
    *
    * @param $dir
    * @param int $mode
