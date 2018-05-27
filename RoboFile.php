@@ -69,7 +69,7 @@ class RoboFile extends Tasks {
       $this->setUpMemcache();
     }
 
-    //$this->removeNeedlessModules();
+    $this->removeNeedlessModules();
   }
 
   function install() {
@@ -86,7 +86,7 @@ class RoboFile extends Tasks {
       ->accountPass('admin')
       ->mysqlDbUrl('drupal:drupal@mariadb:3306/drupal')
       ->disableUpdateStatusModule()
-      ->siteInstall('minimal')
+      ->siteInstall('standard')
       ->getCommand();
 
     $this->dockerComposeExec($drush_install);
