@@ -20,7 +20,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 ## Installation
 The simplest way is to run the following commands from the project root folder:
 * `composer install && robo go`
-Or you can configure your project before. To do so you need to copy `example.go-conf.php` located in the `go` folder and paste it to the same place with name `go-conf.php`. Implement changes which meet your needs and run the previous command.
+* Or you can configure your project before. To do so you need to copy `example.go-conf.php` located in the `go` folder and paste it to the same place with name `go-conf.php`. Implement changes which meet your needs and run the previous command.
 
 ## Understanding Go configurations
 * `project_name` - will be used for the drupal site name and composer.json project name.
