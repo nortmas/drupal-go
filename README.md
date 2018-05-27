@@ -24,11 +24,11 @@ The simplest way is to run the following commands from the project root folder:
 You can also configure your project beforehand. To do so you need to copy `example.go-conf.php` located in the `go` folder and paste it to the same place with name `go-conf.php`. Implement changes which meet your needs and run the previous command.
 
 ## Understanding Go configurations
-* `project_name` - will be used for the drupal site name and composer.json project name.
-* `project_machine_name` - will be used for differnet needs to unify some configurations also will be used as a url prefix.
-* `include_basic_modules` - will include the set of prepared modules and enable them after installation.
-* `drush` - used to configure drush aliases and other useful drush adjustments.
-* `multisite` - you can specify the array of needed domains to create the folder structure automatically.
+* `project_name` - Will be used for the drupal site name and composer.json project name.
+* `project_machine_name` - Will be used for differnet needs to unify some configurations also will be used as a url prefix.
+* `include_basic_modules` - Will include the set of prepared modules and enable them after installation.
+* `drush` - Used to configure drush aliases and other useful drush adjustments.
+* `multisite` - You can specify the array of needed domains to create the folder structure automatically.
 * All other configurations are related to the [docker4drupal](https://github.com/wodby/docker4drupal)
 
 FYI: If you set `memcached` to be enabled, it will also enable memcache drupal module and implement appropriate configurations.
