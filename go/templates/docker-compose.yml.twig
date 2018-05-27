@@ -70,7 +70,7 @@ services:
       {% if multisite is not empty %}
       traefik.frontend.rule: 'HostRegexp:{subdomain:[a-z]+}.docker.localhost'
       {% else %}
-      traefik.frontend.rule: 'Host:{{ project_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:{{ project_machine_name }}.docker.localhost'
       {% endif %}
 {% if varnish.enable %}
 

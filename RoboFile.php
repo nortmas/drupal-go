@@ -44,6 +44,10 @@ class RoboFile extends Tasks {
     $this->config = $this->getConfig();
   }
 
+  function test() {
+    $this->setUpMemcache();
+  }
+
   function go() {
     $this->getConfig();
     $this->configureProject(TRUE);
@@ -477,15 +481,24 @@ class RoboFile extends Tasks {
     $this->dockerComposeExec($drush_en_memcache);
 
     $file_settings = $this->defaultSettingsPath . '/settings.docker.php';
+    $settings_content = file_get_contents($file_settings);
 
-    $append = "\n/**\n* Memcached configs.\n*/\n";
-    $append .= "\$settings['memcache']['servers'] = ['127.0.0.1:11211' => 'default'];\n";
-    $append .= "\$settings['memcache']['bins'] = ['default' => 'default'];\n";
-    $append .= "\$settings['memcache']['key_prefix'] = '';\n";
-    $append .= "\$settings['cache']['default'] = 'cache.backend.memcache';\n";
-    $append .= "\$settings['cache']['bins']['render'] = 'cache.backend.memcache';\n";
+    if (strpos($settings_content, 'Memcached configs.') === FALSE) {
 
-    $this->fileSystem->appendToFile($file_settings, $append);
+      if (!is_writable($this->defaultSettingsPath)) {
+        $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
+      }
+
+      $append = "\n/**\n* Memcached configs.\n*/\n";
+      $append .= "\$settings['memcache']['servers'] = ['127.0.0.1:11211' => 'default'];\n";
+      $append .= "\$settings['memcache']['bins'] = ['default' => 'default'];\n";
+      $append .= "\$settings['memcache']['key_prefix'] = '';\n";
+      $append .= "\$settings['cache']['default'] = 'cache.backend.memcache';\n";
+      $append .= "\$settings['cache']['bins']['render'] = 'cache.backend.memcache';\n";
+
+      $this->fileSystem->appendToFile($file_settings, $append);
+      $this->fileSystem->chmod($this->defaultSettingsPath, 0555);
+    }
   }
 
   /**
