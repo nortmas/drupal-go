@@ -5,6 +5,7 @@ require_once 'web/core/includes/bootstrap.inc';
 require_once 'web/core/includes/install.inc';
 
 use Robo\Tasks;
+use Drupal\Component\PhpStorage\FileStorage;
 use DrupalFinder\DrupalFinder;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\PathUtil\Path;
@@ -45,7 +46,7 @@ class RoboFile extends Tasks {
   }
 
   function test() {
-    $this->setUpMemcache();
+    $this->AddHtaccess();
   }
 
   function go() {
@@ -63,17 +64,16 @@ class RoboFile extends Tasks {
     if ($this->config['include_basic_modules'] == TRUE) {
       $this->installBasicModules();
     }
+
     if ($this->config['memcached']['enable'] == TRUE) {
       $this->setUpMemcache();
     }
+
+    $this->removeNeedlessModules();
   }
 
   function conf() {
     $this->configureProject();
-  }
-
-  function mem() {
-    $this->setUpMemcache();
   }
 
   function reconf() {
@@ -85,14 +85,14 @@ class RoboFile extends Tasks {
   }
 
   function install() {
-    $drush_drop = $this->taskDrushStack()->drush('sql-drop')->getCommand();
-    $this->dockerComposeExec($drush_drop);
+    $config_dir = Path::makeRelative($this->projectRoot . '/config/default', $this->drupalRoot);
 
     $drush_install = $this->taskDrushStack()
       ->siteName($this->config['project_name'])
       ->siteMail($this->config['project_machine_name'] . '@example.com')
       ->locale('en')
       ->sitesSubdir('default')
+      ->configDir($config_dir)
       ->accountMail('admin@example.com')
       ->accountName('admin')
       ->accountPass('admin')
@@ -102,6 +102,8 @@ class RoboFile extends Tasks {
       ->getCommand();
 
     $this->dockerComposeExec($drush_install);
+    $this->updateSettingsFile();
+    $this->AddHtaccess();
   }
 
   function db_export() {
@@ -202,26 +204,10 @@ class RoboFile extends Tasks {
       $this->mkDir($dir, $gitkeep);
     }
 
-    $file_settings = $this->defaultSettingsPath . '/settings.php';
-    $file_def_settings = $this->defaultSettingsPath . '/default.settings.php';
-
-    $settings['config_directories'] = [
-      CONFIG_SYNC_DIRECTORY => (object) [
-        'value' => Path::makeRelative($this->projectRoot . '/config/default', $this->drupalRoot),
-        'required' => TRUE,
-      ],
-    ];
-
-    // Prepare the settings file for installation
-    $this->makeSettingsFile($file_settings, $file_def_settings, $settings);
-
     // Add necessary configuration files using prepared templates.
     foreach ($this->getFiles() as $template => $options) {
       $this->makeFileTemplate($template, $options, $ovewrite);
     }
-
-    //$traefik = new Traefik($options['projectname']);
-    //$traefik->update();
 
     // Set permissions, see https://wodby.com/stacks/drupal/docs/local/permissions
     exec('setfacl -dR -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $this->projectRoot);
@@ -282,7 +268,7 @@ class RoboFile extends Tasks {
         ];
 
         // Create site settings file.
-        $this->makeSettingsFile($file_settings, $file_def_settings, $settings);
+        $this->updateSettingsFile($file_settings, $file_def_settings, $settings);
       }
 
       // Create sites configuration file.
@@ -296,22 +282,49 @@ class RoboFile extends Tasks {
    * @param $file_settings
    * @param $file_def_settings
    * @param $settings
-   *
-   * @throws \Exception
    */
-  protected function makeSettingsFile($file_settings, $file_def_settings, $settings) {
+  protected function updateSettingsFile($file_settings = NULL, $file_def_settings = NULL, $settings = NULL) {
+    $file_settings = $file_settings ?: $this->defaultSettingsPath . '/settings.php';
+    $file_def_settings = $file_def_settings ?: $this->defaultSettingsPath . '/default.settings.php';
+
+    if (!$settings) {
+      $settings['config_directories'] = [
+        CONFIG_SYNC_DIRECTORY => (object) [
+          'value' => Path::makeRelative($this->projectRoot . '/config/default', $this->drupalRoot),
+          'required' => TRUE,
+        ],
+      ];
+
+    }
+
     // Prepare the settings file for installation
     if (!$this->fileSystem->exists($file_settings) && $this->fileSystem->exists($file_def_settings)) {
       $this->fileSystem->copy($file_def_settings, $file_settings);
-      drupal_rewrite_settings($settings, $file_settings);
       $this->fileSystem->chmod($file_settings, 0666);
       $this->say("Create a ' . $file_settings . ' file with mode 666");
-      // Make sure that settings.docker.php gets called from settings.php.
+    }
+
+    // Make sure that settings.docker.php gets called from settings.php.
+    if ($this->fileSystem->exists($file_settings)) {
       $settings_content = file_get_contents($file_settings);
       if (strpos($settings_content, 'settings.docker.php') === FALSE) {
+
+        if (!is_writable($this->defaultSettingsPath)) {
+          $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
+        }
+
+        if (!is_writable($file_settings)) {
+          $this->fileSystem->chmod($file_settings, 0664);
+        }
+
         $relative_path = Path::makeRelative($this->defaultSettingsPath, $this->drupalRoot);
-        $settings_content .= "\nif (file_exists(\$app_root . '/" . $relative_path . "/settings.docker.php')) {\n  include \$app_root . '/" . $relative_path . "/settings.docker.php';\n}\n";
-        file_put_contents($file_settings, $settings_content);
+        $append = "\nif (file_exists(\$app_root . '/" . $relative_path . "/settings.docker.php')) {\n";
+        $append .= "\tinclude \$app_root . '/" . $relative_path . "/settings.docker.php';\n";
+        $append .= "}\n";
+        drupal_rewrite_settings($settings, $file_settings);
+        $this->fileSystem->appendToFile($file_settings, $append);
+        $this->fileSystem->chmod($file_settings, 0444);
+        $this->fileSystem->chmod($this->defaultSettingsPath, 0555);
       }
     }
   }
@@ -498,6 +511,7 @@ class RoboFile extends Tasks {
 
       $this->fileSystem->appendToFile($file_settings, $append);
       $this->fileSystem->chmod($this->defaultSettingsPath, 0555);
+      $this->say('Memcached configs have been added.');
     }
   }
 
@@ -520,11 +534,35 @@ class RoboFile extends Tasks {
       $this->taskComposerRequire()->dependency($name, $version)->run();
     }
 
-    $drush_set_theme = $this->taskDrushStack()->drush('config-set system.theme default adminimal_theme')->getCommand();
-    $drush_en_modules = $this->taskDrushStack()->drush('en admin_toolbar adminimal_admin_toolbar config_split session_based_temp_store')->getCommand();
+    $drush_en_theme = $this->taskDrushStack()->drush('theme:enable adminimal_theme')->getCommand();
+    $drush_set_theme = $this->taskDrushStack()->drush('cset system.theme admin adminimal_theme')->getCommand();
+    $drush_en_modules = $this->taskDrushStack()->drush('en devel admin_toolbar admin_toolbar_tools adminimal_admin_toolbar config_split session_based_temp_store')->getCommand();
 
+    $this->dockerComposeExec($drush_en_theme);
     $this->dockerComposeExec($drush_set_theme);
     $this->dockerComposeExec($drush_en_modules);
+  }
+
+  /**
+   * Remove needless modules.
+   */
+  protected function removeNeedlessModules() {
+    $drush_pmu = $this->taskDrushStack()->drush('pmu color help history quickedit tour update search')->getCommand();
+    $this->dockerComposeExec($drush_pmu);
+  }
+
+  /**
+   * Add htaccess.
+   *
+   * @param bool $private
+   */
+  protected function AddHtaccess($private = FALSE) {
+    $directory = $this->defaultSettingsPath . '/files/tmp';
+    $htaccess_path = $directory . '/.htaccess';
+    if (!file_exists($htaccess_path) && is_writable($directory)) {
+      $htaccess_lines = FileStorage::htaccessLines($private);
+      file_put_contents($htaccess_path, $htaccess_lines);
+    }
   }
 
 }
