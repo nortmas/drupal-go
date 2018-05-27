@@ -46,7 +46,7 @@ class RoboFile extends Tasks {
   }
 
   function test() {
-    $this->AddHtaccess();
+
   }
 
   function go() {
@@ -69,19 +69,7 @@ class RoboFile extends Tasks {
       $this->setUpMemcache();
     }
 
-    $this->removeNeedlessModules();
-  }
-
-  function conf() {
-    $this->configureProject();
-  }
-
-  function reconf() {
-    $this->recreateConfigFiles();
-  }
-
-  function multisite() {
-    $this->setUpMultisite();
+    //$this->removeNeedlessModules();
   }
 
   function install() {
@@ -98,11 +86,23 @@ class RoboFile extends Tasks {
       ->accountPass('admin')
       ->mysqlDbUrl('drupal:drupal@mariadb:3306/drupal')
       ->disableUpdateStatusModule()
-      ->siteInstall('standard')
+      ->siteInstall('minimal')
       ->getCommand();
 
     $this->dockerComposeExec($drush_install);
     $this->updateSettingsFile();
+  }
+
+  function conf() {
+    $this->configureProject();
+  }
+
+  function reconf() {
+    $this->recreateConfigFiles();
+  }
+
+  function multisite() {
+    $this->setUpMultisite();
   }
 
   function db_export() {
@@ -180,6 +180,7 @@ class RoboFile extends Tasks {
    */
   protected function configureProject($ovewrite = FALSE) {
     $dirs = [
+      $this->projectRoot . '/private' => 3,
       $this->projectRoot . '/config' => 0,
       $this->projectRoot . '/config/default' => 1,
       $this->projectRoot . '/config/local' => 1,
@@ -197,14 +198,12 @@ class RoboFile extends Tasks {
       $this->drupalRoot . '/themes/custom' => 1,
       $this->drupalRoot . '/themes/contrib' => 1,
       $this->drupalRoot . '/sites/default/files' => 1,
-      $this->drupalRoot . '/sites/default/files/tmp' => 0,
+      $this->drupalRoot . '/sites/default/files/tmp' => 2,
     ];
 
-    foreach ($dirs as $dir => $gitkeep) {
-      $this->mkDir($dir, $gitkeep);
+    foreach ($dirs as $dir => $mode) {
+      $this->mkDir($dir, $mode);
     }
-
-    $this->AddHtaccess();
 
     // Add necessary configuration files using prepared templates.
     foreach ($this->getFiles() as $template => $options) {
@@ -255,8 +254,8 @@ class RoboFile extends Tasks {
         $this->mkDir($this->drupalRoot . '/sites/' . $site_name);
 
         // Create all site subdirectories.
-        foreach ($dirs as $dir => $gitkeep) {
-          $this->mkDir($dir, $gitkeep);
+        foreach ($dirs as $dir => $mode) {
+          $this->mkDir($dir, $mode);
         }
 
         $file_settings = $this->drupalRoot . '/sites/'. $site_name . '/settings.php';
@@ -391,17 +390,39 @@ class RoboFile extends Tasks {
    * Return configurations.
    *
    * @param $dir
-   * @param bool $gitkeep
+   * @param int $mode
    */
-  protected function mkDir($dir, $gitkeep = FALSE) {
+  protected function mkDir($dir, $mode = 0) {
     if (!$this->fileSystem->exists($dir)) {
       $oldmask = umask(0);
       $this->fileSystem->mkdir($dir);
       umask($oldmask);
-      if ($gitkeep) {
-        $this->fileSystem->touch($dir . '/.gitkeep');
+      switch ($mode) {
+        case 1:
+          $this->fileSystem->touch($dir . '/.gitkeep');
+          break;
+        case 2:
+          $this->addHtaccess($dir);
+          break;
+        case 3:
+          $this->addHtaccess($dir, TRUE);
+          break;
       }
       $this->say("Create a directory " . $dir);
+    }
+  }
+
+  /**
+   * Add htaccess.
+   *
+   * @param $dir
+   * @param bool $private
+   */
+  protected function addHtaccess($dir, $private = FALSE) {
+    $htaccess_path = $dir . '/.htaccess';
+    if (!file_exists($htaccess_path) && is_writable($dir)) {
+      $htaccess_lines = FileStorage::htaccessLines($private);
+      file_put_contents($htaccess_path, $htaccess_lines);
     }
   }
 
@@ -551,20 +572,6 @@ class RoboFile extends Tasks {
   protected function removeNeedlessModules() {
     $drush_pmu = $this->taskDrushStack()->drush('pmu color help history quickedit tour update search')->getCommand();
     $this->dockerComposeExec($drush_pmu);
-  }
-
-  /**
-   * Add htaccess.
-   *
-   * @param bool $private
-   */
-  protected function AddHtaccess($private = FALSE) {
-    $directory = $this->defaultSettingsPath . '/files/tmp';
-    $htaccess_path = $directory . '/.htaccess';
-    if (!file_exists($htaccess_path) && is_writable($directory)) {
-      $htaccess_lines = FileStorage::htaccessLines($private);
-      file_put_contents($htaccess_path, $htaccess_lines);
-    }
   }
 
 }
