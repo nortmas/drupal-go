@@ -106,7 +106,7 @@ class RoboFile extends Tasks {
     $file_name = 'db/' . date('d.m.Y-h.i.s') . '.sql';
     $drush_db_exp = $this->taskDrushStack()
       ->siteAlias('@self')
-      ->drush('sql-dump --structure-tables-key=common > ' . $file_name)
+      ->drush('sql-dump --gzip --structure-tables-key=common --result-file=' . $file_name)
       ->getCommand();
     $this->dockerComposeExec($drush_db_exp);
   }
@@ -123,11 +123,15 @@ class RoboFile extends Tasks {
     $file_name = trim(preg_replace('/\s+/', ' ', $file_name));
 
     // Import DB
-    $drush_db_im = $this->taskDrushStack()
-      ->siteAlias('@self')
-      ->drush('sqlc < ' . $file_name)
-      ->getCommand();
-    $this->dockerComposeExec($drush_db_im);
+    $this->taskExec('gunzip -c ' . $file_name . ' | drush @self sqlc')
+      ->interactive(FALSE)
+      ->run()
+    
+    #$drush_db_im = $this->taskDrushStack()
+    #  ->siteAlias('@self')
+    #  ->drush('sqlc < ' . $file_name)
+    #  ->getCommand();
+    #$this->dockerComposeExec($drush_db_im);
   }
 
   function rebuild() {
