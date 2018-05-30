@@ -125,7 +125,7 @@ class RoboFile extends Tasks {
     // Import DB
     $this->taskExec('gunzip -c ' . $file_name . ' | drush @self sqlc')
       ->interactive(FALSE)
-      ->run()
+      ->run();
     
     #$drush_db_im = $this->taskDrushStack()
     #  ->siteAlias('@self')
