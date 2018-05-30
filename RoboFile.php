@@ -123,9 +123,7 @@ class RoboFile extends Tasks {
     $file_name = trim(preg_replace('/\s+/', ' ', $file_name));
 
     // Import DB
-    $this->taskExec('gunzip -c ' . $file_name . ' | drush @self sqlc')
-      ->interactive(FALSE)
-      ->run();
+    $this->dockerComposeExec('gunzip -c ' . $file_name . ' | drush @self sqlc');
     
     #$drush_db_im = $this->taskDrushStack()
     #  ->siteAlias('@self')
