@@ -67,7 +67,11 @@ services:
     labels:
       traefik.backend: '{{ project_machine_name }}_{{ webserver.type }}_1'
       traefik.port: '80'
+{% if multisite is not empty %}
       traefik.frontend.rule: 'HostRegexp:{subdomain:[a-z]+}.docker.localhost'
+{% else %}
+      traefik.frontend.rule: 'Host:{{ project_machine_name }}.docker.localhost'
+{% endif %}
 {% if varnish.enable %}
 
   varnish:

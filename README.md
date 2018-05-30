@@ -4,6 +4,13 @@ It's a starting point for a new Drupal 8 project. Drupal Go will automatically p
 
 The Drupal Go based on [Composer template for Drupal project](https://github.com/drupal-composer/drupal-project), [Robo](https://robo.li) and [docker4drupal](https://github.com/wodby/docker4drupal).
 
+## What does it do?
+* Prepare the development environment based on [docker4drupal](https://github.com/wodby/docker4drupal)
+* Prepare the project folder structure based on best practices form [Composer template for Drupal project](https://github.com/drupal-composer/drupal-project).
+* Automatically installs a drupal Project based on custom configurations.
+* Provides useful tools and commands.
+* Generates drush aliases and applies correct adjustments for drush configurations.
+
 ## Requirements
 * [Install Composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx)
 * [Install Robo](https://github.com/consolidation/Robo#installing)
@@ -11,43 +18,30 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Installation
-Run the following commands from the project root folder:
-* `composer install && robo global_install`
+The simplest way is to run the following commands from the project root folder:
+* `composer install && robo go`
+
+You can also configure your project beforehand. To do so you need to copy `example.go-conf.php` located in the `go` folder and paste it to the same place with name `go-conf.php`. Implement changes what meet your needs and run the previous command.
+
+## Understanding Go configurations
+* `project_name` - Will be used for the drupal site name and composer.json project name.
+* `project_machine_name` - Will be used for differnet needs to unify some configurations also will be used as a url prefix.
+* `include_basic_modules` - Will include the set of prepared modules and enable them after installation.
+* `drush` - Used to configure drush aliases and other useful drush adjustments.
+* `multisite` - You can specify the array of needed domains to create the folder structure automatically.
+* All other configurations are related to the [docker4drupal](https://github.com/wodby/docker4drupal)
+
+FYI: If you set `memcached` to be enabled, it will also enable memcache drupal module and implement appropriate configurations.
 
 ## Available commands:
 * `robo db_export` Implement an export of current DB state to the DB folder.
 * `robo db_import` Implement an import of latest DB dump from the DB folder.
-* `robo rebuild` Execute necessary actions after a pull from the repository.
+* `robo rebuild` Execute necessary actions after a pull from the repository. (Requires module config_split)
 * `robo get_db` Import DB from the specified environment. It requires argument `alias` (dev,stage,prod)
 * `robo get_files` Import files from the specified environment. It requires argument `alias` (dev,stage,prod)
 * `robo multisite` Generate directory structure and necessary configuration files for specified domains.
 
-
-## What does it do?
-
-When installing the given `composer.json` some tasks are taken care of:
-
-* Drupal will be installed in the `web`-directory.
-* Autoloader is implemented to use the generated composer autoloader in `vendor/autoload.php`,
-  instead of the one provided by Drupal (`web/vendor/autoload.php`).
-* Modules (packages of type `drupal-module`) will be placed in `web/modules/contrib/`
-* Theme (packages of type `drupal-theme`) will be placed in `web/themes/contrib/`
-* Profiles (packages of type `drupal-profile`) will be placed in `web/profiles/contrib/`
-* Creates default writable versions of `settings.php` and `services.yml`.
-* Creates `sites/default/files`-directory.
-* Creates `modules/contrib`, `modules/custom` and `modules/patches` -directories.
-* Creates `themes/contrib` and `themes/custom` -directories.
-* Latest version of drush is installed locally for use at `vendor/bin/drush`.
-* Latest version of DrupalConsole is installed locally for use at `vendor/bin/drupal`.
-* Preparation the bunch of modules:
-  - adminimal_theme 
-  - adminimal_admin_toolbar
-  - admin_toolbar
-  - devel
-  - memcache
-
 ### How can I apply patches to downloaded modules?
-
 If you need to apply patches (depending on the project being modified, a pull 
 request is often a better solution), you can do so with the 
 [composer-patches](https://github.com/cweagans/composer-patches) plugin.
@@ -63,9 +57,3 @@ section of composer.json:
     }
 }
 ```
-
-  
-
-
-
-
