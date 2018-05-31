@@ -19,7 +19,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 
 ## Installation
 You can  either configure your project beforehand, to do so you need to create a config file:
-* `cp go/example.go-conf.php go/go-conf.php` - Now you can set the configuraions you need.
+* `cp go/example.go-conf.php go/go-conf.php` - Now, set the configurations you need and proceed with the next steps.
 
 Or you can skip previous step and use default configurations:
 * `cp go/example.RoboFile.php ./RoboFile.php`

@@ -8,5 +8,5 @@ require_once 'go/GoRoboFile.php';
  * @see http://robo.li/
  */
 class RoboFile extends GoRoboFile {
-
+  // Put your code here.
 }
