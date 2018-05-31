@@ -18,10 +18,13 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Installation
-The simplest way is to run the following commands from the project root folder:
+You can  either configure your project beforehand, to do so you need to create a config file:
+* `cp go/example.go-conf.php go/go-conf.php` - Now you can set the configuraions you need.
+
+Or you can skip previous step and use default configurations:
+* `cp go/example.RoboFile.php ./RoboFile.php`
 * `composer install && robo go`
 
-You can also configure your project beforehand. To do so you need to copy `example.go-conf.php` located in the `go` folder and paste it to the same place with name `go-conf.php`. Implement changes what meet your needs and run the previous command.
 
 ## Understanding Go configurations
 * `project_name` - Will be used for the drupal site name and composer.json project name.

@@ -1,8 +1,8 @@
 <?php
 
-require_once 'vendor/autoload.php';
-require_once 'web/core/includes/bootstrap.inc';
-require_once 'web/core/includes/install.inc';
+require_once $realDir . '/vendor/autoload.php';
+require_once $realDir . '/web/core/includes/bootstrap.inc';
+require_once $realDir . '/web/core/includes/install.inc';
 
 use Robo\Tasks;
 use Drupal\Component\PhpStorage\FileStorage;
@@ -12,11 +12,11 @@ use Webmozart\PathUtil\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * This is project's console commands configuration for Robo task runner.
+ * This is Drupal GO's console commands configuration for Robo task runner.
  *
  * @see http://robo.li/
  */
-class RoboFile extends Tasks {
+class GoRoboFile extends Tasks {
 
   use Boedah\Robo\Task\Drush\loadTasks;
   use Droath\RoboDockerCompose\Task\loadTasks;
@@ -34,7 +34,7 @@ class RoboFile extends Tasks {
   /** @var \Symfony\Component\Filesystem\Filesystem */
   protected $fileSystem;
 
-  function __construct() {
+  public function __construct() {
     $this->fileSystem = new Filesystem();
     $drupalFinder = new DrupalFinder();
     $drupalFinder->locateRoot(getcwd());
@@ -45,11 +45,17 @@ class RoboFile extends Tasks {
     $this->config = $this->getConfig();
   }
 
-  function test() {
-
+  /**
+   * Test function.
+   */
+  public function test() {
+    $this->say('Hello!');
   }
 
-  function go() {
+  /**
+   * Roll out the whole project.
+   */
+  public function go() {
     $this->getConfig();
     $this->configureProject(TRUE);
 
@@ -71,7 +77,10 @@ class RoboFile extends Tasks {
     $this->removeNeedlessModules();
   }
 
-  function install() {
+  /**
+   * Install Drupal.
+   */
+  public function install() {
     $this->createSettingsFile();
 
     $drush_install = $this->taskDrushStack()
@@ -90,19 +99,31 @@ class RoboFile extends Tasks {
     $this->dockerComposeExec($drush_install);
   }
 
-  function conf() {
+  /**
+   * Create file structure and configure project for Docker.
+   */
+  public function conf() {
     $this->configureProject();
   }
 
-  function reconf() {
+  /**
+   * Recreate configuration files.
+   */
+  public function reconf() {
     $this->recreateConfigFiles();
   }
 
-  function multisite() {
+  /**
+   * Generates folders and configurations for multi-site usage.
+   */
+  public function multisite() {
     $this->setUpMultisite();
   }
 
-  function db_export() {
+  /**
+   * Implement an export of current DB state to the DB folder.
+   */
+  public function db_export() {
     $file_name = 'db/' . date('d.m.Y-h.i.s') . '.sql';
     $drush_db_exp = $this->taskDrushStack()
       ->siteAlias('@self')
@@ -111,7 +132,10 @@ class RoboFile extends Tasks {
     $this->dockerComposeExec($drush_db_exp);
   }
 
-  function db_import() {
+  /**
+   * Implement an import of latest DB dump from the DB folder.
+   */
+  public function db_import() {
     // Drop DB
     $drush_drop = $this->taskDrushStack()->drush('sql-drop')->getCommand();
     $this->dockerComposeExec($drush_drop);
@@ -132,7 +156,10 @@ class RoboFile extends Tasks {
     #$this->dockerComposeExec($drush_db_im);
   }
 
-  function rebuild() {
+  /**
+   * Execute necessary actions after a pull from the repository.
+   */
+  public function rebuild() {
     $drush_cc_drush = $this->taskDrushStack()->clearCache('drush')->getCommand();
     $drush_csim = $this->taskDrushStack()->drush('csim')->getCommand();
     $drush_updb = $this->taskDrushStack()->drush('updb')->getCommand();
@@ -146,7 +173,12 @@ class RoboFile extends Tasks {
     $this->dockerComposeExec($drush_eu);
   }
 
-  function get_db($alias) {
+  /**
+   * Import DB from the specified environment.
+   *
+   * @param $alias - dev,stage or prod
+   */
+  public function get_db($alias) {
     $drush_create_db = $this->taskDrushStack()->drush('sql-create')->getCommand();
     $drush_sync = $this->taskDrushStack()->drush('sql-sync @' . $alias . ' @self')->getCommand();
     $drush_csim = $this->taskDrushStack()->drush('csim')->getCommand();
@@ -156,7 +188,12 @@ class RoboFile extends Tasks {
     $this->dockerComposeExec($drush_csim);
   }
 
-  function get_files($alias) {
+  /**
+   * Import files from the specified environment.
+   *
+   * @param $alias - dev,stage or prod
+   */
+  public function get_files($alias) {
     $drush_sync = $this->taskDrushStack()->drush('rsync @' . $alias . ':%files/ @self:%files')->getCommand();
     $this->dockerComposeExec($drush_sync);
   }
@@ -497,6 +534,9 @@ class RoboFile extends Tasks {
       'drush.yml' => [
         'dest' => $this->projectRoot . '/drush',
         'add2yaml' => TRUE,
+      ],
+      'phpunit.xml.dist' => [
+        'dest' => $this->projectRoot,
       ],
     ];
   }
