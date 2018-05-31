@@ -124,7 +124,7 @@ class GoRoboFile extends Tasks {
    * Implement an export of current DB state to the DB folder.
    */
   public function db_export() {
-    $file_name = 'db/' . date('d.m.Y-h.i.s') . '.sql';
+    $file_name = '../db/' . date('d.m.Y-h.i.s') . '.sql';
     $drush_db_exp = $this->taskDrushStack()
       ->siteAlias('@self')
       ->drush('sql-dump --gzip --structure-tables-key=common --result-file=' . $file_name)
@@ -147,13 +147,7 @@ class GoRoboFile extends Tasks {
     $file_name = trim(preg_replace('/\s+/', ' ', $file_name));
 
     // Import DB
-    $this->dockerComposeExec('gunzip -c ' . $file_name . ' | drush @self sqlc');
-    
-    #$drush_db_im = $this->taskDrushStack()
-    #  ->siteAlias('@self')
-    #  ->drush('sqlc < ' . $file_name)
-    #  ->getCommand();
-    #$this->dockerComposeExec($drush_db_im);
+    $this->dockerComposeExec('sh -c "gunzip -c ' . $file_name . ' | drush @self sqlc"');
   }
 
   /**
