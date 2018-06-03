@@ -1,62 +1,24 @@
 {
   "name": "Drupal Go",
-  "description": "Starting point for a new Drupal 8 project.",
-  "homepage": "https://github.com/nortmas/drupal-go",
-  "type": "project",
-  "license": "GPL-2.0-or-later",
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "https://packages.drupal.org/8"
-    }
-  ],
+  "description": "Drupal 8 project.",
   "require": {
-    "composer/installers": "^1.2",
-    "cweagans/composer-patches": "^1.6",
-    "drupal-composer/drupal-scaffold": "^2.2",
-    "drupal/console": "^1.0.2",
-    "drupal/core": "~8.5.3",
-    "drush/drush": "^9.0.0",
-    "webflo/drupal-finder": "^1.0.0",
-    "webmozart/path-util": "^2.3"
-  },
-  "require-dev": {
-    "boedah/robo-drush": "~3",
-    "consolidation/robo": "^1.0.0",
-    "droath/robo-docker-compose": "^0.0.8",
-    "webflo/drupal-core-require-dev": "~8.5.3"
-  },
-  "conflict": {
-    "drupal/drupal": "*"
+    "wikimedia/composer-merge-plugin": "dev-master"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "config": {
     "sort-packages": true
   },
-  "scripts": {
-    "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold"
-  },
   "extra": {
-    "installer-paths": {
-      "web/core": [
-        "type:drupal-core"
+    "merge-plugin": {
+      "include": [
+        "go/go.composer.json"
       ],
-      "web/libraries/{$name}": [
-        "type:drupal-library"
-      ],
-      "web/modules/contrib/{$name}": [
-        "type:drupal-module"
-      ],
-      "web/profiles/contrib/{$name}": [
-        "type:drupal-profile"
-      ],
-      "web/themes/contrib/{$name}": [
-        "type:drupal-theme"
-      ],
-      "drush/contrib/{$name}": [
-        "type:drupal-drush"
-      ]
+      "merge-extra": true,
+      "merge-extra-deep": true,
+      "merge-scripts": true,
+      "replace": false,
+      "ignore-duplicates": true
     }
   }
 }
