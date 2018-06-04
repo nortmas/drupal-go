@@ -587,8 +587,6 @@ class GoRoboFile extends Tasks {
       "drupal/config_split" => "^1.3",
       "drupal/devel" => "^1.0",
       "drupal/environment_indicator" => "^3.3",
-      "drupal/custom_configurations" => "dev-1.x",
-      "drupal/session_based_temp_store" => "dev-1.x",
     ];
 
     foreach ($modules as $name => $version) {
