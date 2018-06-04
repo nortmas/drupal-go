@@ -14,7 +14,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 ## Requirements
 * [Install Composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx)
 * [Install Robo](https://github.com/consolidation/Robo#installing)
-* [Install Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/) (Mac OS users can miss this step)
+* [Install Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/) (Mac OS users can skip this step)
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Installation
