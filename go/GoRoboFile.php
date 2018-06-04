@@ -63,6 +63,9 @@ class GoRoboFile extends Tasks {
       ->detachedMode()
       ->run();
 
+    // Wait till MySql is ready.
+    sleep(5);
+
     $this->install();
     $this->prepareComposerJson();
 
@@ -82,6 +85,7 @@ class GoRoboFile extends Tasks {
    */
   public function install() {
     $this->createSettingsFile();
+    $this->updateSettingsFile();
 
     $drush_install = $this->taskDrushStack()
       ->siteName($this->config['project_name'])
@@ -468,14 +472,7 @@ class GoRoboFile extends Tasks {
    * Prepare composer.json for the project.
    */
   protected function prepareComposerJson() {
-    $remove_lines = [
-      4 => 'homepage',
-      5 => 'type',
-      6 => 'license',
-    ];
-    $this->removeLines('composer.json', $remove_lines);
     $this->taskComposerConfig()->set('name', $this->config['project_name'])->run();
-    $this->taskComposerConfig()->set('description', 'Drupal 8 project.')->run();
   }
 
   /**
