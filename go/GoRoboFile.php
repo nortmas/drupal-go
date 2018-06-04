@@ -56,7 +56,19 @@ class GoRoboFile extends Tasks {
    * Roll out the whole project.
    */
   public function go() {
-    $this->getConfig();
+
+    if ($this->config['include_basic_modules'] == FALSE) {
+      $basic_modules = $this->ask("Do you want to include basic modules? Y or N");
+      $this->config['include_basic_modules'] = strtolower($basic_modules) == 'y' ? 1 : 0;
+      $this->updateGoConf();
+    }
+
+    if ($this->config['memcached']['enable'] == FALSE) {
+      $memcached = $this->ask("Do you want to set up memcached? Y or N");
+      $this->config['memcached']['enable'] = strtolower($memcached) == 'y' ? 1 : 0;
+      $this->updateGoConf();
+    }
+
     $this->configureProject(TRUE);
 
     $this->taskDockerComposeUp()
@@ -64,7 +76,7 @@ class GoRoboFile extends Tasks {
       ->run();
 
     // Wait till MySql is ready.
-    sleep(5);
+    sleep(7);
 
     $this->install();
     $this->prepareComposerJson();
@@ -608,6 +620,25 @@ class GoRoboFile extends Tasks {
   protected function removeNeedlessModules() {
     $drush_pmu = $this->taskDrushStack()->drush('pmu color help history quickedit tour update search')->getCommand();
     $this->dockerComposeExec($drush_pmu);
+  }
+
+  /**
+   * Overwrite go-conf.php with the new values.
+   */
+  protected function updateGoConf() {
+    $php = var_export($this->config, true);
+    $php = str_replace(["array (", ")"], ["[", "]"], $php);
+    $php = preg_replace("/\=\>\s\n(\t|\s)*?\[/", "=> [", $php);
+    $php = preg_replace("/[0-9]\s\=\>\s/", "", $php);
+
+    if (empty($this->config['multisite'])) {
+      $help_text = "    # Should be in a format 'alias' => 'real production domain'\n";
+      $help_text .= "    #'subdomain' => 'subdomain.com',\n";
+      $php = str_replace("'multisite' => [\n", "'multisite' => [\n" . $help_text, $php);
+    }
+
+    $php = "<?php\n\nreturn " . $php . ";";
+    file_put_contents($this->goRoot . '/go-conf.php', $php);
   }
 
 }

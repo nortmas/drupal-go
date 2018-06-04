@@ -1,10 +1,4 @@
 {
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "https://packages.drupal.org/8"
-    }
-  ],
   "require": {
     "composer/installers": "^1.2",
     "cweagans/composer-patches": "^1.6",
@@ -21,9 +15,6 @@
     "droath/robo-docker-compose": "^0.0.8",
     "webflo/drupal-core-require-dev": "~8.5"
   },
-  "conflict": {
-    "drupal/drupal": "*"
-  },
   "extra": {
     "patches": {
       "drupal/core": {
@@ -32,3 +23,4 @@
     }
   }
 }
+

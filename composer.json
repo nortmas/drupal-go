@@ -1,8 +1,17 @@
 {
   "name": "Drupal Go",
   "description": "Drupal 8 project.",
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packages.drupal.org/8"
+    }
+  ],
   "require": {
     "wikimedia/composer-merge-plugin": "^1.4"
+  },
+  "conflict": {
+    "drupal/drupal": "*"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,

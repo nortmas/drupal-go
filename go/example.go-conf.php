@@ -39,7 +39,7 @@ return [
         'root' => '',
         'uri' => '',
       ],
-    ]
+    ],
   ],
   'multisite' => [
     # Should be in a format 'alias' => 'real production domain'
@@ -50,7 +50,7 @@ return [
   ],
   'php' => [
     'xdebug' => 1,
-    'tag' => '7.1-dev-4.4.2'
+    'tag' => '7.1-dev-4.4.2',
   ],
   'webserver' => [
     'type' => 'apache',
@@ -59,7 +59,7 @@ return [
   ],
   'varnish' => [
     'enable' => 0,
-    'tag' => '4.1-2.4.0'
+    'tag' => '4.1-2.4.0',
   ],
   'dbbrowser' => [
     'type' => 'adminer',
