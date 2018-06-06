@@ -174,10 +174,11 @@ class GoRoboFile extends Tasks {
     $drush_csim = $this->taskDrushStack()->drush('csim')->getCommand();
     $drush_updb = $this->taskDrushStack()->drush('updb')->getCommand();
     $drush_eu = $this->taskDrushStack()->drush('entity-updates')->getCommand();
+    $composer_install = $this->taskComposerInstall()->getCommand();
 
     $this->dockerComposeExec($drush_cc_drush);
     $this->dockerComposeExec($drush_csim);
-    $this->taskComposerInstall()->run();
+    $this->dockerComposeExec($composer_install);
     $this->dockerComposeExec($drush_updb);
     $this->dockerComposeExec($drush_csim);
     $this->dockerComposeExec($drush_eu);
