@@ -37,11 +37,11 @@ Or you can skip previous step and use default configurations:
 FYI: If you set `memcached` to be enabled, it will also enable memcache drupal module and implement appropriate configurations.
 
 ## Available commands:
-* `robo db_export` Implement an export of current DB state to the DB folder.
-* `robo db_import` Implement an import of latest DB dump from the DB folder.
-* `robo rebuild` Execute necessary actions after a pull from the repository. (Requires module config_split)
-* `robo get_db` Import DB from the specified environment. It requires argument `alias` (dev,stage,prod)
-* `robo get_files` Import files from the specified environment. It requires argument `alias` (dev,stage,prod)
+* `robo db_export`, alias `dbe`. Implement an export of current DB state to the DB folder.
+* `robo db_import`, alias `dbi`. Implement an import of latest DB dump from the DB folder.
+* `robo get_db`, alias `gdb`. Import DB from the specified environment. It requires argument `alias` (dev,stage or prod)
+* `robo get_files`, alias `gf`. Import files from the specified environment. It requires argument `alias` (dev,stage or prod)
+* `robo rebuild` Execute necessary actions after a pull from the repository.
 * `robo multisite` Generate directory structure and necessary configuration files for specified domains.
 
 ### How can I apply patches to downloaded modules?

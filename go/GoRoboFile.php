@@ -138,6 +138,8 @@ class GoRoboFile extends Tasks {
 
   /**
    * Implement an export of current DB state to the DB folder.
+   *
+   * @aliases dbe
    */
   public function db_export() {
     $file_name = '../db/' . date('d.m.Y-h.i.s') . '.sql';
@@ -150,6 +152,8 @@ class GoRoboFile extends Tasks {
 
   /**
    * Implement an import of latest DB dump from the DB folder.
+   *
+   * @aliases dbi
    */
   public function db_import() {
     // Drop DB
@@ -186,6 +190,7 @@ class GoRoboFile extends Tasks {
   /**
    * Import DB from the specified environment.
    *
+   * @aliases gdb
    * @param $alias - dev,stage or prod
    */
   public function get_db($alias) {
@@ -201,6 +206,7 @@ class GoRoboFile extends Tasks {
   /**
    * Import files from the specified environment.
    *
+   * @aliases gf
    * @param $alias - dev,stage or prod
    */
   public function get_files($alias) {
