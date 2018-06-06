@@ -257,8 +257,8 @@ class GoRoboFile extends Tasks {
     }
 
     // Set permissions, see https://wodby.com/stacks/drupal/docs/local/permissions
-    exec('setfacl -dR -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $this->projectRoot);
-    exec('setfacl -R -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $this->projectRoot);
+    #exec('setfacl -dR -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $this->projectRoot);
+    #exec('setfacl -R -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $this->projectRoot);
   }
 
   /**
@@ -346,7 +346,7 @@ class GoRoboFile extends Tasks {
     // Prepare the settings file for installation
     if (!$this->fileSystem->exists($file_settings) && $this->fileSystem->exists($file_def_settings)) {
       $this->fileSystem->copy($file_def_settings, $file_settings);
-      $this->fileSystem->chmod($file_settings, 0666);
+      #$this->fileSystem->chmod($file_settings, 0666);
       drupal_rewrite_settings($settings, $file_settings);
       $this->say("Create a ' . $file_settings . ' file with mode 666");
     }
@@ -378,8 +378,8 @@ class GoRoboFile extends Tasks {
         $append .= "\tinclude \$app_root . '/" . $relative_path . "/settings.docker.php';\n";
         $append .= "}\n";
         $this->fileSystem->appendToFile($file_settings, $append);
-        $this->fileSystem->chmod($file_settings, 0444);
-        $this->fileSystem->chmod($this->defaultSettingsPath, 0555);
+        #$this->fileSystem->chmod($file_settings, 0444);
+        #$this->fileSystem->chmod($this->defaultSettingsPath, 0555);
       }
     }
   }
