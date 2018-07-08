@@ -50,7 +50,6 @@ class GoRoboFile extends Tasks {
    */
   public function test() {
     $this->say('Hello!');
-    $this->commandExec('drush cr');
   }
 
   /**
@@ -95,8 +94,10 @@ class GoRoboFile extends Tasks {
 
   /**
    * Install Drupal.
+   *
+   * @param string $profile
    */
-  public function install() {
+  public function install($profile = 'standard') {
     $this->createSettingsFile();
     $this->updateSettingsFile();
 
@@ -110,10 +111,25 @@ class GoRoboFile extends Tasks {
       ->accountPass('admin')
       ->mysqlDbUrl('drupal:drupal@mariadb:3306/drupal')
       ->disableUpdateStatusModule()
-      ->siteInstall('standard')
+      ->siteInstall($profile)
       ->getCommand();
 
-    $this->commandExec($drush_install);
+    $this->dockerComposeExec($drush_install);
+  }
+
+
+  /**
+   * Install Drupal.
+   * @alias rei
+   * @param string $profile
+   */
+  public function reinstall($profile = 'standard') {
+    $drush_drop = $this->taskDrushStack()->drush('sql-drop')->getCommand();
+    $this->dockerComposeExec($drush_drop);
+    $this->install($profile);
+    $file_settings = $this->defaultSettingsPath . '/settings.php';
+    $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
+    $this->fileSystem->chmod($file_settings, 0664);
   }
 
   /**
@@ -148,27 +164,35 @@ class GoRoboFile extends Tasks {
       ->siteAlias('@self')
       ->drush('sql-dump --gzip --structure-tables-key=common --result-file=' . $file_name)
       ->getCommand();
-    $this->commandExec($drush_db_exp);
+    $this->dockerComposeExec($drush_db_exp);
   }
 
   /**
    * Implement an import of latest DB dump from the DB folder.
    *
    * @aliases dbi
+   *
+   * @param $file_name
+   *  The name of the dump file to restore.
    */
-  public function db_import() {
+  public function db_import($file_name = NULL) {
     // Drop DB
     $drush_drop = $this->taskDrushStack()->drush('sql-drop')->getCommand();
-    $this->commandExec($drush_drop);
+    $this->dockerComposeExec($drush_drop);
 
     // Get last db dump.
-    $file_name = $this->taskExec('ls db/* | sort -k1 -r| head -1')
-      ->interactive(FALSE)
-      ->run()->getMessage();
-    $file_name = trim(preg_replace('/\s+/', ' ', $file_name));
+    if (!$file_name) {
+      $file_name = $this->taskExec('ls db/* | sort -k1 -r| head -1')
+        ->interactive(FALSE)
+        ->run()->getMessage();
+      $file_name = trim(preg_replace('/\s+/', ' ', $file_name));
+    }
+    else {
+      $file_name = 'db/' . $file_name;
+    }
 
     // Import DB
-    $this->commandExec('sh -c "gunzip -c ' . $file_name . ' | drush @self sqlc"');
+    $this->dockerComposeExec('sh -c "gunzip -c ' . $file_name . ' | drush @self sqlc"');
   }
 
   /**
@@ -181,12 +205,12 @@ class GoRoboFile extends Tasks {
     $drush_eu = $this->taskDrushStack()->drush('entity-updates')->getCommand();
     $composer_install = $this->taskComposerInstall()->getCommand();
 
-    $this->commandExec($drush_cc_drush);
-    $this->commandExec($drush_csim);
-    $this->commandExec($composer_install);
-    $this->commandExec($drush_updb);
-    $this->commandExec($drush_csim);
-    $this->commandExec($drush_eu);
+    $this->dockerComposeExec($drush_cc_drush);
+    $this->dockerComposeExec($drush_csim);
+    $this->dockerComposeExec($composer_install);
+    $this->dockerComposeExec($drush_updb);
+    $this->dockerComposeExec($drush_csim);
+    $this->dockerComposeExec($drush_eu);
   }
 
   /**
@@ -200,9 +224,9 @@ class GoRoboFile extends Tasks {
     $drush_sync = $this->taskDrushStack()->drush('sql-sync @' . $alias . ' @self')->getCommand();
     $drush_csim = $this->taskDrushStack()->drush('csim')->getCommand();
 
-    $this->commandExec($drush_create_db);
-    $this->commandExec($drush_sync);
-    $this->commandExec($drush_csim);
+    $this->dockerComposeExec($drush_create_db);
+    $this->dockerComposeExec($drush_sync);
+    $this->dockerComposeExec($drush_csim);
   }
 
   /**
@@ -213,21 +237,16 @@ class GoRoboFile extends Tasks {
    */
   public function get_files($alias) {
     $drush_sync = $this->taskDrushStack()->drush('rsync @' . $alias . ':%files/ @self:%files')->getCommand();
-    $this->commandExec($drush_sync);
+    $this->dockerComposeExec($drush_sync);
   }
 
   /**
-   * Wrapper to execute command either via docker-compose or inside container.
+   * Wrapper to execute docker-compose command.
    *
    * @param $command string
    */
-  protected function commandExec($command) {
-    if ($_SERVER["HOME"] == '/home/wodby') {
-      $this->taskExec($command)->interactive(FALSE)->run()->getMessage();
-    }
-    else {
-      $this->taskDockerComposeExecute()->disablePseudoTty()->arg('php')->exec($command)->run();
-    }
+  protected function dockerComposeExec($command) {
+    $this->taskDockerComposeExecute()->disablePseudoTty()->arg('php')->exec($command)->run();
   }
 
   /**
@@ -577,7 +596,7 @@ class GoRoboFile extends Tasks {
   protected function setUpMemcache() {
     $this->taskComposerRequire()->dependency("drupal/memcache", "^2.0")->run();
     $drush_en_memcache = $this->taskDrushStack()->drush('en memcache')->getCommand();
-    $this->commandExec($drush_en_memcache);
+    $this->dockerComposeExec($drush_en_memcache);
 
     $file_settings = $this->defaultSettingsPath . '/settings.docker.php';
     $settings_content = file_get_contents($file_settings);
@@ -622,9 +641,9 @@ class GoRoboFile extends Tasks {
     $drush_set_theme = $this->taskDrushStack()->drush('cset system.theme admin adminimal_theme')->getCommand();
     $drush_en_modules = $this->taskDrushStack()->drush('en devel admin_toolbar admin_toolbar_tools adminimal_admin_toolbar config_split session_based_temp_store')->getCommand();
 
-    $this->commandExec($drush_en_theme);
-    $this->commandExec($drush_set_theme);
-    $this->commandExec($drush_en_modules);
+    $this->dockerComposeExec($drush_en_theme);
+    $this->dockerComposeExec($drush_set_theme);
+    $this->dockerComposeExec($drush_en_modules);
   }
 
   /**
@@ -632,7 +651,7 @@ class GoRoboFile extends Tasks {
    */
   protected function removeNeedlessModules() {
     $drush_pmu = $this->taskDrushStack()->drush('pmu color help history quickedit tour update search')->getCommand();
-    $this->commandExec($drush_pmu);
+    $this->dockerComposeExec($drush_pmu);
   }
 
   /**
