@@ -12,19 +12,13 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * Generates drush aliases and applies correct adjustments for drush configurations.
 
 ## Requirements
-* [Install Composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx)
-* [Install Robo](https://github.com/consolidation/Robo#installing)
-* [Install Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/) (Mac OS users can skip this step)
+* [Install Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Installation
-You can  either configure your project beforehand, to do so you need to create a config file:
-* `cp go/example.go-conf.php go/go-conf.php` - Now, set the configurations you need and proceed with the next steps.
-
-Or you can skip previous step and use default configurations:
-* `cp go/example.RoboFile.php ./RoboFile.php`
-* `composer install && robo go`
-
+* `cp go/makefiles/example.Makefile Makefile && make go_prepare`
+*  Now, set the configurations you need in the file `go/go-conf.php` or you can use the default one and just run the next command.
+* `make go`
 
 ## Understanding Go configurations
 * `project_name` - Will be used for the drupal site name and composer.json project name.

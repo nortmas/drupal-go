@@ -10,11 +10,14 @@ services:
       MYSQL_PASSWORD: drupal
     volumes:
       - ./db:/docker-entrypoint-initdb.d
+      - db:/var/lib/mysql
 
   php:
     image: 'wodby/drupal-php:{{ php.tag }}'
     environment:
+{% if mailhog.enable %}
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
+{% endif %}
       DB_HOST: mariadb
       DB_USER: drupal
       DB_PASSWORD: drupal
@@ -24,9 +27,9 @@ services:
       PHP_XDEBUG: 1
       PHP_XDEBUG_DEFAULT_ENABLE: 1
       PHP_XDEBUG_REMOTE_AUTOSTART: 1
-      PHP_XDEBUG_REMOTE_HOST: $PHP_XDEBUG_REMOTE_HOST
       PHP_IDE_CONFIG: serverName=Docker
       PHP_XDEBUG_REMOTE_CONNECT_BACK: 1
+      #PHP_XDEBUG_REMOTE_HOST: $PHP_XDEBUG_REMOTE_HOST
 {% if webgrind.enable %}
       PHP_XDEBUG_PROFILER_ENABLE: 1
       PHP_XDEBUG_PROFILER_ENABLE_TRIGGER: 1
@@ -92,8 +95,9 @@ services:
   redis:
     image: 'wodby/redis:{{ redis.tag }}'
 {% endif %}
-
+{% if dbbrowser.enable %}
 {% if dbbrowser.type == 'adminer' %}
+
   adminer:
     image: 'wodby/adminer:{{ dbbrowser.adminer_tag }}'
     environment:
@@ -103,6 +107,7 @@ services:
       traefik.port: '9000'
       traefik.frontend.rule: 'Host:adminer.{{ project_machine_name }}.docker.localhost'
 {% elseif dbbrowser.type == 'pma' %}
+
   pma:
     image: 'phpmyadmin/phpmyadmin'
     environment:
@@ -116,6 +121,7 @@ services:
       traefik.port: '80'
       traefik.frontend.rule: 'Host:pma.{{ project_machine_name }}.docker.localhost'
 {% endif %}
+{% endif %}
 {% if solr.enable %}
 
   solr:
@@ -127,6 +133,7 @@ services:
       traefik.port: '8983'
       traefik.frontend.rule: 'Host:solr.{{ project_machine_name }}.docker.localhost'
 {% endif %}
+{% if mailhog.enable %}
 
   mailhog:
     image: 'mailhog/mailhog'
@@ -134,6 +141,7 @@ services:
       traefik.backend: '{{ project_machine_name }}_mailhog_1'
       traefik.port: '8025'
       traefik.frontend.rule: 'Host:mailhog.{{ project_machine_name }}.docker.localhost'
+{% endif %}
 {% if node.enable %}
 
   nodejs:
@@ -205,6 +213,7 @@ services:
     volumes:
       - files:/mnt/files
 {% endif %}
+{% if portainer.enable %}
 
   portainer:
     image: portainer/portainer
@@ -216,12 +225,17 @@ services:
       - 'traefik.backend=portainer'
       - 'traefik.port=9000'
       - 'traefik.frontend.rule=Host:portainer.{{ project_machine_name }}.docker.localhost'
+{% endif %}
 
   traefik:
     image: traefik
     container_name: "{{ project_machine_name }}_traefik"
     command: -c /dev/null --web --docker --logLevel=INFO
     ports:
+      - '80:80'
       - '8000:80'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  db:

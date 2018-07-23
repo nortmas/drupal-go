@@ -19,7 +19,6 @@ use Symfony\Component\Yaml\Yaml;
 class GoRoboFile extends Tasks {
 
   use Boedah\Robo\Task\Drush\loadTasks;
-  use Droath\RoboDockerCompose\Task\loadTasks;
 
   /** var string */
   protected $projectRoot;
@@ -53,10 +52,9 @@ class GoRoboFile extends Tasks {
   }
 
   /**
-   * Roll out the whole project.
+   * Prepare
    */
-  public function go() {
-
+  public function prepare() {
     if ($this->config['include_basic_modules'] == FALSE) {
       $basic_modules = $this->ask("Do you want to include basic modules? Y or N");
       $this->config['include_basic_modules'] = strtolower($basic_modules) == 'y' ? 1 : 0;
@@ -70,25 +68,20 @@ class GoRoboFile extends Tasks {
     }
 
     $this->configureProject(TRUE);
+  }
 
-    $this->taskDockerComposeUp()
-      ->detachedMode()
-      ->run();
-
-    // Wait till MySql is ready.
-    sleep(7);
-
+  /**
+   * Roll out the whole project.
+   */
+  public function go() {
     $this->install();
     $this->prepareComposerJson();
-
     if ($this->config['include_basic_modules'] == TRUE) {
       $this->installBasicModules();
     }
-
     if ($this->config['memcached']['enable'] == TRUE) {
       $this->setUpMemcache();
     }
-
     $this->removeNeedlessModules();
   }
 
@@ -114,9 +107,8 @@ class GoRoboFile extends Tasks {
       ->siteInstall($profile)
       ->getCommand();
 
-    $this->dockerComposeExec($drush_install);
+    $this->commandExec($drush_install);
   }
-
 
   /**
    * Install Drupal.
@@ -125,7 +117,7 @@ class GoRoboFile extends Tasks {
    */
   public function reinstall($profile = 'standard') {
     $drush_drop = $this->taskDrushStack()->drush('sql-drop')->getCommand();
-    $this->dockerComposeExec($drush_drop);
+    $this->commandExec($drush_drop);
     $this->install($profile);
     $file_settings = $this->defaultSettingsPath . '/settings.php';
     $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
@@ -147,6 +139,30 @@ class GoRoboFile extends Tasks {
   }
 
   /**
+   * Reset directory structure.
+   */
+  public function reset_file_structure() {
+    $this->io()->caution("This action will remove all automatically created folders and reset Drupal GO to the default state.");
+    $ask = $this->ask("Do you want to continue? Y or N");
+    $do = strtolower($ask) === 'y' ? TRUE : FALSE;
+    if ($do) {
+      $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
+      $this->fileSystem->remove([
+        $this->projectRoot . '/go/go-conf.php',
+        $this->projectRoot . '/drush/sites',
+        $this->projectRoot . '/drush/drush.yml',
+        $this->projectRoot . '/composer.lock',
+        $this->projectRoot . '/phpunit.xml.dist',
+        $this->projectRoot . '/private',
+        $this->projectRoot . '/config',
+        $this->projectRoot . '/db',
+        $this->projectRoot . '/test',
+        $this->projectRoot . '/patches',
+      ]);
+    }
+  }
+
+  /**
    * Generates folders and configurations for multi-site usage.
    */
   public function multisite() {
@@ -164,7 +180,7 @@ class GoRoboFile extends Tasks {
       ->siteAlias('@self')
       ->drush('sql-dump --gzip --structure-tables-key=common --result-file=' . $file_name)
       ->getCommand();
-    $this->dockerComposeExec($drush_db_exp);
+    $this->commandExec($drush_db_exp);
   }
 
   /**
@@ -178,7 +194,7 @@ class GoRoboFile extends Tasks {
   public function db_import($file_name = NULL) {
     // Drop DB
     $drush_drop = $this->taskDrushStack()->drush('sql-drop')->getCommand();
-    $this->dockerComposeExec($drush_drop);
+    $this->commandExec($drush_drop);
 
     // Get last db dump.
     if (!$file_name) {
@@ -192,7 +208,7 @@ class GoRoboFile extends Tasks {
     }
 
     // Import DB
-    $this->dockerComposeExec('sh -c "gunzip -c ' . $file_name . ' | drush @self sqlc"');
+    $this->commandExec('sh -c "gunzip -c ' . $file_name . ' | drush @self sqlc"');
   }
 
   /**
@@ -205,12 +221,12 @@ class GoRoboFile extends Tasks {
     $drush_eu = $this->taskDrushStack()->drush('entity-updates')->getCommand();
     $composer_install = $this->taskComposerInstall()->getCommand();
 
-    $this->dockerComposeExec($drush_cc_drush);
-    $this->dockerComposeExec($drush_csim);
-    $this->dockerComposeExec($composer_install);
-    $this->dockerComposeExec($drush_updb);
-    $this->dockerComposeExec($drush_csim);
-    $this->dockerComposeExec($drush_eu);
+    $this->commandExec($drush_cc_drush);
+    $this->commandExec($drush_csim);
+    $this->commandExec($composer_install);
+    $this->commandExec($drush_updb);
+    $this->commandExec($drush_csim);
+    $this->commandExec($drush_eu);
   }
 
   /**
@@ -224,9 +240,9 @@ class GoRoboFile extends Tasks {
     $drush_sync = $this->taskDrushStack()->drush('sql-sync @' . $alias . ' @self')->getCommand();
     $drush_csim = $this->taskDrushStack()->drush('csim')->getCommand();
 
-    $this->dockerComposeExec($drush_create_db);
-    $this->dockerComposeExec($drush_sync);
-    $this->dockerComposeExec($drush_csim);
+    $this->commandExec($drush_create_db);
+    $this->commandExec($drush_sync);
+    $this->commandExec($drush_csim);
   }
 
   /**
@@ -237,16 +253,16 @@ class GoRoboFile extends Tasks {
    */
   public function get_files($alias) {
     $drush_sync = $this->taskDrushStack()->drush('rsync @' . $alias . ':%files/ @self:%files')->getCommand();
-    $this->dockerComposeExec($drush_sync);
+    $this->commandExec($drush_sync);
   }
 
   /**
-   * Wrapper to execute docker-compose command.
+   * Wrapper to execute command inside container.
    *
    * @param $command string
    */
-  protected function dockerComposeExec($command) {
-    $this->taskDockerComposeExecute()->disablePseudoTty()->arg('php')->exec($command)->run();
+  protected function commandExec($command) {
+    $this->taskExec($command)->interactive(FALSE)->run()->getMessage();
   }
 
   /**
@@ -596,7 +612,7 @@ class GoRoboFile extends Tasks {
   protected function setUpMemcache() {
     $this->taskComposerRequire()->dependency("drupal/memcache", "^2.0")->run();
     $drush_en_memcache = $this->taskDrushStack()->drush('en memcache')->getCommand();
-    $this->dockerComposeExec($drush_en_memcache);
+    $this->commandExec($drush_en_memcache);
 
     $file_settings = $this->defaultSettingsPath . '/settings.docker.php';
     $settings_content = file_get_contents($file_settings);
@@ -627,10 +643,9 @@ class GoRoboFile extends Tasks {
     $modules = [
       "drupal/admin_toolbar" => "^1.19",
       "drupal/adminimal_admin_toolbar" => "^1.3",
-      "drupal/adminimal_theme" => "^1.3",
+      "drupal/adminimal_theme" => "^1.x-dev",
       "drupal/config_split" => "^1.3",
       "drupal/devel" => "^1.0",
-      "drupal/environment_indicator" => "^3.3",
     ];
 
     foreach ($modules as $name => $version) {
@@ -639,11 +654,11 @@ class GoRoboFile extends Tasks {
 
     $drush_en_theme = $this->taskDrushStack()->drush('theme:enable adminimal_theme')->getCommand();
     $drush_set_theme = $this->taskDrushStack()->drush('cset system.theme admin adminimal_theme')->getCommand();
-    $drush_en_modules = $this->taskDrushStack()->drush('en devel admin_toolbar admin_toolbar_tools adminimal_admin_toolbar config_split session_based_temp_store')->getCommand();
+    $drush_en_modules = $this->taskDrushStack()->drush('en devel admin_toolbar admin_toolbar_tools adminimal_admin_toolbar config_split')->getCommand();
 
-    $this->dockerComposeExec($drush_en_theme);
-    $this->dockerComposeExec($drush_set_theme);
-    $this->dockerComposeExec($drush_en_modules);
+    $this->commandExec($drush_en_theme);
+    $this->commandExec($drush_set_theme);
+    $this->commandExec($drush_en_modules);
   }
 
   /**
@@ -651,7 +666,7 @@ class GoRoboFile extends Tasks {
    */
   protected function removeNeedlessModules() {
     $drush_pmu = $this->taskDrushStack()->drush('pmu color help history quickedit tour update search')->getCommand();
-    $this->dockerComposeExec($drush_pmu);
+    $this->commandExec($drush_pmu);
   }
 
   /**
