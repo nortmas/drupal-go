@@ -16,13 +16,20 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Installation
+* Set the aliases by adding this line to your `bashrc` or `zshrc` file: `source <path-to-project>/go/scripts/aliases.sh`
 * `cp go/makefiles/example.Makefile Makefile && make go_prepare`
 *  Now, set the configurations you need in the file `go/go-conf.php` or you can use the default one and just run the next command.
 * `make go`
 
+## Aliases
+* `god` - Run drush in the php container.
+* `godr` - Run drupal in the php container.
+* `gor` - Run robo in the php container.
+* `goс` - Run composer in the php container.
+
 ## Understanding Go configurations
 * `project_name` - Will be used for the drupal site name and composer.json project name.
-* `project_machine_name` - Will be used for differnet needs to unify some configurations also will be used as a url prefix.
+* `project_machine_name` - Will be used for different needs to unify some configurations also will be used as a url prefix.
 * `include_basic_modules` - Will include the set of prepared modules and enable them after installation.
 * `drush` - Used to configure drush aliases and other useful drush adjustments.
 * `multisite` - You can specify the array of needed domains to create the folder structure automatically.
@@ -32,7 +39,7 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 
 ## Available commands:
 * `robo db_export`, alias `dbe`. Implement an export of current DB state to the DB folder.
-* `robo db_import`, alias `dbi`. Implement an import of latest DB dump from the DB folder.
+* `robo db_import`, alias `dbi`. Implement an import of latest DB dump from the DB folder. `filename` argument is optional to restore the particular dump.
 * `robo get_db`, alias `gdb`. Import DB from the specified environment. It requires argument `alias` (dev,stage or prod)
 * `robo get_files`, alias `gf`. Import files from the specified environment. It requires argument `alias` (dev,stage or prod)
 * `robo rebuild` Execute necessary actions after a pull from the repository.

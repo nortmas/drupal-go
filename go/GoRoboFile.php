@@ -643,7 +643,7 @@ class GoRoboFile extends Tasks {
     $modules = [
       "drupal/admin_toolbar" => "^1.19",
       "drupal/adminimal_admin_toolbar" => "^1.3",
-      "drupal/adminimal_theme" => "^1.x-dev",
+      "drupal/adminimal_theme" => "1.x-dev",
       "drupal/config_split" => "^1.3",
       "drupal/devel" => "^1.0",
     ];
@@ -665,7 +665,7 @@ class GoRoboFile extends Tasks {
    * Remove needless modules.
    */
   protected function removeNeedlessModules() {
-    $drush_pmu = $this->taskDrushStack()->drush('pmu color help history quickedit tour update search')->getCommand();
+    $drush_pmu = $this->taskDrushStack()->drush('pmu color help history quickedit tour search')->getCommand();
     $this->commandExec($drush_pmu);
   }
 

@@ -19,6 +19,7 @@ go:
 	make go_run_in_php
 	make go_php_kill
 	make go_up
+	sleep 5
 	$(call DRUPAL_PHP_ROBO, go)
 
 ## Prepare project.
