@@ -48,7 +48,7 @@ class GoRoboFile extends Tasks {
    * Test function.
    */
   public function test() {
-    $this->say('Hello!');
+    $this->yell('Hello!');
   }
 
   /**
@@ -83,6 +83,7 @@ class GoRoboFile extends Tasks {
       $this->setUpMemcache();
     }
     $this->removeNeedlessModules();
+    $this->yell('Congrats!!! Now you can go here: http://' . $this->config['project_machine_name'] . '.docker.localhost:' . $this->config['port']);
   }
 
   /**

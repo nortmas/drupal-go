@@ -16,6 +16,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Installation
+* To avoid incompatibilities please make sure that all other docker environments are down.
 * Set the aliases by adding this line to your `bashrc` or `zshrc` file: `source <path-to-project>/go/scripts/aliases.sh`
 * `cp go/makefiles/example.Makefile Makefile && make go_prepare`
 *  Now, set the configurations you need in the file `go/go-conf.php` or you can use the default one and just run the next command.
@@ -37,13 +38,26 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 
 FYI: If you set `memcached` to be enabled, it will also enable memcache drupal module and implement appropriate configurations.
 
-## Available commands:
+## Available robo commands:
 * `robo db_export`, alias `dbe`. Implement an export of current DB state to the DB folder.
 * `robo db_import`, alias `dbi`. Implement an import of latest DB dump from the DB folder. `filename` argument is optional to restore the particular dump.
 * `robo get_db`, alias `gdb`. Import DB from the specified environment. It requires argument `alias` (dev,stage or prod)
 * `robo get_files`, alias `gf`. Import files from the specified environment. It requires argument `alias` (dev,stage or prod)
 * `robo rebuild` Execute necessary actions after a pull from the repository.
 * `robo multisite` Generate directory structure and necessary configuration files for specified domains.
+
+## Available make commands:
+* `make go_up` - Up the docker containers.
+* `make go_down` - Stop and remove the docker containers and networks.
+* `make go_restart` - Restart containers.
+* `make go_reset_structure` - Reset file/directory structure to the initial Drupal Go state.
+* `make go_shell` - Get into the php container.
+* `make go_code_sniff` - Check codebase with phpcs sniffers to make sure it conforms https://www.drupal.org/docs/develop/standards
+* `make go_code_fix` - Fix codebase according to Drupal standards https://www.drupal.org/docs/develop/standards
+* `make help` - Shows info about all available make commands.
+
+## How to extend?:
+* You can use `Makefile` and `RoboFile.php` to extend with your own project specific commands. 
 
 ### How can I apply patches to downloaded modules?
 If you need to apply patches (depending on the project being modified, a pull 
