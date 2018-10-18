@@ -14,13 +14,6 @@
     "boedah/robo-drush": "~3",
     "consolidation/robo": "^1.0.0",
     "webflo/drupal-core-require-dev": "~8.5"
-  },
-  "extra": {
-    "patches": {
-      "drupal/core": {
-        "Clear Twig caches on deploys": "https://www.drupal.org/files/issues/2752961-130.patch"
-      }
-    }
   }
 }
 

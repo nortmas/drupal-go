@@ -4,6 +4,7 @@ return [
   'project_name' => 'Drupal Go',
   'project_machine_name' => 'dgo',
   'include_basic_modules' => 0,
+  'port' => 8000,
   'drush' => [
     'sql' => [
       'tables' => [

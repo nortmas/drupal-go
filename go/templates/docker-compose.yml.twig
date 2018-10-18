@@ -232,8 +232,7 @@ services:
     container_name: "{{ project_machine_name }}_traefik"
     command: -c /dev/null --web --docker --logLevel=INFO
     ports:
-      - '80:80'
-      - '8000:80'
+      - '{{ port }}:80'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
