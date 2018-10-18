@@ -22,6 +22,10 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 *  Now, set the configurations you need in the file `go/go-conf.php` or you can use the default one and just run the next command.
 * `make go`
 
+## Known issues.
+If during the installation process you see the error like: `Could not scan for classes inside "web/core/lib/Drupal.php" which does not appear to be a file nor a folder`,
+You need to stop the `go_php` container, manually remove the file `composer.lock` and folder `web`, then run the command `make go` again.
+
 ## Aliases
 * `god` - Run drush in the php container.
 * `godr` - Run drupal in the php container.
