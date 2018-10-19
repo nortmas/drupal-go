@@ -1,0 +1,41 @@
+variables:
+  WORKING_DIR: {{ gitlab.working_dir }}
+
+stages:
+  - deploy
+  - test
+
+deploy_dev:
+  stage: deploy
+  #retry: 2
+  only:
+    - dev
+  variables:
+   BRANCH: dev
+  before_script:
+    - chmod -R 764 ./go/build-scripts/*
+    - ./go/build-scripts/check.sh
+    - ./go/build-scripts/prepare.sh
+  script:
+    - ./go/build-scripts/build.sh
+  after_script:
+    - ./go/build-scripts/finalize.sh
+
+behat_build:
+  stage: test
+  only:
+    - dev
+  variables:
+   BRANCH: dev
+  before_script:
+    - chmod -R 764 ./go/build-scripts/*
+  script:
+    - ./go/build-scripts/behat.sh
+  after_script:
+    - ./go/build-scripts/finalize.sh
+  artifacts:
+    when: always
+    paths:
+      - tests/behat/_output
+  allow_failure: true
+  when: on_success

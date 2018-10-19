@@ -157,7 +157,7 @@ class GoRoboFile extends Tasks {
         $this->projectRoot . '/private',
         $this->projectRoot . '/config',
         $this->projectRoot . '/db',
-        $this->projectRoot . '/test',
+        $this->projectRoot . '/tests',
         $this->projectRoot . '/patches',
       ]);
     }
@@ -168,6 +168,25 @@ class GoRoboFile extends Tasks {
    */
   public function multisite() {
     $this->setUpMultisite();
+  }
+
+  /**
+   * Set up behat auto tests.
+   *
+   * @aliases bhs
+   */
+  public function behat_setup() {
+    if (!$this->fileSystem->exists($this->projectRoot . '/tests/behat')) {
+      $this->fileSystem->copy($this->projectRoot . '/go/behat', $this->projectRoot . '/tests/behat');
+      #$this->fileSystem->chmod($file_settings, 0666);
+
+      // Add behat files using prepared templates.
+      foreach ($this->getFiles('behat') as $template => $options) {
+        $this->makeFileTemplate($template, $options, FALSE);
+      }
+
+      $this->say("The folder ' . $this->projectRoot . '/tests/behat has been created.");
+    }
   }
 
   /**
@@ -283,7 +302,7 @@ class GoRoboFile extends Tasks {
       $this->projectRoot . '/config/stage' => 1,
       $this->projectRoot . '/config/prod' => 1,
       $this->projectRoot . '/db' => 1,
-      $this->projectRoot . '/test' => 1,
+      $this->projectRoot . '/tests' => 1,
       $this->projectRoot . '/patches' => 1,
       $this->drupalRoot . '/profiles' => 1,
       $this->drupalRoot . '/modules' => 0,
@@ -562,35 +581,56 @@ class GoRoboFile extends Tasks {
   /**
    * List of files and settings on how to handle them.
    *
+   * @param string $set_name
+   *   The name of the set to be returned.
+   *
    * @return array
    *   List of files.
    */
-  protected function getFiles() {
-    return [
-      'settings.docker.php' => [
-        'dest' => $this->defaultSettingsPath,
-        'link' => $this->defaultSettingsPath,
+  protected function getFiles($set_name = 'default') {
+    $set = [
+      'default' => [
+        'settings.docker.php' => [
+          'dest' => $this->defaultSettingsPath,
+          'link' => $this->defaultSettingsPath,
+        ],
+        'services.docker.yml' => [
+          'dest' => $this->defaultSettingsPath,
+          'link' => $this->defaultSettingsPath,
+        ],
+        'docker-compose.yml' => [
+          'dest' => $this->projectRoot,
+          'add2yaml' => TRUE,
+        ],
+        'default.site.yml' => [
+          'dest' => $this->projectRoot . '/drush/sites',
+          'add2yaml' => TRUE,
+        ],
+        'drush.yml' => [
+          'dest' => $this->projectRoot . '/drush',
+          'add2yaml' => TRUE,
+        ],
       ],
-      'services.docker.yml' => [
-        'dest' => $this->defaultSettingsPath,
-        'link' => $this->defaultSettingsPath,
+      'phpunit' => [
+        'phpunit.xml.dist' => [
+          'dest' => $this->projectRoot,
+        ],
       ],
-      'docker-compose.yml' => [
-        'dest' => $this->projectRoot,
-        'add2yaml' => TRUE,
+      'behat' => [
+        'behat.yml' => [
+          'dest' => $this->projectRoot,
+        ],
       ],
-      'default.site.yml' => [
-        'dest' => $this->projectRoot . '/drush/sites',
-        'add2yaml' => TRUE,
-      ],
-      'drush.yml' => [
-        'dest' => $this->projectRoot . '/drush',
-        'add2yaml' => TRUE,
-      ],
-      'phpunit.xml.dist' => [
-        'dest' => $this->projectRoot,
+      'gitlab' => [
+        '.gitlab-ci.yml' => [
+          'dest' => $this->projectRoot,
+        ],
+        '.gitlab-ci.rsync-exclude' => [
+          'dest' => $this->projectRoot,
+        ],
       ],
     ];
+    return $set[$set_name];
   }
 
   /**

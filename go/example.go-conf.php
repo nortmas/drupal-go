@@ -42,21 +42,31 @@ return [
       ],
     ],
   ],
+  'gitlab' => [
+    'working_dir' => '/home/gitlab-runner/artifacts',
+  ],
+  'behat' => [
+    'base_url' => 'http://admin:user2admin@apache:80',
+    'region_content' => '.main-content',
+    'region_footer' => '.footer',
+    'region_navigation' => '#main-nav',
+    'region_header' => '.header',
+  ],
   'multisite' => [
     # Should be in a format 'alias' => 'real production domain'
     #'subdomain' => 'subdomain.com',
   ],
   'mariadb' => [
-    'tag' => '10.2-3.1.3',
+    'tag' => '10.1-3.3.8',
   ],
   'php' => [
     'xdebug' => 1,
-    'tag' => '7.1-dev-4.4.2',
+    'tag' => '7.1-dev-4.8.5',
   ],
   'webserver' => [
     'type' => 'apache',
-    'nginx_tag' => '8-1.13-4.1.0',
-    'apache_tag' => '2.4-3.0.5',
+    'nginx_tag' => '1.15-5.0.11',
+    'apache_tag' => '2.4-4.0.2',
   ],
   'varnish' => [
     'enable' => 0,
@@ -64,7 +74,7 @@ return [
   ],
   'dbbrowser' => [
     'type' => 'adminer',
-    'adminer_tag' => '4.3-1.1.0',
+    'adminer_tag' => '4.6-3.0.7',
   ],
   'solr' => [
     'enable' => 0,

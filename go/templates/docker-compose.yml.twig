@@ -52,7 +52,7 @@ services:
 {% if webserver.type == 'nginx' %}
     image: 'wodby/drupal-nginx:{{ webserver.nginx_tag }}'
 {% elseif webserver.type == 'apache' %}
-    image: 'wodby/php-apache:{{ webserver.apache_tag }}'
+    image: 'wodby/apache:{{ webserver.apache_tag }}'
 {% endif %}
     depends_on:
       - php

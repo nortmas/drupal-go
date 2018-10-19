@@ -1,0 +1,64 @@
+default:
+  suites:
+    default:
+      contexts:
+        - Drupal\DrupalExtension\Context\ConfigContext
+        - Drupal\DrupalExtension\Context\DrupalContext
+        - Drupal\DrupalExtension\Context\MinkContext
+        - Drupal\DrupalExtension\Context\MarkupContext
+        - Drupal\DrupalExtension\Context\MessageContext
+        - FeatureContext:
+            parameters:
+              screenshot_dir: %paths.base%/_output/assets/screenshots
+        - Devinci\DevinciExtension\Context\DebugContext:
+            asset_dump_path: %paths.base%/_output/assets
+        - Devinci\DevinciExtension\Context\JavascriptContext:
+            maximum_wait: 30
+      filters:
+        tags: "@beg&&~@wip"
+  formatters:
+    html:
+      output_path: %paths.base%/_output
+  extensions:
+    emuse\BehatHTMLFormatter\BehatHTMLFormatterExtension:
+      name: html
+      renderer: Twig,Behat2
+      file_name: index
+      print_args: true
+      print_outp: true
+      loop_break: true
+    jarnaiz\JUnitFormatter\JUnitFormatterExtension:
+      filename: report.xml
+      outputDir: %paths.base%/_output
+    Behat\MinkExtension:
+      base_url: {{behat.base_url}}
+      javascript_session: selenium2
+      show_cmd: "open %s"
+      selenium2:
+        wd_host: http://selenium:4444/wd/hub
+        capabilities:
+          browser: chrome
+          marionette: true
+          version: ''
+      browser_name: chrome
+      files_path: %paths.base%/resources
+    Drupal\DrupalExtension:
+      api_driver: "drupal"
+      drupal:
+        drupal_root: %paths.base%/../../web
+      drush_driver: "drush"
+      drush:
+        root: %paths.base%/../../web
+      region_map:
+        content: {{behat.region_content}}
+        footer: {{behat.region_footer}}
+        navigation: {{behat.region_navigation}}
+        header: {{behat.region_header}}
+      selectors:
+        message_selector: '[role="contentinfo"] > span'
+        error_message_selector: '.status--error'
+      text:
+        username_field: "Username"
+        password_field: "Password"
+        log_in: "Log In"
+        log_out: "Logout"

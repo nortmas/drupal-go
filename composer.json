@@ -8,12 +8,26 @@
     }
   ],
   "require": {
+    "composer/installers": "^1.2",
+    "cweagans/composer-patches": "^1.6",
+    "drupal/console": "^1.0.2",
+    "drupal/core": "^8.6.0",
+    "drush/drush": "^9.0.0",
+    "drupal-composer/drupal-scaffold": "^2.5",
     "drupal/admin_toolbar": "^1.19",
     "drupal/adminimal_admin_toolbar": "^1.3",
     "drupal/adminimal_theme": "1.x-dev",
     "drupal/config_split": "^1.3",
     "drupal/devel": "^1.0",
-    "wikimedia/composer-merge-plugin": "^1.4"
+    "hirak/prestissimo": "^0.3.7",
+    "vlucas/phpdotenv": "^2.4",
+    "webflo/drupal-finder": "^1.0.0",
+    "webmozart/path-util": "^2.3"
+  },
+  "require-dev": {
+    "boedah/robo-drush": "~3",
+    "consolidation/robo": "^1.0.0",
+    "webflo/drupal-core-require-dev": "^8.6.0"
   },
   "conflict": {
     "drupal/drupal": "*"
@@ -26,16 +40,6 @@
   "extra": {
     "patchLevel": {
       "drupal/core": "-p2"
-    },
-    "merge-plugin": {
-      "include": [
-        "go/go.composer.json"
-      ],
-      "merge-extra": true,
-      "merge-extra-deep": true,
-      "merge-scripts": true,
-      "replace": false,
-      "ignore-duplicates": true
     },
     "installer-paths": {
       "web/core": [
