@@ -15,7 +15,7 @@ default:
         - Devinci\DevinciExtension\Context\JavascriptContext:
             maximum_wait: 30
       filters:
-        tags: "@beg&&~@wip"
+        tags: "@dgo&&~@{{ project_machine_name }}"
   formatters:
     html:
       output_path: %paths.base%/_output
@@ -55,8 +55,8 @@ default:
         navigation: {{behat.region_navigation}}
         header: {{behat.region_header}}
       selectors:
-        message_selector: '[role="contentinfo"] > span'
-        error_message_selector: '.status--error'
+        message_selector: '[role="contentinfo"] > div'
+        error_message_selector: '.messages--error'
       text:
         username_field: "Username"
         password_field: "Password"

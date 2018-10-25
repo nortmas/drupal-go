@@ -60,11 +60,13 @@ services:
 {% if webserver.type == 'nginx' %}
       NGINX_STATIC_CONTENT_OPEN_FILE_CACHE: 'off'
       NGINX_ERROR_LOG_LEVEL: debug
+      NGINX_VHOST_PRESET: drupal8
 {% elseif webserver.type == 'apache' %}
       APACHE_LOG_LEVEL: debug
+      APACHE_VHOST_PRESET: php
+      APACHE_DOCUMENT_ROOT: /var/www/html/web
 {% endif %}
       {{ webserver.type|upper }}_BACKEND_HOST: php
-      {{ webserver.type|upper }}_SERVER_ROOT: /var/www/html/web
     volumes:
       - ./:/var/www/html
     labels:
@@ -225,6 +227,21 @@ services:
       - 'traefik.backend=portainer'
       - 'traefik.port=9000'
       - 'traefik.frontend.rule=Host:portainer.{{ project_machine_name }}.docker.localhost'
+{% endif %}
+{% if behat.enable %}
+
+  selenium:
+    image: selenium/standalone-chrome
+    container_name: '{{ project_machine_name }}_selenium'
+    restart: on-failure:5
+    volumes:
+      - /dev/shm:/dev/shm
+    labels:
+      - 'traefik.backend=selenium'
+      - 'traefik.port=4444'
+      - 'traefik.frontend.rule=Host:selenium.{{ project_machine_name }}.docker.localhost'
+    ports:
+      - 5900:5900
 {% endif %}
 
   traefik:

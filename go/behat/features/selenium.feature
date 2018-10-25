@@ -1,4 +1,4 @@
-@drupal_go
+@dgo
 Feature: Selenium
   In order to prove tests are working properly
   As a developer
@@ -22,4 +22,4 @@ Feature: Selenium
 
   Scenario: Find an element with an attribute in a region
     Given I am on the homepage
-    Then I should see the "a" element with the "class" attribute set to "logo__link--branding" in the "header" region
+    Then I should see the "a" element with the "class" attribute set to "site-branding__logo" in the "header" region

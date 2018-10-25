@@ -9,4 +9,4 @@ cd $BUILD_DIR
 echo "Remove previous artifacts."
 rm -rf tests/behat/_output/*
 echo "Running Behat tests"
-make behat
+make go_run_behat

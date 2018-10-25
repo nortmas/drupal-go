@@ -67,6 +67,12 @@ class GoRoboFile extends Tasks {
       $this->updateGoConf();
     }
 
+    if ($this->config['behat']['enable'] == FALSE) {
+      $behat = $this->ask("Do you want to set up behat tests? Y or N");
+      $this->config['behat']['enable'] = strtolower($behat) == 'y' ? 1 : 0;
+      $this->updateGoConf();
+    }
+
     $this->configureProject(TRUE);
   }
 
@@ -149,12 +155,13 @@ class GoRoboFile extends Tasks {
     if ($do) {
       $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
       $this->fileSystem->remove([
+        $this->projectRoot . '/.gitlab-ci.rsync-exclude',
+        $this->projectRoot . '/.gitlab-ci.yml',
         $this->projectRoot . '/go/go-conf.php',
         $this->projectRoot . '/drush/sites',
         $this->projectRoot . '/drush/drush.yml',
         $this->projectRoot . '/composer.lock',
-        $this->projectRoot . '/phpunit.xml.dist',
-        $this->projectRoot . '/private',
+        $this->projectRoot . '/certs',
         $this->projectRoot . '/config',
         $this->projectRoot . '/db',
         $this->projectRoot . '/tests',
@@ -177,15 +184,38 @@ class GoRoboFile extends Tasks {
    */
   public function behat_setup() {
     if (!$this->fileSystem->exists($this->projectRoot . '/tests/behat')) {
-      $this->fileSystem->copy($this->projectRoot . '/go/behat', $this->projectRoot . '/tests/behat');
-      #$this->fileSystem->chmod($file_settings, 0666);
-
+      $this->_copyDir($this->projectRoot . '/go/behat', $this->projectRoot . '/tests/behat');
       // Add behat files using prepared templates.
       foreach ($this->getFiles('behat') as $template => $options) {
         $this->makeFileTemplate($template, $options, FALSE);
       }
+      $this->say('The folder ' . $this->projectRoot . '/tests/behat has been created.');
+    }
+    $modules = [
+      "behat/mink-zombie-driver" => "^1.4",
+      "devinci/devinci-behat-extension" => "dev-master",
+      "drupal/drupal-extension" => "^3.4",
+      "emuse/behat-html-formatter" => "^0.1.0",
+      "jarnaiz/behat-junit-formatter" => "^1.3",
+    ];
+    foreach ($modules as $name => $version) {
+      $this->taskComposerRequire()->dependency($name, $version)->dev()->run();
+    }
+  }
 
-      $this->say("The folder ' . $this->projectRoot . '/tests/behat has been created.");
+  /**
+   * Set up GitLab CI flow.
+   *
+   * @aliases gcs
+   */
+  public function gitlab_ci_setup() {
+    if (!$this->fileSystem->exists($this->projectRoot . '/.gitlab-ci.yml')) {
+      // Add behat files using prepared templates.
+      $files = $this->getFiles('gitlab');
+      foreach ($files as $template => $options) {
+        $this->makeFileTemplate($template, $options, FALSE);
+      }
+      $this->say('The files ' . implode(', ', array_keys($files)) . ' has been created.');
     }
   }
 
@@ -294,8 +324,8 @@ class GoRoboFile extends Tasks {
    */
   protected function configureProject($ovewrite = FALSE) {
     $dirs = [
-      $this->projectRoot . '/private' => 3,
       $this->projectRoot . '/config' => 0,
+      $this->projectRoot . '/certs' => 1,
       $this->projectRoot . '/config/default' => 1,
       $this->projectRoot . '/config/local' => 1,
       $this->projectRoot . '/config/dev' => 1,
@@ -313,6 +343,7 @@ class GoRoboFile extends Tasks {
       $this->drupalRoot . '/themes/contrib' => 1,
       $this->drupalRoot . '/sites/default/files' => 1,
       $this->drupalRoot . '/sites/default/files/tmp' => 2,
+      $this->drupalRoot . '/sites/default/files/private' => 3,
     ];
 
     foreach ($dirs as $dir => $mode) {
@@ -613,12 +644,12 @@ class GoRoboFile extends Tasks {
       ],
       'phpunit' => [
         'phpunit.xml.dist' => [
-          'dest' => $this->projectRoot,
+          'dest' => $this->projectRoot . '/tests',
         ],
       ],
       'behat' => [
         'behat.yml' => [
-          'dest' => $this->projectRoot,
+          'dest' => $this->projectRoot . '/tests/behat',
         ],
       ],
       'gitlab' => [
@@ -627,6 +658,10 @@ class GoRoboFile extends Tasks {
         ],
         '.gitlab-ci.rsync-exclude' => [
           'dest' => $this->projectRoot,
+        ],
+        'docker-compose.dev.yml' => [
+          'dest' => $this->projectRoot,
+          'add2yaml' => TRUE,
         ],
       ],
     ];

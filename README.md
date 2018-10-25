@@ -20,7 +20,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * Set the aliases by adding this line to your `bashrc` or `zshrc` file: `source <path-to-project>/go/scripts/aliases.sh`
 * `cp go/makefiles/example.Makefile Makefile && make go_prepare`
 *  Now, set the configurations you need in the file `go/go-conf.php` or you can use the default one and just run the next command.
-* `make go`
+* `make go && make go_drupal_install`
 
 ## Known issues.
 If during the installation process you see the error like: `Could not scan for classes inside "web/core/lib/Drupal.php" which does not appear to be a file nor a folder`,
@@ -49,8 +49,12 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `robo get_files`, alias `gf`. Import files from the specified environment. It requires argument `alias` (dev,stage or prod)
 * `robo rebuild` Execute necessary actions after a pull from the repository.
 * `robo multisite` Generate directory structure and necessary configuration files for specified domains.
+* `robo behat_setup` Set up behat auto tests.
+* `robo gitlab_ci_setup` Set up GitLab CI flow.
 
 ## Available make commands:
+* `make go` - Roll out the environment.
+* `make go_drupal_install` - Install Drupal.
 * `make go_up` - Up the docker containers.
 * `make go_down` - Stop and remove the docker containers and networks.
 * `make go_restart` - Restart containers.

@@ -106,7 +106,7 @@ $config['system.file']['path']['temporary'] = 'sites/default/files/tmp';
 /**
 * Private file path.
 */
-$settings['file_private_path'] = '../private';
+$settings['file_private_path'] = 'sites/default/files/private';
 
 /**
 * Trusted host configuration.
@@ -118,10 +118,20 @@ $settings['trusted_host_patterns'] = ['^.+$'];
 /**
 * Config split module settings.
 */
-$config['config_split.config_split.local']['status'] = TRUE;
-$config['config_split.config_split.dev']['status'] = FALSE;
-$config['config_split.config_split.stage']['status'] = FALSE;
-$config['config_split.config_split.prod']['status'] = FALSE;
+if (isset($_ENV['GIT_USER_NAME']) && $_ENV['GIT_USER_NAME'] === 'wodby-dev') {
+  // DEV environment
+  $config['config_split.config_split.local']['status'] = FALSE;
+  $config['config_split.config_split.dev']['status'] = TRUE;
+  $config['config_split.config_split.stage']['status'] = FALSE;
+  $config['config_split.config_split.prod']['status'] = FALSE;
+}
+else {
+  // LOCAL environment
+  $config['config_split.config_split.local']['status'] = TRUE;
+  $config['config_split.config_split.dev']['status'] = FALSE;
+  $config['config_split.config_split.stage']['status'] = FALSE;
+  $config['config_split.config_split.prod']['status'] = FALSE;
+}
 
 /**
 * Environment indicator module settings.

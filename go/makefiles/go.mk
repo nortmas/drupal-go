@@ -7,19 +7,22 @@ INIT_PHP_ROBO=docker exec -ti -e COLUMNS=$(shell tput cols) -e LINES=$(shell tpu
 DRUPAL_PHP_ROBO=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php vendor/bin/robo ${1}
 DRUPAL_PHP_COMPOSER=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php composer ${1}
 DRUPAL_PHP_DRUSH=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php drush ${1}
+DRUPAL_PHP=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php ${1}
 
 include $(CURRENT_PATH)/go/makefiles/help.mk
 include $(CURRENT_PATH)/go/makefiles/tools.mk
 
-.PHONY: go go_prepare go_set_php_container go_run_in_php go_php_kill go_up go_down go_reset_structure
+.PHONY: go go_prepare go_set_php_container go_run_in_php go_php_kill go_up go_down go_reset_structure go_run_behat go_set_aliases
 
-## Go.
+## Roll out the environment.
 go:
 	make go_set_php_container
 	make go_run_in_php
 	make go_php_kill
 	make go_up
-	sleep 10
+
+## Install Drupal.
+go_drupal_install:
 	$(call DRUPAL_PHP_ROBO, go)
 
 ## Prepare project.
@@ -45,8 +48,6 @@ go_php_kill:
 
 ## Up the docker containers.
 go_up:
-	@echo "Updating containers..."
-	docker-compose pull --parallel
 	@echo "Build and run containers..."
 	docker-compose up -d --remove-orphans
 
@@ -71,7 +72,8 @@ go_reset_structure:
 
 ## Run behat test.
 go_run_behat:
-	$(call php, /bin/bash -c "./vendor/bin/behat -f pretty --out=std -f junit --out=tests/behat/_output -f html -c tests/behat/behat.yml -p default")
+	$(call DRUPAL_PHP, /bin/bash -c "./vendor/bin/behat -f pretty --out=std -f junit --out=tests/behat/_output -f html -c tests/behat/behat.yml -p default")
 
+## Set command line aliases.
 go_set_aliases:
 	sh $(CURRENT_PATH)/go/scripts/aliases.sh

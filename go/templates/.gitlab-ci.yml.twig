@@ -20,6 +20,7 @@ deploy_dev:
     - ./go/build-scripts/build.sh
   after_script:
     - ./go/build-scripts/finalize.sh
+{% if behat.enable %}
 
 behat_build:
   stage: test
@@ -39,3 +40,4 @@ behat_build:
       - tests/behat/_output
   allow_failure: true
   when: on_success
+{% endif %}

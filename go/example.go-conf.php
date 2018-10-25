@@ -43,9 +43,12 @@ return [
     ],
   ],
   'gitlab' => [
+    'enable' => 1,
+    'staging_domain' => 'staging-domain.com',
     'working_dir' => '/home/gitlab-runner/artifacts',
   ],
   'behat' => [
+    'enable' => 1,
     'base_url' => 'http://admin:user2admin@apache:80',
     'region_content' => '.main-content',
     'region_footer' => '.footer',
