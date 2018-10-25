@@ -20,7 +20,8 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * Set the aliases by adding this line to your `bashrc` or `zshrc` file: `source <path-to-project>/go/scripts/aliases.sh`
 * If you are a MacOS user, run the following command: `make go_mac`. To improve performance read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).
 * Now, set the configurations you need in the file `GoConfig.php` or use the default settings and just run the next command.
-* `make go && make go_drupal_install`
+* `make go_prepare_env`
+* `make go_drupal_install`
 
 ## How to extend?
 * If you need specific settings for your local environment, use the `docker-compose.override.yml` file.
@@ -53,7 +54,7 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `robo gitlab_ci_setup` Set up GitLab CI flow.
 
 ## Available make commands:
-* `make go` - Roll out the environment.
+* `make go_prepare_env` - Roll out the environment.
 * `make go_drupal_install` - Install Drupal.
 * `make go_mac` - Create .env file with specific settings for Mac.
 * `make go_up` - Up the docker containers.

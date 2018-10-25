@@ -12,15 +12,14 @@ DRUPAL_PHP=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tp
 include $(CURRENT_PATH)/go/makefiles/help.mk
 include $(CURRENT_PATH)/go/makefiles/tools.mk
 
-.PHONY: go go_set_php_container go_run_in_php go_php_kill go_mac go_up go_down go_reset_structure go_run_behat
+.PHONY: go_prepare_env go_set_php_container go_run_in_php go_php_kill go_mac go_up go_down go_reset_structure go_run_behat
 
 ## Roll out the environment.
-go:
+go_prepare_env:
 	make go_set_php_container
 	make go_run_in_php
 	make go_php_kill
 	make go_up
-	sleep 10
 
 ## Install Drupal.
 go_drupal_install:
