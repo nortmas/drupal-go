@@ -18,8 +18,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 ## Installation
 * To avoid incompatibilities please make sure that all other docker environments are down.
 * Set the aliases by adding this line to your `bashrc` or `zshrc` file: `source <path-to-project>/go/scripts/aliases.sh`
-* `cp go/makefiles/example.Makefile Makefile && make go_prepare`
-*  Now, set the configurations you need in the file `go/go-conf.php` or you can use the default one and just run the next command.
+* Now, set the configurations you need in the file `GoConfig.php` or use the default settings and just run the next command.
 * `make go && make go_drupal_install`
 
 ## Known issues.

@@ -157,7 +157,6 @@ class GoRoboFile extends Tasks {
       $this->fileSystem->remove([
         $this->projectRoot . '/.gitlab-ci.rsync-exclude',
         $this->projectRoot . '/.gitlab-ci.yml',
-        $this->projectRoot . '/go/go-conf.php',
         $this->projectRoot . '/drush/sites',
         $this->projectRoot . '/drush/drush.yml',
         $this->projectRoot . '/composer.lock',
@@ -672,12 +671,8 @@ class GoRoboFile extends Tasks {
    * Return configurations.
    */
   protected function getConfig() {
-    if (!file_exists($this->goRoot . '/go-conf.php') && file_exists($this->goRoot . '/example.go-conf.php')) {
-      $this->fileSystem->copy($this->goRoot . '/example.go-conf.php', $this->goRoot . '/go-conf.php');
-    }
-
-    if (file_exists($this->goRoot . '/go-conf.php')) {
-      $config = include $this->goRoot . '/go-conf.php';
+    if (file_exists($this->projectRoot . '/GoConfig.php')) {
+      $config = include $this->projectRoot . '/GoConfig.php';
       return $config;
     }
   }
@@ -746,7 +741,7 @@ class GoRoboFile extends Tasks {
   }
 
   /**
-   * Overwrite go-conf.php with the new values.
+   * Overwrite GoConfig.php with the new values.
    */
   protected function updateGoConf() {
     $php = var_export($this->config, true);
@@ -761,7 +756,7 @@ class GoRoboFile extends Tasks {
     }
 
     $php = "<?php\n\nreturn " . $php . ";";
-    file_put_contents($this->goRoot . '/go-conf.php', $php);
+    file_put_contents($this->projectRoot . '/GoConfig.php', $php);
   }
 
 }

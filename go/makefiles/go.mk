@@ -12,7 +12,7 @@ DRUPAL_PHP=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tp
 include $(CURRENT_PATH)/go/makefiles/help.mk
 include $(CURRENT_PATH)/go/makefiles/tools.mk
 
-.PHONY: go go_prepare go_set_php_container go_run_in_php go_php_kill go_up go_down go_reset_structure go_run_behat go_set_aliases
+.PHONY: go go_set_php_container go_run_in_php go_php_kill go_up go_down go_reset_structure go_run_behat go_set_aliases
 
 ## Roll out the environment.
 go:
@@ -24,13 +24,6 @@ go:
 ## Install Drupal.
 go_drupal_install:
 	$(call DRUPAL_PHP_ROBO, go)
-
-## Prepare project.
-go_prepare:
-	@echo "Create go-conf.php"
-	$(shell cp -n go/example.go-conf.php go/go-conf.php)
-	@echo "Create RoboFile.php"
-	$(shell cp -n go/example.RoboFile.php ./RoboFile.php)
 
 ## Run php container in order to prepare project.
 go_set_php_container:
