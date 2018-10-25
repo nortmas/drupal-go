@@ -15,7 +15,7 @@ default:
         - Devinci\DevinciExtension\Context\JavascriptContext:
             maximum_wait: 30
       filters:
-        tags: "@dgo&&~@{{ project_machine_name }}"
+        tags: "@dgo,@{{ project_machine_name }}"
   formatters:
     html:
       output_path: %paths.base%/_output

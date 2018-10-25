@@ -12,7 +12,7 @@ DRUPAL_PHP=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tp
 include $(CURRENT_PATH)/go/makefiles/help.mk
 include $(CURRENT_PATH)/go/makefiles/tools.mk
 
-.PHONY: go go_set_php_container go_run_in_php go_php_kill go_up go_down go_reset_structure go_run_behat go_set_aliases
+.PHONY: go go_set_php_container go_run_in_php go_php_kill go_mac go_up go_down go_reset_structure go_run_behat
 
 ## Roll out the environment.
 go:
@@ -20,6 +20,7 @@ go:
 	make go_run_in_php
 	make go_php_kill
 	make go_up
+	sleep 10
 
 ## Install Drupal.
 go_drupal_install:
@@ -38,6 +39,10 @@ go_run_in_php:
 go_php_kill:
 	docker rm -f $(INIT_PHP_CONTAINER)
 	docker rmi -f $(INIT_PHP_IMAGE)
+
+## Create .env file with specific settings for Mac.
+go_mac:
+	echo 'OS=macos-' > .env
 
 ## Up the docker containers.
 go_up:
@@ -66,7 +71,3 @@ go_reset_structure:
 ## Run behat test.
 go_run_behat:
 	$(call DRUPAL_PHP, /bin/bash -c "./vendor/bin/behat -f pretty --out=std -f junit --out=tests/behat/_output -f html -c tests/behat/behat.yml -p default")
-
-## Set command line aliases.
-go_set_aliases:
-	sh $(CURRENT_PATH)/go/scripts/aliases.sh

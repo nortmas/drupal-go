@@ -88,6 +88,12 @@ class GoRoboFile extends Tasks {
     if ($this->config['memcached']['enable'] == TRUE) {
       $this->setUpMemcache();
     }
+    if ($this->config['behat']['enable'] == TRUE) {
+      $this->behat_setup();
+    }
+    if ($this->config['gitlab']['enable'] == TRUE) {
+      $this->gitlab_ci_setup();
+    }
     $this->removeNeedlessModules();
     $this->yell('Congrats!!! Now you can go here: http://' . $this->config['project_machine_name'] . '.docker.localhost:' . $this->config['port']);
   }
@@ -155,11 +161,13 @@ class GoRoboFile extends Tasks {
     if ($do) {
       $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
       $this->fileSystem->remove([
+        $this->projectRoot . '/.env',
         $this->projectRoot . '/.gitlab-ci.rsync-exclude',
         $this->projectRoot . '/.gitlab-ci.yml',
         $this->projectRoot . '/drush/sites',
         $this->projectRoot . '/drush/drush.yml',
         $this->projectRoot . '/composer.lock',
+        $this->projectRoot . '/docker-compose.dev.yml',
         $this->projectRoot . '/certs',
         $this->projectRoot . '/config',
         $this->projectRoot . '/db',

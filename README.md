@@ -18,12 +18,13 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 ## Installation
 * To avoid incompatibilities please make sure that all other docker environments are down.
 * Set the aliases by adding this line to your `bashrc` or `zshrc` file: `source <path-to-project>/go/scripts/aliases.sh`
+* If you are a MacOS user, run the following command: `make go_mac`. To improve performance read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).
 * Now, set the configurations you need in the file `GoConfig.php` or use the default settings and just run the next command.
 * `make go && make go_drupal_install`
 
-## Known issues.
-If during the installation process you see the error like: `Could not scan for classes inside "web/core/lib/Drupal.php" which does not appear to be a file nor a folder`,
-You need to stop the `go_php` container, manually remove the file `composer.lock` and folder `web`, then run the command `make go` again.
+## How to extend?
+* If you need specific settings for your local environment, use the `docker-compose.override.yml` file.
+* You can use `Makefile` and `RoboFile.php` to extend workflow with the project specific commands.
 
 ## Aliases
 * `god` - Run drush in the php container.
@@ -54,6 +55,7 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 ## Available make commands:
 * `make go` - Roll out the environment.
 * `make go_drupal_install` - Install Drupal.
+* `make go_mac` - Create .env file with specific settings for Mac.
 * `make go_up` - Up the docker containers.
 * `make go_down` - Stop and remove the docker containers and networks.
 * `make go_restart` - Restart containers.
@@ -62,9 +64,6 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `make go_code_sniff` - Check codebase with phpcs sniffers to make sure it conforms https://www.drupal.org/docs/develop/standards
 * `make go_code_fix` - Fix codebase according to Drupal standards https://www.drupal.org/docs/develop/standards
 * `make help` - Shows info about all available make commands.
-
-## How to extend?:
-* You can use `Makefile` and `RoboFile.php` to extend with your own project specific commands. 
 
 ### How can I apply patches to downloaded modules?
 If you need to apply patches (depending on the project being modified, a pull 

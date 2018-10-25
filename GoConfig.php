@@ -43,12 +43,12 @@ return [
     ],
   ],
   'gitlab' => [
-    'enable' => 1,
+    'enable' => 0,
     'staging_domain' => 'staging-domain.com',
     'working_dir' => '/home/gitlab-runner/artifacts',
   ],
   'behat' => [
-    'enable' => 1,
+    'enable' => 0,
     'base_url' => 'http://admin:user2admin@apache:80',
     'region_content' => '.main-content',
     'region_footer' => '.footer',
@@ -64,7 +64,7 @@ return [
   ],
   'php' => [
     'xdebug' => 1,
-    'tag' => '7.1-dev-4.8.5',
+    'tag' => '7.1-dev-${OS}4.8.5', // The variable $OS is taken from the .env file.
   ],
   'webserver' => [
     'type' => 'apache',
