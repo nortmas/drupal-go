@@ -1,3 +1,9 @@
+## Include .env file if exists.
+ifneq ("$(wildcard .env)","")
+    include .env
+endif
+
+## Set variables.
 CURRENT_PATH=$(shell pwd)
 INIT_PHP_NAME=go_php
 INIT_PHP_IMAGE=wodby/drupal-php:7.1-dev-$(OS)4.8.5
@@ -9,10 +15,11 @@ DRUPAL_PHP_COMPOSER=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$
 DRUPAL_PHP_DRUSH=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php drush ${1}
 DRUPAL_PHP=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php ${1}
 
+## Include addtional commands.
 include $(CURRENT_PATH)/go/makefiles/help.mk
 include $(CURRENT_PATH)/go/makefiles/tools.mk
 
-.PHONY: go_prepare_env go_set_php_container go_run_in_php go_php_kill go_mac go_up go_down go_reset_structure go_run_behat
+.PHONY: go_prepare_env go_set_php_container go_run_in_php go_mac go_php_kill go_up go_down go_reset_structure
 
 ## Roll out the environment.
 go_prepare_env:
@@ -34,14 +41,22 @@ go_run_in_php:
 	$(call INIT_PHP_COMPOSER, install)
 	$(call INIT_PHP_ROBO, prepare)
 
+## Create .env file with specific settings for Mac.
+go_mac:
+	echo 'OS=macos-' > .env
+
 ## Kill php container.
 go_php_kill:
 	docker rm -f $(INIT_PHP_CONTAINER)
 	docker rmi -f $(INIT_PHP_IMAGE)
 
-## Create .env file with specific settings for Mac.
-go_mac:
-	echo 'OS=macos-' > .env
+## Reset file/directory structure to the initial Drupal Go state.
+go_reset_structure:
+	$(call DRUPAL_PHP_ROBO, reset_file_structure)
+	docker-compose down -v --rmi all
+	rm -rf vendor
+	rm -rf web
+	rm -f docker-compose.yml
 
 ## Up the docker containers.
 go_up:
@@ -57,15 +72,3 @@ go_down:
 go_restart:
 	make go_down
 	make go_up
-
-## Reset file/directory structure to the initial Drupal Go state.
-go_reset_structure:
-	$(call DRUPAL_PHP_ROBO, reset_file_structure)
-	docker-compose down -v --rmi all
-	rm -rf vendor
-	rm -rf web
-	rm -f docker-compose.yml
-
-## Run behat test.
-go_run_behat:
-	$(call DRUPAL_PHP, /bin/bash -c "./vendor/bin/behat -f pretty --out=std -f junit --out=tests/behat/_output -f html -c tests/behat/behat.yml -p default")

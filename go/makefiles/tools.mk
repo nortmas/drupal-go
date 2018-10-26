@@ -2,6 +2,10 @@
 go_shell:
 	docker-compose exec php sh
 
+## Run behat test.
+go_run_behat:
+	$(call DRUPAL_PHP, /bin/bash -c "./vendor/bin/behat -f pretty --out=std -f junit --out=tests/behat/_output -f html -c tests/behat/behat.yml -p default")
+
 ## Check codebase with phpcs sniffers to make sure it conforms https://www.drupal.org/docs/develop/standards
 go_code_sniff:
 	docker run --rm \
