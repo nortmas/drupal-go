@@ -19,9 +19,9 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * To avoid incompatibilities please make sure that all other docker environments are down.
 * Set the aliases by adding this line to your `bashrc` or `zshrc` file: `source <path-to-project>/go/scripts/aliases.sh`
 * If you are a MacOS user, run the following command: `make go_mac`. To improve performance read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).
-* Now, set the configurations you need in the file `GoConfig.php` or use the default settings and just run the next command.
-* `make go_prepare_env`
-* `make go_drupal_install`
+* Now, set the configurations you need in the file `GoConfig.php` or use the default settings and just run the next commands one by one:
+    * `make go_prepare_env`
+    * `make go_drupal_install`
 
 ## How to extend?
 * If you need specific settings for your local environment, use the `docker-compose.override.yml` file.
