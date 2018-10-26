@@ -1,0 +1,29 @@
+# see https://github.com/drush-ops/drush/blob/master/examples/example.drush.yml
+drush:
+  paths:
+    config:
+      - '${env.home}/.drush/config/drush.yml'
+options:
+  uri: 'http://dgo.docker.localhost:8000'
+command:
+  core:
+    rsync:
+      options:
+        mode: 'rlDzq'
+  sql:
+    dump:
+      options:
+        structure-tables-key: 'common'
+        skip-tables-key: 'common'
+sql:
+  structure-tables:
+    common:
+      - 'cache'
+      - 'cache_*'
+      - 'history'
+      - 'search_*'
+      - 'sessions'
+      - 'watchdog'
+  skip-tables:
+    common:
+      - 'migration_*'
