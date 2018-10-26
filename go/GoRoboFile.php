@@ -124,7 +124,7 @@ class GoRoboFile extends Tasks {
   }
 
   /**
-   * Install Drupal.
+   * Reinstall Drupal from the scratch.
    * @alias rei
    * @param string $profile
    */
@@ -146,9 +146,16 @@ class GoRoboFile extends Tasks {
 
   /**
    * Recreate configuration files.
+   * @param string $set The name of set of the files to be recreated.
+   *   May have values: drupal, drush, docker, gitlab, behat, phpunit.
    */
-  public function reconf() {
-    $this->recreateConfigFiles();
+  public function reconf($set = 'default') {
+    $this->io()->caution("This action will overwrite all previously created configs.");
+    $save_origin = $this->ask("Do you want to save backups if they differ from the original ones? Y or N");
+    $save_origin = strtolower($save_origin) == 'y' ? TRUE : FALSE;
+    foreach ($this->getFiles($set) as $template => $options) {
+      $this->makeFileTemplate($template, $options, TRUE, $save_origin);
+    }
   }
 
   /**
@@ -273,16 +280,16 @@ class GoRoboFile extends Tasks {
    */
   public function rebuild() {
     $drush_cc_drush = $this->taskDrushStack()->clearCache('drush')->getCommand();
-    $drush_csim = $this->taskDrushStack()->drush('csim')->getCommand();
+    $drush_cim = $this->taskDrushStack()->drush('cim')->getCommand();
     $drush_updb = $this->taskDrushStack()->drush('updb')->getCommand();
     $drush_eu = $this->taskDrushStack()->drush('entity-updates')->getCommand();
     $composer_install = $this->taskComposerInstall()->getCommand();
 
     $this->commandExec($drush_cc_drush);
-    $this->commandExec($drush_csim);
+    $this->commandExec($drush_cim);
     $this->commandExec($composer_install);
     $this->commandExec($drush_updb);
-    $this->commandExec($drush_csim);
+    $this->commandExec($drush_cim);
     $this->commandExec($drush_eu);
   }
 
@@ -295,11 +302,11 @@ class GoRoboFile extends Tasks {
   public function get_db($alias) {
     $drush_create_db = $this->taskDrushStack()->drush('sql-create')->getCommand();
     $drush_sync = $this->taskDrushStack()->drush('sql-sync @' . $alias . ' @self')->getCommand();
-    $drush_csim = $this->taskDrushStack()->drush('csim')->getCommand();
+    $drush_cim = $this->taskDrushStack()->drush('cim')->getCommand();
 
     $this->commandExec($drush_create_db);
     $this->commandExec($drush_sync);
-    $this->commandExec($drush_csim);
+    $this->commandExec($drush_cim);
   }
 
   /**
@@ -365,18 +372,6 @@ class GoRoboFile extends Tasks {
     // Set permissions, see https://wodby.com/stacks/drupal/docs/local/permissions
     #exec('setfacl -dR -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $this->projectRoot);
     #exec('setfacl -R -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $this->projectRoot);
-  }
-
-  /**
-   * Recreate config files.
-   */
-  protected function recreateConfigFiles() {
-    $this->io()->caution("This action will overwrite all previously created configs.");
-    $save_origin = $this->ask("Do you want to save backups if they differ from the original ones? Y or N");
-    $save_origin = strtolower($save_origin) == 'y' ? TRUE : FALSE;
-    foreach ($this->getFiles() as $template => $options) {
-      $this->makeFileTemplate($template, $options, TRUE, $save_origin);
-    }
   }
 
   /**
@@ -627,7 +622,7 @@ class GoRoboFile extends Tasks {
    */
   protected function getFiles($set_name = 'default') {
     $set = [
-      'default' => [
+      'drupal' => [
         'settings.docker.php' => [
           'dest' => $this->defaultSettingsPath,
           'link' => $this->defaultSettingsPath,
@@ -636,16 +631,20 @@ class GoRoboFile extends Tasks {
           'dest' => $this->defaultSettingsPath,
           'link' => $this->defaultSettingsPath,
         ],
-        'docker-compose.yml' => [
-          'dest' => $this->projectRoot,
-          'add2yaml' => TRUE,
-        ],
+      ],
+      'drush' => [
         'default.site.yml' => [
           'dest' => $this->projectRoot . '/drush/sites',
           'add2yaml' => TRUE,
         ],
         'drush.yml' => [
           'dest' => $this->projectRoot . '/drush',
+          'add2yaml' => TRUE,
+        ],
+      ],
+      'docker' => [
+        'docker-compose.yml' => [
+          'dest' => $this->projectRoot,
           'add2yaml' => TRUE,
         ],
       ],
@@ -672,7 +671,13 @@ class GoRoboFile extends Tasks {
         ],
       ],
     ];
-    return $set[$set_name];
+
+    if ($set_name == 'default') {
+      return $set['drupal'] + $set['drush'] + $set['docker'];
+    }
+    else {
+      return $set[$set_name];
+    }
   }
 
   /**
