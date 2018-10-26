@@ -51,6 +51,7 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `robo rebuild` Execute necessary actions after a pull from the repository.
 * `robo multisite` Generate directory structure and necessary configuration files for specified domains.
 * `robo behat_setup` Set up behat auto tests.
+* `robo reconf` Reconfigure settings for the particular set of files. May accept arguments: `drupal`, `drush`, `docker`, `gitlab`, `behat`, `phpunit`. `default` (by default) includes drupal, drush, docker))
 * `robo gitlab_ci_setup` Set up GitLab CI flow.
 
 ## Available make commands:
