@@ -4,11 +4,6 @@
 #
 # Mandatory custom variables definied like this in .gitlab-ci.yml:
 #
-# ```
-# variables:
-#     WORKING_DIR: /home/gitlab-runner/beg-deploy-artifacts
-# ```
-#
 # NB: do not change directory here, this could break other scripts.
 
 echo "Version informations (gitlab-runner)"
