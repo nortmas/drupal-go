@@ -71,11 +71,15 @@ return [
     'nginx_tag' => '1.15-5.0.11',
     'apache_tag' => '2.4-4.0.2',
   ],
+  'mailhog' => [
+    'enable' => 0,
+  ],
   'varnish' => [
     'enable' => 0,
     'tag' => '4.1-2.4.0',
   ],
   'dbbrowser' => [
+    'enable' => 0,
     'type' => 'adminer',
     'adminer_tag' => '4.6-3.0.7',
   ],

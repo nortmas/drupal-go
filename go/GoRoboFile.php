@@ -125,7 +125,7 @@ class GoRoboFile extends Tasks {
 
   /**
    * Reinstall Drupal from the scratch.
-   * @alias rei
+   * @aliases rei
    * @param string $profile
    */
   public function reinstall($profile = 'standard') {
@@ -175,6 +175,7 @@ class GoRoboFile extends Tasks {
         $this->projectRoot . '/drush/drush.yml',
         $this->projectRoot . '/composer.lock',
         $this->projectRoot . '/docker-compose.dev.yml',
+        $this->projectRoot . '/docker-compose.override.yml',
         $this->projectRoot . '/certs',
         $this->projectRoot . '/config',
         $this->projectRoot . '/db',
@@ -482,6 +483,62 @@ class GoRoboFile extends Tasks {
         #$this->fileSystem->chmod($file_settings, 0444);
         #$this->fileSystem->chmod($this->defaultSettingsPath, 0555);
       }
+    }
+  }
+
+  /**
+   * Add container to the docker-compose.override.yml
+   * @aliases cta
+   * @param string $container_name
+   */
+  public function container_add($container_name) {
+    $twig_loader = new \Twig_Loader_Array([]);
+    $twig = new \Twig_Environment($twig_loader);
+
+    $dc_file_name = 'docker-compose.yml';
+    $dco_file_name = 'docker-compose.override.yml';
+
+    $temp_conf = $this->config;
+
+    if ($container_name == 'adminer' || $container_name ==  'pma') {
+      $temp_conf['dbbrowser']['enable'] = 1;
+      $temp_conf['dbbrowser']['type'] = $container_name;
+    }
+    else {
+      $temp_conf[$container_name]['enable'] = 1;
+    }
+
+    $twig_loader->setTemplate($dc_file_name, file_get_contents($this->goRoot . '/templates/' . $dc_file_name . '.twig'));
+    $rendered = $twig->render($dc_file_name, $temp_conf);
+    $yaml = Yaml::parse($rendered);
+
+    if (!$this->fileSystem->exists($dco_file_name)) {
+      $override_yaml['version'] = $yaml['version'];
+      $override_yaml['services'][$container_name] = $yaml['services'][$container_name];
+    }
+    else {
+      $override_yaml = Yaml::parse(file_get_contents($dco_file_name));
+      $override_yaml['services'][$container_name] = $yaml['services'][$container_name];
+    }
+
+    $rendered = Yaml::dump($override_yaml, 9, 2);
+    file_put_contents($dco_file_name, $rendered);
+    $this->say("New containers has been added to the " . $dco_file_name);
+  }
+
+  /**
+   * Remove container from the docker-compose.override.yml
+   * @aliases ctr
+   * @param string $container_name
+   */
+  public function container_remove($container_name) {
+    $dco_file_name = 'docker-compose.override.yml';
+    if ($this->fileSystem->exists($dco_file_name)) {
+      $override_yaml = Yaml::parse(file_get_contents($dco_file_name));
+      unset($override_yaml['services'][$container_name]);
+      $rendered = Yaml::dump($override_yaml, 9, 2);
+      file_put_contents($dco_file_name, $rendered);
+      $this->say("The " . $container_name . " has been removed from " . $dco_file_name);
     }
   }
 

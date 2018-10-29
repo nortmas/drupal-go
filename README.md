@@ -53,6 +53,21 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `robo behat_setup` Set up behat auto tests.
 * `robo reconf` Reconfigure settings for the particular set of files. May accept arguments: `drupal`, `drush`, `docker`, `gitlab`, `behat`, `phpunit`. `default` (by default) includes drupal, drush, docker))
 * `robo gitlab_ci_setup` Set up GitLab CI flow.
+* `robo container_add`, alias `cta`. Add container to the docker-compose.override.yml
+* `robo container_remove`, alias `ctr`. Remove container from the docker-compose.override.yml
+
+## Available extra containers:
+* `mailhog`
+* `varnish`
+* `adminer`
+* `pma`
+* `solr`
+* `redis`
+* `node`
+* `rsyslog`
+* `athenapdf`
+* `webgrind`
+* `blackfire`
 
 ## Available make commands:
 * `make go_prepare_env` - Roll out the environment.
