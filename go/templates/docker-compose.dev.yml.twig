@@ -6,6 +6,9 @@ services:
       GIT_USER_NAME: 'wodby-dev'
 
   apache:
+    networks:
+      - default
+      - proxy
     labels:
       traefik.frontend.redirect.entryPoint: 'https'
 {% if multisite is not empty %}
@@ -30,6 +33,5 @@ services:
 {% endif %}
 
 networks:
-  beg_dev:
-    external:
-      name: {{ project_machine_name }}_dev_default
+  proxy:
+    external: true
