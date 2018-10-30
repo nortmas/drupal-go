@@ -765,11 +765,11 @@ class GoRoboFile extends Tasks {
       }
 
       $append = "\n/**\n* Memcached configs.\n*/\n";
-      $append .= "\$settings['memcache']['servers'] = ['127.0.0.1:11211' => 'default'];\n";
-      $append .= "\$settings['memcache']['bins'] = ['default' => 'default'];\n";
-      $append .= "\$settings['memcache']['key_prefix'] = '';\n";
+      //$append .= "\$settings['memcache']['servers'] = ['127.0.0.1:11211' => 'default'];\n";
+      //$append .= "\$settings['memcache']['bins'] = ['default' => 'default'];\n";
+      //$append .= "\$settings['memcache']['key_prefix'] = '';\n";
+      //$append .= "\$settings['cache']['bins']['render'] = 'cache.backend.memcache';\n";
       $append .= "\$settings['cache']['default'] = 'cache.backend.memcache';\n";
-      $append .= "\$settings['cache']['bins']['render'] = 'cache.backend.memcache';\n";
 
       $this->fileSystem->appendToFile($file_settings, $append);
       $this->fileSystem->chmod($this->defaultSettingsPath, 0555);
