@@ -6,6 +6,17 @@ go_shell:
 go_run_behat:
 	$(call DRUPAL_PHP, /bin/bash -c "./vendor/bin/behat -f pretty --out=std -f junit --out=tests/behat/_output -f html -c tests/behat/behat.yml -p default")
 
+## Update Drupal core with dependencies.
+go_drupal_update:
+	$(call DRUPAL_PHP_COMPOSER, update drupal/core webflo/drupal-core-require-dev --with-dependencies)
+	$(call DRUPAL_PHP_DRUSH, updb)
+	$(call DRUPAL_PHP_DRUSH, cr)
+
+## Update Drupal translations.
+go_update_translations:
+	$(call DRUPAL_PHP_DRUSH, locale-check)
+	$(call DRUPAL_PHP_DRUSH, locale-update)
+
 ## Check codebase with phpcs sniffers to make sure it conforms https://www.drupal.org/docs/develop/standards
 go_code_sniff:
 	docker run --rm \
