@@ -60,15 +60,15 @@ return [
     #'subdomain' => 'subdomain.com',
   ],
   'mariadb' => [
-    'tag' => '10.1-3.3.8',
+    'tag' => '10.1-3.3.9',
   ],
   'php' => [
     'xdebug' => 1,
-    'tag' => '7.1-dev-${OS}4.8.5', // The variable $OS is taken from the .env file.
+    'tag' => '7.1-dev-${OS}4.9.0', // The variable $OS is taken from the .env file.
   ],
   'webserver' => [
     'type' => 'apache',
-    'nginx_tag' => '1.15-5.0.11',
+    'nginx_tag' => '1.15-5.0.12',
     'apache_tag' => '2.4-4.0.2',
   ],
   'mailhog' => [
@@ -81,7 +81,7 @@ return [
   'dbbrowser' => [
     'enable' => 0,
     'type' => 'adminer',
-    'adminer_tag' => '4.6-3.0.7',
+    'adminer_tag' => '4.6-3.1.0',
   ],
   'solr' => [
     'enable' => 0,
@@ -99,7 +99,7 @@ return [
   ],
   'memcached' => [
     'enable' => 0,
-    'tag' => '1.4-2.0.0',
+    'tag' => '1-2.2.0',
   ],
   'rsyslog' => [
     'enable' => 0,
