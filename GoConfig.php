@@ -24,20 +24,20 @@ return [
     'aliases' => [
       'dev' => [
         'host' => '',
-        'user' => '',
-        'root' => '',
+        'user' => 'gitlab-runner',
+        'root' => '/var/www/html/web',
         'uri' => '',
       ],
       'stage' => [
         'host' => '',
-        'user' => '',
-        'root' => '',
+        'user' => 'gitlab-runner',
+        'root' => '/var/www/html/web',
         'uri' => '',
       ],
       'prod' => [
         'host' => '',
-        'user' => '',
-        'root' => '',
+        'user' => 'gitlab-runner',
+        'root' => '/var/www/html/web',
         'uri' => '',
       ],
     ],

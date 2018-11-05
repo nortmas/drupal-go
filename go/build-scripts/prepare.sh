@@ -6,7 +6,7 @@
 #
 echo "Starting $0: prepare the structure"
 
-BUILD_DIR="$WORKING_DIR/repo-$BRANCH"
+BUILD_DIR="$WORKING_DIR/$BRANCH"
 
 # Initialize the working directory.
 #if [ -d "$BUILD_DIR" ]; then

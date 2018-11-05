@@ -1,19 +1,25 @@
 # See https://github.com/drush-ops/drush/blob/master/examples/example.site.yml
 self:
   root: '/var/www/html/web'
-  uri: '{{ project_machine_name }}.docker.localhost:8000'
+  uri: '{{ project_machine_name }}.docker.localhost:{{ port }}'
 dev:
   host: '{{ drush.aliases.dev.host }}'
   user: '{{ drush.aliases.dev.user }}'
   root: '{{ drush.aliases.dev.root }}'
   uri: '{{ drush.aliases.dev.uri }}'
+  paths:
+    drush-script: '/home/gitlab-runner/{{ gitlab.working_dir }}/dev/drush/drush-run.sh'
 stage:
   host: '{{ drush.aliases.stage.host }}'
   user: '{{ drush.aliases.stage.user }}'
   root: '{{ drush.aliases.stage.root }}'
   uri: '{{ drush.aliases.stage.uri }}'
+  paths:
+    drush-script: '/home/gitlab-runner/{{ gitlab.working_dir }}/stage/drush/drush-run.sh'
 prod:
   host: '{{ drush.aliases.prod.host }}'
   user: '{{ drush.aliases.prod.user }}'
   root: '{{ drush.aliases.prod.root }}'
   uri: '{{ drush.aliases.prod.uri }}'
+  paths:
+      drush-script: '/home/gitlab-runner/{{ gitlab.working_dir }}/master/drush/drush-run.sh'

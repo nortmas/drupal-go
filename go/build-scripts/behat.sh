@@ -2,7 +2,7 @@
 #
 # Run behat tests.
 #
-BUILD_DIR="$WORKING_DIR/repo-$BRANCH"
+BUILD_DIR="$WORKING_DIR/$BRANCH"
 
 echo "Change directory to $BUILD_DIR"
 cd $BUILD_DIR

@@ -7,7 +7,7 @@
 echo "Starting $0: Build artifacts"
 
 # Build an artifact in the working folder.
-BUILD_DIR="$WORKING_DIR/repo-$BRANCH"
+BUILD_DIR="$WORKING_DIR/$BRANCH"
 FILES_DIR="$BUILD_DIR/web/sites/default/files"
 MODULES_DIR="$BUILD_DIR/web/modules/"
 LIBRARIES_DIR="$BUILD_DIR/web/libraries/"
@@ -51,6 +51,6 @@ fi
 
 cd $BUILD_DIR
 echo "Change directory to $BUILD_DIR"
-make $BRANCH"_deploy"
+make "go_"$BRANCH"_deploy"
 #echo "Disable the maintenance mode."
 #make drush arg="sset system.maintenance_mode 0"

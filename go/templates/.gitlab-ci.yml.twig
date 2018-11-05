@@ -7,11 +7,40 @@ stages:
 
 deploy_dev:
   stage: deploy
-  #retry: 2
   only:
     - dev
   variables:
    BRANCH: dev
+  before_script:
+    - chmod -R 764 ./go/build-scripts/*
+    - ./go/build-scripts/check.sh
+    - ./go/build-scripts/prepare.sh
+  script:
+    - ./go/build-scripts/build.sh
+  after_script:
+    - ./go/build-scripts/finalize.sh
+
+deploy_stage:
+  stage: deploy
+  only:
+    - stage
+  variables:
+   BRANCH: stage
+  before_script:
+    - chmod -R 764 ./go/build-scripts/*
+    - ./go/build-scripts/check.sh
+    - ./go/build-scripts/prepare.sh
+  script:
+    - ./go/build-scripts/build.sh
+  after_script:
+    - ./go/build-scripts/finalize.sh
+
+deploy_master:
+  stage: deploy
+  only:
+    - master
+  variables:
+   BRANCH: master
   before_script:
     - chmod -R 764 ./go/build-scripts/*
     - ./go/build-scripts/check.sh
