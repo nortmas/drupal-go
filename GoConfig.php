@@ -27,18 +27,21 @@ return [
         'user' => 'gitlab-runner',
         'root' => '/var/www/html/web',
         'uri' => '',
+        'use_script' => 1
       ],
       'stage' => [
         'host' => '',
         'user' => 'gitlab-runner',
         'root' => '/var/www/html/web',
         'uri' => '',
+        'use_script' => 1
       ],
       'prod' => [
         'host' => '',
         'user' => 'gitlab-runner',
         'root' => '/var/www/html/web',
         'uri' => '',
+        'use_script' => 1
       ],
     ],
   ],

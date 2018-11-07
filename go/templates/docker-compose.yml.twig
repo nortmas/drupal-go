@@ -41,6 +41,7 @@ services:
     volumes:
       - ./:/var/www/html
       - ./drush:/etc/drush
+      - ~/.ssh/id_rsa:/home/wodby/.ssh/id_rsa
 {% if webgrind.enable %}
       - files:/mnt/files
 {% endif %}

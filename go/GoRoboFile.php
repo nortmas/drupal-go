@@ -560,7 +560,8 @@ class GoRoboFile extends Tasks {
 
     $twig_loader->setTemplate($template, $template);
     $filename = $twig->render($template, $this->config);
-    $file = $options['dest'] . '/' . $filename;
+
+    $file = !empty($options['rename']) ? $options['dest'] . '/' . $options['rename'] : $options['dest'] . '/' . $filename;
 
     if (!$this->fileSystem->exists($file) || $overwrite) {
       $twig_loader->setTemplate($filename, file_get_contents($this->goRoot . '/templates/' . $template . '.twig'));
@@ -693,6 +694,7 @@ class GoRoboFile extends Tasks {
         'default.site.yml' => [
           'dest' => $this->projectRoot . '/drush/sites',
           'add2yaml' => TRUE,
+          'rename' => $this->config['project_machine_name'] . '.site.yml'
         ],
         'drush.yml' => [
           'dest' => $this->projectRoot . '/drush',
