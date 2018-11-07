@@ -32,7 +32,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * Import data base dump: `gor dbi`.
 
 ## Credentials and environment information
-* URL: http://<project_machine_name>.docker.localhost:8000
+* URL: http://`<project_machine_name>`.docker.localhost:8000
 * User: `admin`
 * Password: `admin`
 
