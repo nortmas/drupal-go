@@ -1,5 +1,5 @@
 ## Get into the php container.
-go_shell:
+go_sh:
 	docker-compose exec php sh
 
 ## Run behat test.
@@ -16,6 +16,11 @@ go_drupal_update:
 go_update_translations:
 	$(call DRUPAL_PHP_DRUSH, locale-check)
 	$(call DRUPAL_PHP_DRUSH, locale-update)
+
+## Set right permissions for the files directory.
+go_set_files_permissions:
+	$(call DRUPAL_ROOT_PHP, chmod -R 775 /var/www/html/web/sites/default/files)
+	$(call DRUPAL_ROOT_PHP, chown -R wodby:www-data /var/www/html/web/sites/default/files)
 
 ## Check codebase with phpcs sniffers to make sure it conforms https://www.drupal.org/docs/develop/standards
 go_code_sniff:

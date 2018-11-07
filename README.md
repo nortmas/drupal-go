@@ -93,7 +93,8 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `make go_down` - Stop and remove the docker containers and networks.
 * `make go_restart` - Restart containers.
 * `make go_reset_structure` - Reset file/directory structure to the initial Drupal Go state.
-* `make go_shell` - Get into the php container.
+* `make go_sh` - Get into the php container.
+* `make go_set_files_permissions` - Set right permissions for the files directory.
 * `make go_code_sniff` - Check codebase with phpcs sniffers to make sure it conforms https://www.drupal.org/docs/develop/standards
 * `make go_code_fix` - Fix codebase according to Drupal standards https://www.drupal.org/docs/develop/standards
 * `make help` - Shows info about all available make commands.
