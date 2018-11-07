@@ -16,14 +16,25 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Installation
-* To avoid incompatibilities please make sure that all other docker environments are down.
-* If it's your first project with Drupal GO, for the convenience you may set the aliases:
+1) To avoid incompatibilities please make sure that all other docker environments are down.
+2) If it's your first project with Drupal GO, for the convenience you may set the aliases:
     * `mkdir ~/.dgo && cp $(pwd)/go/scripts/aliases.sh ~/.dgo/aliases.sh`
     *  Now add this line `source ~/.dgo/aliases.sh` to your `bashrc` or ` bash_profile` or `zshrc` file.
-* If you are a MacOS user, run the following command: `make go_mac`. To improve performance read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).
-* Now, check the latest tags for the docker images in the [docker4drupal](https://github.com/wodby/docker4drupal/blob/master/.env) and set the configurations you need in the file `GoConfig.php` or use the default settings and just run the next commands one by one:
+3) If you are a MacOS user, run the following command: `make go_mac`. To improve performance read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).
+4) Now, check the latest tags for the docker images in the [docker4drupal](https://github.com/wodby/docker4drupal/blob/master/.env) and set the configurations you need in the file `GoConfig.php` or use the default settings and just run the next commands one by one:
     * `make go_prepare_env`
     * `make go_drupal_install`
+    
+## Ongoing project installation
+* Do the steps 1,2,3 from the **Installation** section above.
+* Run the environment: `make go_up`.
+* Install the dependencies: `goc install`.
+* Import data base dump: `gor dbi`.
+
+## Credentials and environment information
+* URL: http://<project_machine_name>.docker.localhost:8000
+* User: `admin`
+* Password: `admin`
 
 ## How to extend?
 * If you need specific settings for your local environment, use the `docker-compose.override.yml` file.
