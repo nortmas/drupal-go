@@ -1,5 +1,4 @@
 # Drupal Go
-
 It's a starting point for a new Drupal 8 project. Drupal Go will automatically prepare a local development environment and install Drupal project using best practices. Also, it supplies a number of useful tools/commands/aliases you can work with.
 
 The Drupal Go based on [Composer template for Drupal project](https://github.com/drupal-composer/drupal-project), [Robo](https://robo.li) and [docker4drupal](https://github.com/wodby/docker4drupal).
@@ -61,6 +60,23 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 
 FYI: If you set `memcached` to be enabled, it will also enable memcache drupal module and implement appropriate configurations.
 
+## Available make commands:
+* `make go_prepare_env` - Roll out the environment.
+* `make go_drupal_install` - Install Drupal.
+* `make go_mac` - Create .env file with specific settings for Mac.
+* `make go_run_behat` - Run behat tests.
+* `make go_drupal_update` - Update Drupal core with dependencies.
+* `make go_update_translations` - Update Drupal translations.
+* `make go_set_files_permissions` - Set right permissions for the files directory.
+* `make go_code_sniff` - Check codebase with phpcs sniffers to make sure it conforms https://www.drupal.org/docs/develop/standards
+* `make go_code_fix` - Fix codebase according to Drupal standards https://www.drupal.org/docs/develop/standards
+* `make go_up` - Up the docker containers.
+* `make go_down` - Stop and remove the docker containers and networks.
+* `make go_restart` - Restart containers.
+* `make go_reset_structure` - Reset file/directory structure to the initial Drupal Go state.
+* `make go_sh` - Get into the php container.
+* `make help` - Shows info about all available make commands.
+
 ## Available robo commands:
 * `robo db_export`, alias `dbe`. Implement an export of current DB state to the DB folder.
 * `robo db_import`, alias `dbi`. Implement an import of latest DB dump from the DB folder. `filename` argument is optional to restore the particular dump.
@@ -71,8 +87,8 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `robo behat_setup` Set up behat auto tests.
 * `robo reconf` Reconfigure settings for the particular set of files. May accept arguments: `drupal`, `drush`, `docker`, `gitlab`, `behat`, `phpunit`. `default` (by default) includes drupal, drush, docker))
 * `robo gitlab_ci_setup` Set up GitLab CI flow.
-* `robo container_add`, alias `cta`. Add container to the docker-compose.override.yml
-* `robo container_remove`, alias `ctr`. Remove container from the docker-compose.override.yml
+* `robo container_add`, alias `cta`. Argument `container_name` (See **Available extra containers** section). Add container to the docker-compose.override.yml
+* `robo container_remove`, alias `ctr`. Argument `container_name` (See **Available extra containers** section). Remove container from the docker-compose.override.yml
 
 ## Available extra containers:
 * `mailhog`
@@ -86,20 +102,6 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `athenapdf`
 * `webgrind`
 * `blackfire`
-
-## Available make commands:
-* `make go_prepare_env` - Roll out the environment.
-* `make go_drupal_install` - Install Drupal.
-* `make go_mac` - Create .env file with specific settings for Mac.
-* `make go_up` - Up the docker containers.
-* `make go_down` - Stop and remove the docker containers and networks.
-* `make go_restart` - Restart containers.
-* `make go_reset_structure` - Reset file/directory structure to the initial Drupal Go state.
-* `make go_sh` - Get into the php container.
-* `make go_set_files_permissions` - Set right permissions for the files directory.
-* `make go_code_sniff` - Check codebase with phpcs sniffers to make sure it conforms https://www.drupal.org/docs/develop/standards
-* `make go_code_fix` - Fix codebase according to Drupal standards https://www.drupal.org/docs/develop/standards
-* `make help` - Shows info about all available make commands.
 
 ### How can I apply patches to downloaded modules?
 If you need to apply patches (depending on the project being modified, a pull 
