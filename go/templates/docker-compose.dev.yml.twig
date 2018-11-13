@@ -4,6 +4,8 @@ services:
   php:
     environment:
       GIT_USER_NAME: 'wodby-dev'
+    volumes:
+      - /tmp/:/tmp/
 
   apache:
     networks:

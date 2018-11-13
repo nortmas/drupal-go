@@ -301,13 +301,14 @@ class GoRoboFile extends Tasks {
    * @param $alias - dev,stage or prod
    */
   public function get_db($alias) {
+    $alias = '@' . $this->config['project_machine_name'] . '.' . $alias;
     $drush_create_db = $this->taskDrushStack()->drush('sql-create')->getCommand();
-    $drush_sync = $this->taskDrushStack()->drush('sql-sync @' . $alias . ' @self')->getCommand();
-    $drush_cim = $this->taskDrushStack()->drush('cim')->getCommand();
+    $drush_sync = $this->taskDrushStack()->drush('sql-sync --source-dump=/tmp/db.sql ' . $alias . ' @self')->getCommand();
+    $drush_csim = $this->taskDrushStack()->drush('cim')->getCommand();
 
     $this->commandExec($drush_create_db);
     $this->commandExec($drush_sync);
-    $this->commandExec($drush_cim);
+    $this->commandExec($drush_csim);
   }
 
   /**
@@ -317,7 +318,8 @@ class GoRoboFile extends Tasks {
    * @param $alias - dev,stage or prod
    */
   public function get_files($alias) {
-    $drush_sync = $this->taskDrushStack()->drush('rsync @' . $alias . ':%files/ @self:%files')->getCommand();
+    $alias = '@' . $this->config['project_machine_name'] . '.' . $alias . '-files';
+    $drush_sync = $this->taskDrushStack()->drush('rsync ' . $alias . ':%files/ @self:%files')->getCommand();
     $this->commandExec($drush_sync);
   }
 
