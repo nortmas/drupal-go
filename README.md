@@ -27,6 +27,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
     * `make go_drupal_install`
     
 ## Ongoing project installation
+* Get into the project folder: `cd <project-machine-name>`
 * Do the steps 1,3,4 from the **Installation** section above.
 * Run the environment: `make go_up`.
 * Install the dependencies: `goc install`.
