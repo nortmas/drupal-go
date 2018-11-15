@@ -48,6 +48,10 @@ go_run_in_php:
 go_mac:
 	echo 'OS=macos-' > .env
 
+## Create .env file with specific settings for Linux.
+go_lin:
+	echo 'OS=\nPHP_XDEBUG_REMOTE_CONNECT_BACK=1' > .env
+
 ## Kill php container.
 go_php_kill:
 	docker rm -f $(INIT_PHP_CONTAINER)

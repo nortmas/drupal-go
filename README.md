@@ -20,7 +20,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 3) If it's your first project with Drupal GO, for the convenience you may set the aliases (highly recommended):
     * `mkdir ~/.dgo && cp $(pwd)/go/scripts/aliases.sh ~/.dgo/aliases.sh`
     *  Now add this line `source ~/.dgo/aliases.sh` to your `bashrc` or ` bash_profile` or `zshrc` file.
-4) If you are a MacOS user, run the following command: `make go_mac`. To improve performance read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).
+4) If you are Linux user, run: `make go_lin`. If you are MacOS user, run: `make go_mac`, to improve performance read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).
 5) Now, check the latest tags for the docker images in the [docker4drupal](https://github.com/wodby/docker4drupal/blob/master/.env) and set the configurations you need in the file `GoConfig.php` or use the default settings and just run the next commands one by one:
     * `make go_prepare_env`
     * `make go_drupal_install`
@@ -64,6 +64,7 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `make go_prepare_env` - Roll out the environment.
 * `make go_drupal_install` - Install Drupal.
 * `make go_mac` - Create .env file with specific settings for Mac.
+* `make go_lin` - Create .env file with specific settings for Linux.
 * `make go_run_behat` - Run behat tests.
 * `make go_drupal_update` - Update Drupal core with dependencies.
 * `make go_update_translations` - Update Drupal translations.
