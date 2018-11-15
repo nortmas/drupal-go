@@ -35,7 +35,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 ## Credentials and environment information
 * URL: http://`<project_machine_name>`.docker.localhost:8000
 * User: `admin`
-* Password: `admin`
+* Password: `admin2admin`
 
 ## How to extend?
 * If you need specific settings for your local environment, use the `docker-compose.override.yml` file.

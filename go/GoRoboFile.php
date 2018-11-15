@@ -114,7 +114,7 @@ class GoRoboFile extends Tasks {
       ->sitesSubdir('default')
       ->accountMail('admin@example.com')
       ->accountName('admin')
-      ->accountPass('admin')
+      ->accountPass('admin2admin')
       ->mysqlDbUrl('drupal:drupal@mariadb:3306/drupal')
       ->disableUpdateStatusModule()
       ->siteInstall($profile)
