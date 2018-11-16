@@ -7,11 +7,15 @@
 /web/profiles/contrib/
 /web/libraries/
 
+# Ignore docker files.
+docker-compose.override.yml
+
 # Ignore sensitive information
 /web/sites/*/settings.local.php
 
 # Ignore node libraries.
 web/modules/custom/*/node_modules
+web/themes/custom/*/node_modules
 
 # Ignore Drupal's file directory
 /web/sites/*/files/
@@ -27,3 +31,6 @@ web/modules/custom/*/node_modules
 
 # Ignore linux backup files
 *~
+
+# Ignore Mac DS files
+*.DS_Store
