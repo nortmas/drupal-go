@@ -46,7 +46,7 @@ go_run_in_php:
 
 ## Create .env file with specific settings for Mac.
 go_mac:
-	echo 'OS=macos-' > .env
+	echo 'OS=macos-\nPHP_XDEBUG_REMOTE_CONNECT_BACK=0' > .env
 
 ## Create .env file with specific settings for Linux.
 go_lin:

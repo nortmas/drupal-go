@@ -16,10 +16,12 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 
 ## Installation
 1) To avoid incompatibilities please make sure that all other docker environments on your local machine are down.
-2) In your `www` directory run `git clone git@github.com:nortmas/drupal-go.git <project-machine-name> && cd <project-machine-name>`.
+2) In your `www` directory run `git clone git@github.com:nortmas/drupal-go.git <project-machine-name> && cd <project-machine-name>`. 
+   (NOTE: For the sake of consistency, name your project directory as a project machine name.)
 3) If it's your first project with Drupal GO, for the convenience you may set the aliases (highly recommended):
     * `mkdir ~/.dgo && cp $(pwd)/go/scripts/aliases.sh ~/.dgo/aliases.sh`
-    *  Now add this line `source ~/.dgo/aliases.sh` to your `bashrc` or ` bash_profile` or `zshrc` file.
+    * Now add this line `source ~/.dgo/aliases.sh` to your `bashrc` or ` bash_profile` or `zshrc` file.
+    * Restart your cli. To restart zsh: `exec zsh`, to restart bash: `exec bash -l`.
 4) If you are Linux user, run: `make go_lin`. If you are MacOS user, run: `make go_mac`, to improve performance read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).
 5) Now, check the latest tags for the docker images in the [docker4drupal](https://github.com/wodby/docker4drupal/blob/master/.env) and set the configurations you need in the file `GoConfig.php` or use the default settings and just run the next commands one by one:
     * `make go_prepare_env`
