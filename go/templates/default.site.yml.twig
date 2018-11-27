@@ -4,67 +4,49 @@ self:
   uri: '{{ project_machine_name }}.docker.localhost:{{ port }}'
 
 dev:
-  host: '{{ drush.aliases.dev.host }}'
-  user: '{{ drush.aliases.dev.user }}'
-  root: '{{ drush.aliases.dev.root }}'
-  uri: '{{ drush.aliases.dev.uri }}'
-{% if drush.aliases.dev.use_docker %}
+  host: '{{ server.host }}'
+  user: '{{ server.user }}'
+  root: '/var/www/html/web'
+  uri: '{{ project_machine_name }}.dev.{{ server.domain }}'
   paths:
-    drush-script: '{{ gitlab.working_dir }}/dev/drush/drush-run.sh'
-{% endif %}
+    drush-script: '/home/{{ server.user }}/{{ server.project_dir }}/{{ server.project_dir }}-dev/drush/drush-run.sh'
 
 dev-files:
-  host: '{{ drush.aliases.dev.host }}'
-  user: '{{ drush.aliases.dev.user }}'
-{% if drush.aliases.dev.use_docker %}
-  root: '{{ gitlab.working_dir }}/dev/web'
-{% else %}
-  root: '{{ drush.aliases.dev.root }}'
-{% endif %}
-  uri: '{{ drush.aliases.dev.uri }}'
+  host: '{{ server.host }}'
+  user: '{{ server.user }}'
+  root: '/home/{{ server.user }}/{{ server.project_dir }}/{{ server.project_dir }}-dev/web'
+  uri: '{{ project_machine_name }}.dev.{{ server.domain }}'
   paths:
     files: 'sites/default/files'
 
 stage:
-  host: '{{ drush.aliases.stage.host }}'
-  user: '{{ drush.aliases.stage.user }}'
-  root: '{{ drush.aliases.stage.root }}'
-  uri: '{{ drush.aliases.stage.uri }}'
-{% if drush.aliases.stage.use_docker %}
+  host: '{{ server.host }}'
+  user: '{{ server.user }}'
+  root: '/var/www/html/web'
+  uri: '{{ project_machine_name }}.stage.{{ server.domain }}'
   paths:
-    drush-script: '{{ gitlab.working_dir }}/stage/drush/drush-run.sh'
-{% endif %}
+    drush-script: '/home/{{ server.user }}/{{ server.project_dir }}/{{ server.project_dir }}-stage/drush/drush-run.sh'
 
 stage-files:
-  host: '{{ drush.aliases.stage.host }}'
-  user: '{{ drush.aliases.stage.user }}'
-{% if drush.aliases.stage.use_docker %}
-  root: '{{ gitlab.working_dir }}/stage/web'
-{% else %}
-  root: '{{ drush.aliases.stage.root }}'
-{% endif %}
-  uri: '{{ drush.aliases.stage.uri }}'
+  host: '{{ server.host }}'
+  user: '{{ server.user }}'
+  root: '/home/{{ server.user }}/{{ server.project_dir }}/{{ server.project_dir }}-stage/web'
+  uri: '{{ project_machine_name }}.stage.{{ server.domain }}'
   paths:
     files: 'sites/default/files'
 
 prod:
-  host: '{{ drush.aliases.prod.host }}'
-  user: '{{ drush.aliases.prod.user }}'
-  root: '{{ drush.aliases.prod.root }}'
-  uri: '{{ drush.aliases.prod.uri }}'
-{% if drush.aliases.prod.use_docker %}
+  host: '{{ server.host }}'
+  user: '{{ server.user }}'
+  root: '/var/www/html/web'
+  uri: '{{ project_machine_name }}.prod.{{ server.domain }}'
   paths:
-      drush-script: '{{ gitlab.working_dir }}/master/drush/drush-run.sh'
-{% endif %}
+      drush-script: '/home/{{ server.user }}/{{ server.project_dir }}/{{ server.project_dir }}-master/drush/drush-run.sh'
 
 prod-files:
-  host: '{{ drush.aliases.prod.host }}'
-  user: '{{ drush.aliases.prod.user }}'
-{% if drush.aliases.prod.use_docker %}
-  root: '{{ gitlab.working_dir }}/master/web'
-{% else %}
-  root: '{{ drush.aliases.prod.root }}'
-{% endif %}
-  uri: '{{ drush.aliases.prod.uri }}'
+  host: '{{ server.host }}'
+  user: '{{ server.user }}'
+  root: '/home/{{ server.user }}/{{ server.project_dir }}/{{ server.project_dir }}-master/web'
+  uri: '{{ project_machine_name }}.prod.{{ server.domain }}'
   paths:
     files: 'sites/default/files'

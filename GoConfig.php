@@ -5,6 +5,24 @@ return [
   'project_machine_name' => 'dgo',
   'include_basic_modules' => 0,
   'port' => 8000,
+  'server' => [
+    'domain' => '178.128.83.195.xip.io',
+    'project_dir' => 'drupal_go',
+    'host' => '178.128.83.195',
+    'user' => 'deploy',
+  ],
+  'gitlab' => [
+    'enable' => 0,
+    'runner_artifact_dir' => '/home/gitlab-runner/artifacts',
+  ],
+  'behat' => [
+    'enable' => 0,
+    'base_url' => 'http://admin:user2admin@apache:80',
+    'region_content' => '.main-content',
+    'region_footer' => '.footer',
+    'region_navigation' => '#main-nav',
+    'region_header' => '.header',
+  ],
   'drush' => [
     'sql' => [
       'tables' => [
@@ -21,42 +39,6 @@ return [
         ],
       ],
     ],
-    'aliases' => [
-      'dev' => [
-        'host' => '',
-        'user' => 'gitlab-runner',
-        'root' => '/var/www/html/web',
-        'uri' => '',
-        'use_docker' => 1
-      ],
-      'stage' => [
-        'host' => '',
-        'user' => 'gitlab-runner',
-        'root' => '/var/www/html/web',
-        'uri' => '',
-        'use_docker' => 1
-      ],
-      'prod' => [
-        'host' => '',
-        'user' => 'gitlab-runner',
-        'root' => '/var/www/html/web',
-        'uri' => '',
-        'use_docker' => 1
-      ],
-    ],
-  ],
-  'gitlab' => [
-    'enable' => 0,
-    'staging_domain' => 'staging-domain.com',
-    'working_dir' => '/home/gitlab-runner/artifacts',
-  ],
-  'behat' => [
-    'enable' => 0,
-    'base_url' => 'http://admin:user2admin@apache:80',
-    'region_content' => '.main-content',
-    'region_footer' => '.footer',
-    'region_navigation' => '#main-nav',
-    'region_header' => '.header',
   ],
   'multisite' => [
     # Should be in a format 'alias' => 'real production domain'

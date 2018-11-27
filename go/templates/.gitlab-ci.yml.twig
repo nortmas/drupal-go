@@ -1,5 +1,8 @@
 variables:
-  WORKING_DIR: {{ gitlab.working_dir }}
+  ARTIFACT_DIR: {{ gitlab.runner_artifact_dir }}
+  SERVER_DIR: {{ server.project_dir }}
+  SERVER_HOST: {{ server.host }}
+  SERVER_USER: {{ server.user }}
 
 stages:
   - deploy
@@ -12,13 +15,12 @@ deploy_dev:
   variables:
    BRANCH: dev
   before_script:
-    - chmod -R 764 ./go/build-scripts/*
-    - ./go/build-scripts/check.sh
-    - ./go/build-scripts/prepare.sh
+    - chmod -R 764 ./deploy/scripts/*
+    - ./deploy/scripts/artifact.sh
   script:
-    - ./go/build-scripts/build.sh
+    - ./deploy/scripts/deploy.sh
   after_script:
-    - ./go/build-scripts/finalize.sh
+    - ./deploy/scripts/finalize.sh
 
 deploy_stage:
   stage: deploy
@@ -27,13 +29,12 @@ deploy_stage:
   variables:
    BRANCH: stage
   before_script:
-    - chmod -R 764 ./go/build-scripts/*
-    - ./go/build-scripts/check.sh
-    - ./go/build-scripts/prepare.sh
+    - chmod -R 764 ./deploy/scripts/*
+    - ./deploy/scripts/artifact.sh
   script:
-    - ./go/build-scripts/build.sh
+    - ./deploy/scripts/deploy.sh
   after_script:
-    - ./go/build-scripts/finalize.sh
+    - ./deploy/scripts/finalize.sh
 
 deploy_master:
   stage: deploy
@@ -42,13 +43,12 @@ deploy_master:
   variables:
    BRANCH: master
   before_script:
-    - chmod -R 764 ./go/build-scripts/*
-    - ./go/build-scripts/check.sh
-    - ./go/build-scripts/prepare.sh
+    - chmod -R 764 ./deploy/scripts/*
+    - ./deploy/scripts/artifact.sh
   script:
-    - ./go/build-scripts/build.sh
+    - ./deploy/scripts/deploy.sh
   after_script:
-    - ./go/build-scripts/finalize.sh
+    - ./deploy/scripts/finalize.sh
 {% if behat.enable %}
 
 behat_build:

@@ -169,14 +169,13 @@ class GoRoboFile extends Tasks {
       $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
       $this->fileSystem->remove([
         $this->projectRoot . '/.env',
-        $this->projectRoot . '/.gitlab-ci.rsync-exclude',
         $this->projectRoot . '/.gitlab-ci.yml',
         $this->projectRoot . '/drush/sites',
         $this->projectRoot . '/drush/drush.yml',
         $this->projectRoot . '/composer.lock',
-        $this->projectRoot . '/docker-compose.dev.yml',
         $this->projectRoot . '/docker-compose.override.yml',
         $this->projectRoot . '/certs',
+        $this->projectRoot . '/deploy',
         $this->projectRoot . '/config',
         $this->projectRoot . '/db',
         $this->projectRoot . '/tests',
@@ -225,6 +224,7 @@ class GoRoboFile extends Tasks {
    */
   public function gitlab_ci_setup() {
     if (!$this->fileSystem->exists($this->projectRoot . '/.gitlab-ci.yml')) {
+      $this->_copyDir($this->projectRoot . '/go/deploy', $this->projectRoot . '/deploy');
       // Add behat files using prepared templates.
       $files = $this->getFiles('gitlab');
       foreach ($files as $template => $options) {
@@ -722,13 +722,6 @@ class GoRoboFile extends Tasks {
       'gitlab' => [
         '.gitlab-ci.yml' => [
           'dest' => $this->projectRoot,
-        ],
-        '.gitlab-ci.rsync-exclude' => [
-          'dest' => $this->projectRoot,
-        ],
-        'docker-compose.dev.yml' => [
-          'dest' => $this->projectRoot,
-          'add2yaml' => TRUE,
         ],
       ],
     ];

@@ -1,0 +1,14 @@
+# Exclude folders
+.git
+.idea
+.DS_Store
+tests
+certs
+db
+
+# Exclude files
+docker-compose.yml
+.gitlab-ci.yml
+.gitignore
+README.md
+*.swp
