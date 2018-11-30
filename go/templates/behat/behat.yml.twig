@@ -31,7 +31,7 @@ default:
       filename: report.xml
       outputDir: %paths.base%/_output
     Behat\MinkExtension:
-      base_url: {{behat.base_url}}
+      base_url: 'http://admin:user2admin@apache:80'
       javascript_session: selenium2
       show_cmd: "open %s"
       selenium2:
@@ -50,10 +50,10 @@ default:
       drush:
         root: %paths.base%/../../web
       region_map:
-        content: {{behat.region_content}}
-        footer: {{behat.region_footer}}
-        navigation: {{behat.region_navigation}}
-        header: {{behat.region_header}}
+        content: '.main-content'
+        footer: '.footer'
+        navigation: '#main-nav'
+        header: '.header'
       selectors:
         message_selector: '[role="contentinfo"] > div'
         error_message_selector: '.messages--error'

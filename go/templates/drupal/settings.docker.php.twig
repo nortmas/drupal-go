@@ -124,6 +124,10 @@ if (isset($_ENV['GIT_USER_NAME']) && $_ENV['GIT_USER_NAME'] === 'wodby-dev') {
   $config['config_split.config_split.dev']['status'] = TRUE;
   $config['config_split.config_split.stage']['status'] = FALSE;
   $config['config_split.config_split.prod']['status'] = FALSE;
+  // Environment indicator module settings.
+  $config['environment_indicator.indicator']['bg_color'] = '#61004e';
+  $config['environment_indicator.indicator']['fg_color'] = '#ccc';
+  $config['environment_indicator.indicator']['name'] = 'Local';
 }
 else {
   // LOCAL environment
@@ -131,6 +135,10 @@ else {
   $config['config_split.config_split.dev']['status'] = FALSE;
   $config['config_split.config_split.stage']['status'] = FALSE;
   $config['config_split.config_split.prod']['status'] = FALSE;
+  // Environment indicator module settings.
+  $config['environment_indicator.indicator']['bg_color'] = '#610000';
+  $config['environment_indicator.indicator']['fg_color'] = '#ccc';
+  $config['environment_indicator.indicator']['name'] = 'Local';
 }
 
 /**

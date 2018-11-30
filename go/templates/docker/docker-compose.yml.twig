@@ -3,26 +3,39 @@ version: '3'
 services:
   mariadb:
     image: 'wodby/mariadb:{{ mariadb.tag }}'
+{% if deploy == true %}
+    restart: always
+{% endif %}
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: drupal
       MYSQL_USER: drupal
       MYSQL_PASSWORD: drupal
+{% if deploy != true %}
     ports:
       - 3306:3306
+{% endif %}
     volumes:
+{% if deploy != true %}
       - ./db:/docker-entrypoint-initdb.d
+{% endif %}
       - db:/var/lib/mysql
 
   php:
     image: 'wodby/drupal-php:{{ php.tag }}'
+{% if deploy == true %}
+    restart: always
+{% endif %}
     environment:
       DB_HOST: mariadb
       DB_USER: drupal
       DB_PASSWORD: drupal
       DB_NAME: drupal
       DB_DRIVER: mysql
-{% if php.xdebug %}
+{% if deploy == true %}
+      GIT_USER_NAME: 'wodby-dev'
+{% endif %}
+{% if php.xdebug and deploy != true %}
       PHP_XDEBUG: 1
       PHP_XDEBUG_DEFAULT_ENABLE: 1
       PHP_XDEBUG_REMOTE_CONNECT_BACK: "${PHP_XDEBUG_REMOTE_CONNECT_BACK}"
@@ -35,16 +48,25 @@ services:
       PHP_XDEBUG_TRACE_OUTPUT_DIR: /mnt/files/xdebug/traces
 {% endif %}
 {% endif %}
+{% if mailhog.enable %}
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
+{% endif %}
 {% if blackfire.enable %}
       PHP_BLACKFIRE: 1
 {% endif %}
     volumes:
       - ./:/var/www/html
       - ./drush:/etc/drush
+{% if deploy != true %}
       - ~/.ssh/id_rsa:/home/wodby/.ssh/id_rsa
+{% endif %}
 {% if webgrind.enable %}
       - files:/mnt/files
+{% endif %}
+{% if deploy == true %}
+    networks:
+      - default
+      - proxy
 {% endif %}
 
   {{ webserver.type }}:
@@ -52,6 +74,9 @@ services:
     image: 'wodby/drupal-nginx:{{ webserver.nginx_tag }}'
 {% elseif webserver.type == 'apache' %}
     image: 'wodby/apache:{{ webserver.apache_tag }}'
+{% endif %}
+{% if deploy == true %}
+    restart: always
 {% endif %}
     depends_on:
       - php
@@ -69,17 +94,29 @@ services:
     volumes:
       - ./:/var/www/html
     labels:
+{% if deploy != true %}
       traefik.backend: '{{ project_machine_name }}_{{ webserver.type }}_1'
       traefik.port: '80'
-{% if multisite is not empty %}
-      traefik.frontend.rule: 'HostRegexp:{{ project_machine_name }}.{subdomain:[a-z]+}.docker.localhost'
-{% else %}
-      traefik.frontend.rule: 'Host:{{ project_machine_name }}.docker.localhost'
+{% endif %}
+{% if deploy == true %}
+      traefik.enable: 'true'
+      traefik.docker.network: 'proxy'
+      traefik.frontend.protocol: 'https'
+      traefik.frontend.port: '443'
+{% endif %}
+      traefik.frontend.rule: 'Host:{{ domains }}'
+{% if deploy == true %}
+    networks:
+      - default
+      - proxy
 {% endif %}
 {% if varnish.enable %}
 
   varnish:
     image: 'wodby/drupal-varnish:{{ varnish.tag }}'
+{% if deploy == true %}
+    restart: always
+{% endif %}
     depends_on:
       - {{ webserver.type }}
     environment:
@@ -89,14 +126,17 @@ services:
     labels:
       traefik.backend: '{{ project_machine_name }}_varnish_1'
       traefik.port: '6081'
-      traefik.frontend.rule: 'Host:varnish.{{ project_machine_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:varnish.{{ service_domain }}'
 {% endif %}
 {% if redis.enable %}
 
   redis:
     image: 'wodby/redis:{{ redis.tag }}'
+{% if deploy == true %}
+    restart: always
 {% endif %}
-{% if dbbrowser.enable %}
+{% endif %}
+{% if dbbrowser.enable and deploy != true %}
 {% if dbbrowser.type == 'adminer' %}
 
   adminer:
@@ -106,7 +146,7 @@ services:
     labels:
       traefik.backend: '{{ project_machine_name }}_adminer_1'
       traefik.port: '9000'
-      traefik.frontend.rule: 'Host:adminer.{{ project_machine_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:adminer.{{ service_domain }}'
 {% elseif dbbrowser.type == 'pma' %}
 
   pma:
@@ -120,50 +160,62 @@ services:
     labels:
       traefik.backend: '{{ project_machine_name }}_pma_1'
       traefik.port: '80'
-      traefik.frontend.rule: 'Host:pma.{{ project_machine_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:pma.{{ service_domain }}'
 {% endif %}
 {% endif %}
 {% if solr.enable %}
 
   solr:
     image: 'wodby/drupal-solr:{{ solr.tag }}'
+{% if deploy == true %}
+    restart: always
+{% endif %}
     environment:
       SOLR_HEAP: 1024m
     labels:
       traefik.backend: '{{ project_machine_name }}_solr_1'
       traefik.port: '8983'
-      traefik.frontend.rule: 'Host:solr.{{ project_machine_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:solr.{{ service_domain }}'
 {% endif %}
 {% if mailhog.enable %}
 
   mailhog:
     image: 'mailhog/mailhog'
+{% if deploy == true %}
+    restart: always
+{% endif %}
     labels:
       traefik.backend: '{{ project_machine_name }}_mailhog_1'
       traefik.port: '8025'
-      traefik.frontend.rule: 'Host:mailhog.{{ project_machine_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:mailhog.{{ service_domain }}'
 {% endif %}
 {% if node.enable %}
 
   nodejs:
     image: 'wodby/drupal-node:{{ node.tag }}'
+{% if deploy == true %}
+    restart: always
+{% endif %}
     environment:
        NODE_SERVICE_KEY: '{{ node.key }}'
     labels:
       traefik.backend: 'nodejs'
       traefik.port: '8080'
-      traefik.frontend.rule: 'Host:nodejs.{{ project_machine_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:nodejs.{{ service_domain }}'
     volumes:
       - ./{{ node.path }}:/app
     command: sh -c 'npm install && npm run start'
 
   node:
     image: 'node:alpine'
+{% if deploy == true %}
+    restart: always
+{% endif %}
     working_dir: /app
     labels:
       traefik.backend: '{{ project_machine_name }}_node_1'
       traefik.port: '3000'
-      traefik.frontend.rule: 'Host:front.{{ project_machine_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:front.{{ service_domain }}'
     expose:
       - '3000'
     volumes:
@@ -173,17 +225,26 @@ services:
 {% if memcached.enable %}
 
   memcached:
+{% if deploy == true %}
+    restart: always
+{% endif %}
     image: 'wodby/memcached:{{ memcached.tag }}'
 {% endif %}
 {% if rsyslog.enable %}
 
   rsyslog:
     image: 'wodby/rsyslog:{{ rsyslog.tag }}'
+{% if deploy == true %}
+    restart: always
+{% endif %}
 {% endif %}
 {% if athenapdf.enable %}
 
   athenapdf:
     image: 'arachnysdocker/athenapdf-service:{{ athenapdf.tag }}'
+{% if deploy == true %}
+    restart: always
+{% endif %}
     environment:
       WEAVER_AUTH_KEY: '{{ athenapdf.key }}'
       WEAVER_ATHENA_CMD: 'athenapdf -S'
@@ -192,7 +253,7 @@ services:
       WEAVER_WORKER_TIMEOUT: 90
       WEAVER_CONVERSION_FALLBACK: false
 {% endif %}
-{% if blackfire.enable %}
+{% if blackfire.enable and deploy != true %}
 
   blackfire:
     image: 'blackfire/blackfire'
@@ -200,7 +261,7 @@ services:
       BLACKFIRE_SERVER_ID: '{{ blackfire.id }}'
       BLACKFIRE_SERVER_TOKEN: '{{ blackfire.token }}'
 {% endif %}
-{% if webgrind.enable %}
+{% if webgrind.enable and deploy != true %}
 
   webgrind:
     # add XDEBUG_PROFILE=1 to your request to profile that
@@ -210,47 +271,52 @@ services:
     labels:
       traefik.backend: '{{ project_machine_name }}_webgrind_1'
       traefik.port: '8080'
-      traefik.frontend.rule: 'Host:webgrind.{{ project_machine_name }}.docker.localhost'
+      traefik.frontend.rule: 'Host:webgrind.{{ service_domain }}'
     volumes:
       - files:/mnt/files
 {% endif %}
-{% if portainer.enable %}
+{% if portainer.enable and deploy != true %}
 
   portainer:
     image: portainer/portainer
-    container_name: "{{ project_machine_name }}_portainer"
     command: --no-auth -H unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - 'traefik.backend=portainer'
       - 'traefik.port=9000'
-      - 'traefik.frontend.rule=Host:portainer.{{ project_machine_name }}.docker.localhost'
+      - 'traefik.frontend.rule=Host:portainer.{{ service_domain }}'
 {% endif %}
 {% if behat.enable %}
 
   selenium:
     image: selenium/standalone-chrome
-    container_name: '{{ project_machine_name }}_selenium'
     restart: on-failure:5
     volumes:
       - /dev/shm:/dev/shm
     labels:
       - 'traefik.backend=selenium'
       - 'traefik.port=4444'
-      - 'traefik.frontend.rule=Host:selenium.{{ project_machine_name }}.docker.localhost'
+      - 'traefik.frontend.rule=Host:selenium.{{ service_domain }}'
     ports:
       - 5900:5900
 {% endif %}
+{% if deploy != true %}
 
   traefik:
     image: traefik
-    container_name: "{{ project_machine_name }}_traefik"
     command: -c /dev/null --web --docker --logLevel=INFO
     ports:
       - '{{ port }}:80'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+{% endif %}
 
 volumes:
   db:
+{% if deploy == true %}
+
+networks:
+  proxy:
+    external: true
+{% endif %}

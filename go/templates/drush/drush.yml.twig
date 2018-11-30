@@ -18,11 +18,12 @@ command:
 sql:
   structure-tables:
     common:
-{% for table in drush.sql.tables.structure %}
-      - '{{ table }}'
-{% endfor %}
+      - 'cache'
+      - 'cache_*'
+      - 'history'
+      - 'search_*'
+      - 'sessions'
+      - 'watchdog'
   skip-tables:
     common:
-{% for table in drush.sql.tables.skip %}
-      - '{{ table }}'
-{% endfor %}
+      - 'migration_*'

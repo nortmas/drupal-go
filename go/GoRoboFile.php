@@ -4,6 +4,8 @@ require_once $realDir . '/vendor/autoload.php';
 require_once $realDir . '/web/core/includes/bootstrap.inc';
 require_once $realDir . '/web/core/includes/install.inc';
 
+use Drupal\Component\Utility\Crypt;
+use Drupal\Core\Site\Settings;
 use Robo\Tasks;
 use Drupal\Component\PhpStorage\FileStorage;
 use DrupalFinder\DrupalFinder;
@@ -48,6 +50,7 @@ class GoRoboFile extends Tasks {
    * Test function.
    */
   public function test() {
+    //$this->deploy_setup();
     $this->yell('Hello!');
   }
 
@@ -73,6 +76,12 @@ class GoRoboFile extends Tasks {
       $this->updateGoConf();
     }
 
+    if ($this->config['deploy']['enable'] == FALSE) {
+      $behat = $this->ask("Do you want to set up deployment flow? Y or N");
+      $this->config['deploy']['enable'] = strtolower($behat) == 'y' ? 1 : 0;
+      $this->updateGoConf();
+    }
+
     $this->configureProject(TRUE);
   }
 
@@ -91,11 +100,15 @@ class GoRoboFile extends Tasks {
     if ($this->config['behat']['enable'] == TRUE) {
       $this->behat_setup();
     }
-    if ($this->config['gitlab']['enable'] == TRUE) {
-      $this->gitlab_ci_setup();
+    if ($this->config['deploy']['enable'] == TRUE) {
+      $this->deploy_setup();
     }
     $this->removeNeedlessModules();
-    $this->yell('Congrats!!! Now you can go here: http://' . $this->config['project_machine_name'] . '.docker.localhost:' . $this->config['port']);
+    $domains = '';
+    foreach (explode(',', $this->config['domains']) as $domain) {
+      $domains .= "\n" . 'http://' . $domain . ':' . $this->config['port'];
+    }
+    $this->yell('Available domains: ' . $domains);
   }
 
   /**
@@ -105,7 +118,6 @@ class GoRoboFile extends Tasks {
    */
   public function install($profile = 'standard') {
     $this->createSettingsFile();
-    $this->updateSettingsFile();
 
     $drush_install = $this->taskDrushStack()
       ->siteName($this->config['project_name'])
@@ -121,20 +133,23 @@ class GoRoboFile extends Tasks {
       ->getCommand();
 
     $this->commandExec($drush_install);
+    $this->updateSettingsFile();
   }
 
   /**
    * Reinstall Drupal from the scratch.
    * @aliases rei
-   * @param string $profile
    */
-  public function reinstall($profile = 'standard') {
+  public function reinstall() {
     $drush_drop = $this->taskDrushStack()->drush('sql-drop')->getCommand();
     $this->commandExec($drush_drop);
-    $this->install($profile);
     $file_settings = $this->defaultSettingsPath . '/settings.php';
     $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
     $this->fileSystem->chmod($file_settings, 0664);
+    $this->fileSystem->remove($file_settings);
+    $this->say("Remove ' . $file_settings . ' file.");
+    $this->go();
+
   }
 
   /**
@@ -147,14 +162,14 @@ class GoRoboFile extends Tasks {
   /**
    * Recreate configuration files.
    * @param string $set The name of set of the files to be recreated.
-   *   May have values: drupal, drush, docker, gitlab, behat, phpunit.
+   *   May have values: drupal, drush, docker, deploy, behat, phpunit.
    */
   public function reconf($set = 'default') {
     $this->io()->caution("This action will overwrite all previously created configs.");
     $save_origin = $this->ask("Do you want to save backups if they differ from the original ones? Y or N");
     $save_origin = strtolower($save_origin) == 'y' ? TRUE : FALSE;
-    foreach ($this->getFiles($set) as $template => $options) {
-      $this->makeFileTemplate($template, $options, TRUE, $save_origin);
+    foreach ($this->getFiles($set) as $options) {
+      $this->makeFileTemplate($options, TRUE, $save_origin);
     }
   }
 
@@ -197,40 +212,52 @@ class GoRoboFile extends Tasks {
    * @aliases bhs
    */
   public function behat_setup() {
+
     if (!$this->fileSystem->exists($this->projectRoot . '/tests/behat')) {
       $this->_copyDir($this->projectRoot . '/go/behat', $this->projectRoot . '/tests/behat');
       // Add behat files using prepared templates.
-      foreach ($this->getFiles('behat') as $template => $options) {
-        $this->makeFileTemplate($template, $options, FALSE);
+      foreach ($this->getFiles('behat') as $options) {
+        $this->makeFileTemplate($options, FALSE);
       }
       $this->say('The folder ' . $this->projectRoot . '/tests/behat has been created.');
-    }
-    $modules = [
-      "behat/mink-zombie-driver" => "^1.4",
-      "devinci/devinci-behat-extension" => "dev-master",
-      "drupal/drupal-extension" => "^3.4",
-      "emuse/behat-html-formatter" => "^0.1.0",
-      "jarnaiz/behat-junit-formatter" => "^1.3",
-    ];
-    foreach ($modules as $name => $version) {
-      $this->taskComposerRequire()->dependency($name, $version)->dev()->run();
+
+      $modules = [
+        "behat/mink-zombie-driver" => "^1.4",
+        "devinci/devinci-behat-extension" => "dev-master",
+        "drupal/drupal-extension" => "^3.4",
+        "emuse/behat-html-formatter" => "^0.1.0",
+        "jarnaiz/behat-junit-formatter" => "^1.3",
+      ];
+      foreach ($modules as $name => $version) {
+        $this->taskComposerRequire()->dependency($name, $version)->dev()->run();
+      }
+
+      if ($this->config['behat']['enable'] == FALSE) {
+        $this->config['behat']['enable'] = 1;
+        $this->updateGoConf();
+        $this->reconf('docker');
+        $this->io()->caution('Selenuum container has been added. Now you must restart the containers. Run: make go_restart.');
+      }
     }
   }
 
   /**
-   * Set up GitLab CI flow.
+   * Set up the deployment flow.
    *
    * @aliases gcs
    */
-  public function gitlab_ci_setup() {
-    if (!$this->fileSystem->exists($this->projectRoot . '/.gitlab-ci.yml')) {
-      $this->_copyDir($this->projectRoot . '/go/deploy', $this->projectRoot . '/deploy');
-      // Add behat files using prepared templates.
-      $files = $this->getFiles('gitlab');
-      foreach ($files as $template => $options) {
-        $this->makeFileTemplate($template, $options, FALSE);
+  public function deploy_setup() {
+    if (!$this->fileSystem->exists($this->projectRoot . '/deploy')) {
+      // Using prepared templates.
+      $deploy_files = $this->getFiles(['deploy', 'docker_deploy']);
+      foreach ($deploy_files as $options) {
+        $this->makeFileTemplate($options, FALSE);
       }
-      $this->say('The files ' . implode(', ', array_keys($files)) . ' has been created.');
+      if ($this->config['deploy']['enable'] == FALSE) {
+        $this->config['deploy']['enable'] = 1;
+        $this->updateGoConf();
+      }
+      $this->say('The files ' . implode(', ', array_column($deploy_files, 'path')) . ' has been created.');
     }
   }
 
@@ -368,8 +395,8 @@ class GoRoboFile extends Tasks {
     }
 
     // Add necessary configuration files using prepared templates.
-    foreach ($this->getFiles() as $template => $options) {
-      $this->makeFileTemplate($template, $options, $ovewrite);
+    foreach ($this->getFiles() as $options) {
+      $this->makeFileTemplate($options, $ovewrite);
     }
 
     // Set permissions, see https://wodby.com/stacks/drupal/docs/local/permissions
@@ -423,7 +450,9 @@ class GoRoboFile extends Tasks {
       }
 
       // Create sites configuration file.
-      $this->makeFileTemplate('sites.php', ['dest' => $this->drupalRoot . '/sites']);
+      foreach ($this->getFiles('multisite') as $options) {
+        $this->makeFileTemplate($options);
+      }
     }
   }
 
@@ -439,6 +468,10 @@ class GoRoboFile extends Tasks {
     $file_def_settings = $file_def_settings ?: $this->defaultSettingsPath . '/default.settings.php';
 
     if (!$settings) {
+      $settings['settings']['hash_salt'] = (object) [
+        'value' => Crypt::randomBytesBase64(55),
+        'required' => TRUE,
+      ];
       $settings['config_directories'] = [
         CONFIG_SYNC_DIRECTORY => (object) [
           'value' => Path::makeRelative($this->projectRoot . '/config/default', $this->drupalRoot),
@@ -451,6 +484,11 @@ class GoRoboFile extends Tasks {
     if (!$this->fileSystem->exists($file_settings) && $this->fileSystem->exists($file_def_settings)) {
       $this->fileSystem->copy($file_def_settings, $file_settings);
       #$this->fileSystem->chmod($file_settings, 0666);
+
+      // Initialize the settings from the recently created settings.php
+      $class_loader = require_once $this->projectRoot . '/vendor/autoload.php';
+      Settings::initialize($this->drupalRoot, 'default', $class_loader);
+      // Override settings.php with new configurations.
       drupal_rewrite_settings($settings, $file_settings);
       $this->say("Create a ' . $file_settings . ' file with mode 666");
     }
@@ -464,28 +502,72 @@ class GoRoboFile extends Tasks {
   protected function updateSettingsFile($file_settings = NULL) {
     $file_settings = $file_settings ?: $this->defaultSettingsPath . '/settings.php';
 
-    // Make sure that settings.docker.php gets called from settings.php.
-    if ($this->fileSystem->exists($file_settings)) {
-      $settings_content = file_get_contents($file_settings);
-      if (strpos($settings_content, 'settings.docker.php') === FALSE) {
-
-        if (!is_writable($this->defaultSettingsPath)) {
-          $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
-        }
-
-        if (!is_writable($file_settings)) {
-          $this->fileSystem->chmod($file_settings, 0664);
-        }
-
-        $relative_path = Path::makeRelative($this->defaultSettingsPath, $this->drupalRoot);
-        $append = "\nif (file_exists(\$app_root . '/" . $relative_path . "/settings.docker.php')) {\n";
-        $append .= "\tinclude \$app_root . '/" . $relative_path . "/settings.docker.php';\n";
-        $append .= "}\n";
-        $this->fileSystem->appendToFile($file_settings, $append);
-        #$this->fileSystem->chmod($file_settings, 0444);
-        #$this->fileSystem->chmod($this->defaultSettingsPath, 0555);
-      }
+    if (!is_writable($this->defaultSettingsPath)) {
+      $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
     }
+
+    // Make sure that settings.docker.php gets called from settings.php.
+    if (!$this->fileSystem->exists($file_settings)) {
+      $this->createSettingsFile($file_settings);
+    }
+
+    if (!is_writable($file_settings)) {
+      $this->fileSystem->chmod($file_settings, 0664);
+    }
+
+    $settings_content = file_get_contents($file_settings);
+
+    if (strpos($settings_content, "'database' => 'drupal'") !== FALSE) {
+      $this->fileSystem->remove($file_settings);
+      $this->createSettingsFile($file_settings);
+      $settings_content = file_get_contents($file_settings);
+    }
+
+    if (strpos($settings_content, 'settings.docker.php') === FALSE) {
+
+      $relative_path = Path::makeRelative($this->defaultSettingsPath, $this->drupalRoot);
+
+      $append = <<<EOT
+
+if (file_exists(\$app_root . '/$relative_path/settings.docker.php')) {
+  if (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby') {
+    // LOCAL environment
+    include \$app_root . '/$relative_path/settings.docker.php';
+  }
+  elseif (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby-dev') {
+    // DEV environment
+    include \$app_root . '/$relative_path/settings.docker.php';
+  }
+}
+
+if (file_exists(\$app_root . '/$relative_path/settings.prod.php')) {
+  if (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby-stage') {
+    // STAGE environment
+    include \$app_root . '/$relative_path/settings.prod.php';
+  }
+  elseif (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby-master') {
+    // PRODUCTION environment
+    include \$app_root . '/$relative_path/settings.prod.php';
+  }
+}
+
+EOT;
+      $this->fileSystem->appendToFile($file_settings, $append);
+    }
+
+  }
+
+  /**
+   * Set correct file permissions according to the official documentation recommendations.
+   * https://www.drupal.org/node/244924
+   *
+   * @aliases scfp
+   */
+  public function set_correct_file_permissions() {
+    $config_dir = $this->projectRoot ."/config";
+    $file_settings = $this->defaultSettingsPath . '/settings.php';
+    $this->fileSystem->chmod($file_settings, 0444);
+    $this->fileSystem->chmod($this->defaultSettingsPath, 0755);
   }
 
   /**
@@ -505,6 +587,9 @@ class GoRoboFile extends Tasks {
     if ($container_name == 'adminer' || $container_name ==  'pma') {
       $temp_conf['dbbrowser']['enable'] = 1;
       $temp_conf['dbbrowser']['type'] = $container_name;
+    }
+    elseif ($container_name == 'selenium') {
+      $temp_conf['behat']['enable'] = 1;
     }
     else {
       $temp_conf[$container_name]['enable'] = 1;
@@ -547,33 +632,46 @@ class GoRoboFile extends Tasks {
   /**
    * Create file using prepared templates.
    *
-   * @param $template
    * @param $options
    * @param bool $overwrite
    * @param bool $save_origin
    */
-  protected function makeFileTemplate($template, $options, $overwrite = FALSE, $save_origin = FALSE) {
+  protected function makeFileTemplate($options, $overwrite = FALSE, $save_origin = FALSE) {
     $twig_loader = new \Twig_Loader_Array([]);
     $twig = new \Twig_Environment($twig_loader);
+
+    $template = basename($options['path']);
 
     if (!$this->fileSystem->exists($options['dest'])) {
       $this->fileSystem->mkdir($options['dest']);
     }
 
-    $twig_loader->setTemplate($template, $template);
-    $filename = $twig->render($template, $this->config);
+    $global_conf = $this->config;
+    if (isset($options['vars'])) {
+      $global_conf += $options['vars'];
+      if (isset($options['vars']['deploy'])) {
+        $global_conf['php']['tag'] = str_replace('${OS}', '', $global_conf['php']['tag']);
+      }
+    }
 
-    $file = !empty($options['rename']) ? $options['dest'] . '/' . $options['rename'] : $options['dest'] . '/' . $filename;
+    if ($template == 'docker-compose.yml') {
+      $main_domain = isset($options['vars']['deploy']) ? '.dev.' . $global_conf['server']['domain'] : '.docker.localhost';
+      if (!empty($this->config['multisite'])) {
+        $global_conf['domains'] = implode($main_domain . ',', array_keys($this->config['multisite']));
+      }
+      else {
+        $global_conf['domains'] = $global_conf['project_machine_name'];
+      }
+      $global_conf['domains'] .= $main_domain;
+      $global_conf['service_domain'] = $global_conf['project_machine_name'] . $main_domain;
+      $this->config += $global_conf;
+    }
+
+    $file = !empty($options['rename']) ? $options['dest'] . '/' . $options['rename'] : $options['dest'] . '/' . $template;
 
     if (!$this->fileSystem->exists($file) || $overwrite) {
-      $twig_loader->setTemplate($filename, file_get_contents($this->goRoot . '/templates/' . $template . '.twig'));
-      $rendered = $twig->render($filename, $this->config);
-
-      if (!empty($options['add2yaml']) && isset($this->config[$filename])) {
-        $yaml = Yaml::parse($rendered);
-        $yaml = array_merge_recursive($yaml, $this->config[$filename]);
-        $rendered = Yaml::dump($yaml, 9, 2);
-      }
+      $twig_loader->setTemplate($template, file_get_contents($this->goRoot . '/templates/' . $options['path'] . '.twig'));
+      $rendered = $twig->render($template, $global_conf);
 
       if ($this->fileSystem->exists($file) && $save_origin) {
         if (md5_file($file) == md5($rendered)) {
@@ -586,19 +684,10 @@ class GoRoboFile extends Tasks {
         $this->say("The original file is different so create a backup for" . $orig_file);
         $this->fileSystem->rename($file, $orig_file);
       }
+
       file_put_contents($file, $rendered);
       $this->say("Create a " . $file);
     }
-
-    if (isset($options['link']) && ($options['link'] != $this->defaultSettingsPath)) {
-      $link = $options['link'] . '/' . $filename;
-      if (!$this->fileSystem->exists($link)) {
-        $rel = substr($this->fileSystem->makePathRelative($file, $this->projectRoot . '/' . $link), 3, -1);
-        $this->fileSystem->symlink($rel, $link);
-      }
-    }
-
-    $this->fileSystem->chmod($file, 0664);
   }
 
   /**
@@ -674,7 +763,7 @@ class GoRoboFile extends Tasks {
   /**
    * List of files and settings on how to handle them.
    *
-   * @param string $set_name
+   * @param string|array $set_name
    *   The name of the set to be returned.
    *
    * @return array
@@ -683,54 +772,104 @@ class GoRoboFile extends Tasks {
   protected function getFiles($set_name = 'default') {
     $set = [
       'drupal' => [
-        'settings.docker.php' => [
+        [
+          'path' => 'drupal/settings.docker.php',
           'dest' => $this->defaultSettingsPath,
-          'link' => $this->defaultSettingsPath,
         ],
-        'services.docker.yml' => [
+        [
+          'path' => 'drupal/settings.prod.php',
           'dest' => $this->defaultSettingsPath,
-          'link' => $this->defaultSettingsPath,
+        ],
+        [
+          'path' => 'drupal/services.docker.yml',
+          'dest' => $this->defaultSettingsPath,
         ],
       ],
       'drush' => [
-        'default.site.yml' => [
+        [
+          'path' => 'drush/default.site.yml',
           'dest' => $this->projectRoot . '/drush/sites',
-          'add2yaml' => TRUE,
           'rename' => $this->config['project_machine_name'] . '.site.yml'
         ],
-        'drush.yml' => [
+        [
+          'path' => 'drush/drush.yml',
           'dest' => $this->projectRoot . '/drush',
-          'add2yaml' => TRUE,
         ],
       ],
       'docker' => [
-        'docker-compose.yml' => [
+        [
+          'path' => 'docker/docker-compose.yml',
           'dest' => $this->projectRoot,
-          'add2yaml' => TRUE,
         ],
       ],
-      'phpunit' => [
-        'phpunit.xml.dist' => [
-          'dest' => $this->projectRoot . '/tests',
+      'docker_deploy' => [
+        [
+          'path' => 'docker/docker-compose.yml',
+          'dest' => $this->projectRoot . '/deploy',
+          'vars' => [
+            'deploy' => TRUE,
+          ]
         ],
       ],
       'behat' => [
-        'behat.yml' => [
+        [
+          'path' => 'behat/behat.yml',
           'dest' => $this->projectRoot . '/tests/behat',
         ],
       ],
-      'gitlab' => [
-        '.gitlab-ci.yml' => [
+      'multisite' => [
+        [
+          'path' => 'multisite/sites.php',
+          'dest' => $this->drupalRoot . '/sites',
+        ],
+      ],
+      'deploy' => [
+        [
+          'path' => 'deploy/.gitlab-ci.yml',
           'dest' => $this->projectRoot,
+        ],
+        [
+          'path' => 'deploy/.rsync-artifact-exclude',
+          'dest' => $this->projectRoot . '/deploy',
+        ],
+        [
+          'path' => 'deploy/.rsync-deploy-exclude',
+          'dest' => $this->projectRoot . '/deploy',
+        ],
+        [
+          'path' => 'deploy/scripts/artifact.sh',
+          'dest' => $this->projectRoot . '/deploy/scripts',
+        ],
+        [
+          'path' => 'deploy/scripts/behat.sh',
+          'dest' => $this->projectRoot . '/deploy/scripts',
+        ],
+        [
+          'path' => 'deploy/scripts/deploy.sh',
+          'dest' => $this->projectRoot . '/deploy/scripts',
+        ],
+        [
+          'path' => 'deploy/scripts/finalize.sh',
+          'dest' => $this->projectRoot . '/deploy/scripts',
         ],
       ],
     ];
 
-    if ($set_name == 'default') {
-      return $set['drupal'] + $set['drush'] + $set['docker'];
+    if (is_string($set_name)) {
+      if (!isset($set[$set_name])) {
+        $this->io()->error('The configuration ' . $set_name . ' set is not found!');
+        exit;
+      }
+      if ($set_name == 'default') {
+        return $set['drupal'] + $set['drush'] + $set['docker'];
+      }
+      else {
+        return $set[$set_name];
+      }
     }
-    else {
-      return $set[$set_name];
+    if (is_array($set_name)) {
+      $cut = array_intersect_key($set, array_flip($set_name));
+      return call_user_func_array('array_merge', $cut);
     }
   }
 
@@ -752,24 +891,34 @@ class GoRoboFile extends Tasks {
     $drush_en_memcache = $this->taskDrushStack()->drush('en memcache')->getCommand();
     $this->commandExec($drush_en_memcache);
 
-    $file_settings = $this->defaultSettingsPath . '/settings.docker.php';
-    $settings_content = file_get_contents($file_settings);
+    $setting_files = [
+      $this->defaultSettingsPath . '/settings.docker.php',
+      $this->defaultSettingsPath . '/settings.prod.php',
+    ];
 
-    if (strpos($settings_content, 'Memcached configs.') === FALSE) {
+    if (!is_writable($this->defaultSettingsPath)) {
+      $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
+    }
 
-      if (!is_writable($this->defaultSettingsPath)) {
-        $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
+    // Set configurations based on recommendations from Acquia.
+    // https://support.acquia.com/hc/en-us/articles/360005313853-Adding-Drupal-8-cache-bins-to-Memcache
+
+    $append = "\n/**\n* Memcached configs.\n*/\n";
+    $append .= "\$settings['memcache']['servers'] = ['memcached:11211' => 'default'];\n";
+    $append .= "\$settings['memcache']['bins'] = ['default' => 'default'];\n";
+    $append .= "\$settings['memcache']['key_prefix'] = '';\n";
+    $append .= "\$settings['cache']['bins']['bootstrap'] = 'cache.backend.memcache';\n";
+    $append .= "\$settings['cache']['bins']['discovery'] = 'cache.backend.memcache';\n";
+    $append .= "\$settings['cache']['bins']['config'] = 'cache.backend.memcache';\n";
+    $append .= "\$settings['cache']['default'] = 'cache.backend.memcache';\n";
+
+    foreach ($setting_files as $file_settings) {
+      $settings_content = file_get_contents($file_settings);
+
+      if (strpos($settings_content, 'Memcached configs.') === FALSE) {
+        $this->fileSystem->appendToFile($file_settings, $append);
+        $this->say('Update ' . $file_settings . ' with Memcache configurations.');
       }
-
-      $append = "\n/**\n* Memcached configs.\n*/\n";
-      $append .= "\$settings['memcache']['servers'] = ['memcached:11211' => 'default'];\n";
-      $append .= "\$settings['memcache']['bins'] = ['default' => 'default'];\n";
-      $append .= "\$settings['memcache']['key_prefix'] = '';\n";
-      $append .= "\$settings['cache']['default'] = 'cache.backend.memcache';\n";
-
-      $this->fileSystem->appendToFile($file_settings, $append);
-      $this->fileSystem->chmod($this->defaultSettingsPath, 0555);
-      $this->say('Memcached configs have been added.');
     }
   }
 
@@ -783,6 +932,7 @@ class GoRoboFile extends Tasks {
       "drupal/adminimal_theme" => "1.x-dev",
       "drupal/config_split" => "^1.3",
       "drupal/devel" => "^1.0",
+      "drupal/shield" => "^1.2",
     ];
 
     foreach ($modules as $name => $version) {

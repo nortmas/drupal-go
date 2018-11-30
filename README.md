@@ -54,9 +54,9 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * `project_machine_name` - Will be used for different needs to unify some configurations also will be used as a url prefix.
 * `port` - The port which will be used for the local site url.
 * `include_basic_modules` - Will include the set of prepared modules and enable them after installation.
-* `drush` - Used to configure drush aliases and other useful drush adjustments.
 * `multisite` - You can specify the array of needed domains to create the folder structure automatically.
-* `gitlab` - Configure GitLab CI files for the deployment flow.
+* `deploy` - Configure GitLab CI files and deployment flow.
+* `server` - Configure remote server that will contain dev, stage and prod environments.
 * `behat` - Used for Behat configuration files.
 * All other configurations are related to the [docker4drupal](https://github.com/wodby/docker4drupal)
 
@@ -97,6 +97,7 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `mailhog`
 * `varnish`
 * `adminer`
+* `selenium`
 * `pma`
 * `solr`
 * `redis`

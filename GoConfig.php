@@ -11,49 +11,27 @@ return [
     'host' => '178.128.83.195',
     'user' => 'deploy',
   ],
-  'gitlab' => [
+  'deploy' => [
     'enable' => 0,
     'runner_artifact_dir' => '/home/gitlab-runner/artifacts',
-  ],
-  'behat' => [
-    'enable' => 0,
-    'base_url' => 'http://admin:user2admin@apache:80',
-    'region_content' => '.main-content',
-    'region_footer' => '.footer',
-    'region_navigation' => '#main-nav',
-    'region_header' => '.header',
-  ],
-  'drush' => [
-    'sql' => [
-      'tables' => [
-        'structure' => [
-          'cache',
-          'cache_*',
-          'history',
-          'search_*',
-          'sessions',
-          'watchdog',
-        ],
-        'skip' => [
-          'migration_*',
-        ],
-      ],
-    ],
   ],
   'multisite' => [
     # Should be in a format 'alias' => 'real production domain'
     #'subdomain' => 'subdomain.com',
   ],
+  'behat' => [
+    'enable' => 0,
+  ],
   'mariadb' => [
-    'tag' => '10.1-3.3.9',
+    'tag' => '10.1-3.3.11',
   ],
   'php' => [
     'xdebug' => 1,
-    'tag' => '7.1-dev-${OS}4.9.0', // The variable $OS is taken from the .env file.
+    'tag' => '7.2-dev-${OS}4.9.2',
   ],
   'webserver' => [
     'type' => 'apache',
-    'nginx_tag' => '1.15-5.0.12',
+    'nginx_tag' => '1.15-5.0.17',
     'apache_tag' => '2.4-4.0.2',
   ],
   'mailhog' => [
@@ -61,20 +39,20 @@ return [
   ],
   'varnish' => [
     'enable' => 0,
-    'tag' => '4.1-2.4.0',
+    'tag' => '4.1-3.0.10',
   ],
   'dbbrowser' => [
     'enable' => 0,
     'type' => 'adminer',
-    'adminer_tag' => '4.6-3.1.0',
+    'adminer_tag' => '4.6-3.1.2',
   ],
   'solr' => [
     'enable' => 0,
-    'tag' => '6.6-2.4.0',
+    'tag' => '7.4-3.0.6',
   ],
   'redis' => [
     'enable' => 0,
-    'tag' => '4.0-2.1.5',
+    'tag' => '4-3.0.1',
   ],
   'node' => [
     'enable' => 0,
@@ -84,7 +62,7 @@ return [
   ],
   'memcached' => [
     'enable' => 0,
-    'tag' => '1-2.2.0',
+    'tag' => '1-2.2.1',
   ],
   'rsyslog' => [
     'enable' => 0,
@@ -97,7 +75,7 @@ return [
   ],
   'webgrind' => [
     'enable' => 0,
-    'tag' => '1.5-1.3.0',
+    'tag' => '1.5-1.6.2',
   ],
   'blackfire' => [
     'enable' => 0,
