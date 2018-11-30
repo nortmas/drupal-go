@@ -398,10 +398,6 @@ class GoRoboFile extends Tasks {
     foreach ($this->getFiles() as $options) {
       $this->makeFileTemplate($options, $ovewrite);
     }
-
-    // Set permissions, see https://wodby.com/stacks/drupal/docs/local/permissions
-    #exec('setfacl -dR -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $this->projectRoot);
-    #exec('setfacl -R -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ' . $this->projectRoot);
   }
 
   /**
@@ -856,12 +852,12 @@ EOT;
     ];
 
     if (is_string($set_name)) {
-      if (!isset($set[$set_name])) {
+      if (!isset($set[$set_name]) && $set_name != 'default') {
         $this->io()->error('The configuration ' . $set_name . ' set is not found!');
         exit;
       }
       if ($set_name == 'default') {
-        return $set['drupal'] + $set['drush'] + $set['docker'];
+        return array_merge($set['drupal'], $set['drush'], $set['docker']);
       }
       else {
         return $set[$set_name];
