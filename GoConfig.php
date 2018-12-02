@@ -12,11 +12,12 @@ return [
     'user' => 'deploy',
   ],
   'deploy' => [
-    'enable' => 0,
+    'enable' => 1,
     'runner_artifact_dir' => '/home/gitlab-runner/artifacts',
   ],
   'multisite' => [
     # Should be in a format 'alias' => 'real production domain'
+    # Make sure that one of the domain aliases equals the project_machine_name.
     #'subdomain' => 'subdomain.com',
   ],
   'behat' => [
