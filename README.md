@@ -86,10 +86,11 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `robo get_db`, alias `gdb`. Import DB from the specified environment. It requires argument `alias` (dev,stage or prod)
 * `robo get_files`, alias `gf`. Import files from the specified environment. It requires argument `alias` (dev,stage or prod)
 * `robo rebuild` Execute necessary actions after a pull from the repository.
+* `robo set_correct_file_permissions`, alias `scfp`. Set correct file permissions according to the official documentation recommendations.
 * `robo multisite` Generate directory structure and necessary configuration files for specified domains.
 * `robo behat_setup` Set up behat auto tests.
 * `robo reconf` Reconfigure settings for the particular set of files. May accept arguments: `drupal`, `drush`, `docker`, `gitlab`, `behat`, `phpunit`. `default` (by default) includes drupal, drush, docker))
-* `robo gitlab_ci_setup` Set up GitLab CI flow.
+* `robo deploy_setup` Set up the deployment flow.
 * `robo container_add`, alias `cta`. Argument `container_name` (See **Available extra containers** section). Add container to the docker-compose.override.yml
 * `robo container_remove`, alias `ctr`. Argument `container_name` (See **Available extra containers** section). Remove container from the docker-compose.override.yml
 

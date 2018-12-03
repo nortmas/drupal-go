@@ -104,11 +104,12 @@ class GoRoboFile extends Tasks {
       $this->deploy_setup();
     }
     $this->removeNeedlessModules();
-    $domains = '';
-    foreach (explode(',', $this->config['domains']) as $domain) {
-      $domains .= "\n" . 'http://' . $domain . ':' . $this->config['port'];
+    $message = 'Available domains: ';
+    $domains = $this->getDomains();
+    foreach (explode(',', $domains) as $domain) {
+      $message .= "\n" . 'http://' . $domain . ':' . $this->config['port'];
     }
-    $this->yell('Available domains: ' . $domains);
+    $this->yell($message);
   }
 
   /**
@@ -144,12 +145,16 @@ class GoRoboFile extends Tasks {
     $drush_drop = $this->taskDrushStack()->drush('sql-drop')->getCommand();
     $this->commandExec($drush_drop);
     $file_settings = $this->defaultSettingsPath . '/settings.php';
+    $docker_settings = $this->defaultSettingsPath . '/settings.docker.php';
     $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
     $this->fileSystem->chmod($file_settings, 0664);
     $this->fileSystem->remove($file_settings);
     $this->say("Remove ' . $file_settings . ' file.");
+    $this->fileSystem->chmod($docker_settings, 0664);
+    $this->fileSystem->remove($docker_settings);
+    $this->say("Remove ' . $docker_settings . ' file.");
+    $this->prepare();
     $this->go();
-
   }
 
   /**
@@ -626,6 +631,28 @@ EOT;
   }
 
   /**
+   * Get the list of domains as a string with delimetr ",".
+   * @param bool $server
+   * @param bool $service
+   */
+  protected function getDomains($server = FALSE, $service = FALSE) {
+    $main_domain = $server ? '.dev.' . $this->config['server']['domain'] : '.docker.localhost';
+    if (!$service) {
+      if (!empty($this->config['multisite'])) {
+        $domains = implode($main_domain . ',', array_keys($this->config['multisite']));
+      }
+      else {
+        $domains = $this->config['project_machine_name'];
+      }
+      $domains .= $main_domain;
+      return $domains;
+    }
+    else {
+      return $this->config['project_machine_name'] . $main_domain;
+    }
+  }
+
+  /**
    * Create file using prepared templates.
    *
    * @param $options
@@ -651,15 +678,9 @@ EOT;
     }
 
     if ($template == 'docker-compose.yml') {
-      $main_domain = isset($options['vars']['deploy']) ? '.dev.' . $global_conf['server']['domain'] : '.docker.localhost';
-      if (!empty($this->config['multisite'])) {
-        $global_conf['domains'] = implode($main_domain . ',', array_keys($this->config['multisite']));
-      }
-      else {
-        $global_conf['domains'] = $global_conf['project_machine_name'];
-      }
-      $global_conf['domains'] .= $main_domain;
-      $global_conf['service_domain'] = $global_conf['project_machine_name'] . $main_domain;
+      $global_conf['deploy'] = isset($options['vars']['deploy']) ?: FALSE;
+      $global_conf['domains'] = $this->getDomains($global_conf['deploy']);
+      $global_conf['service_domain'] = $this->getDomains($global_conf['deploy'], TRUE);
       $this->config += $global_conf;
     }
 
@@ -852,7 +873,7 @@ EOT;
     ];
 
     if (is_string($set_name)) {
-      if (!isset($set[$set_name]) && $set_name != 'default') {
+      if (!isset($set[$set_name]) && $set_name !== 'default') {
         $this->io()->error('The configuration ' . $set_name . ' set is not found!');
         exit;
       }
@@ -963,6 +984,7 @@ EOT;
 
     if (empty($this->config['multisite'])) {
       $help_text = "    # Should be in a format 'alias' => 'real production domain'\n";
+      $help_text .= "    # Make sure that one of the domain aliases equals the project_machine_name.',\n";
       $help_text .= "    #'subdomain' => 'subdomain.com',\n";
       $php = str_replace("'multisite' => [\n", "'multisite' => [\n" . $help_text, $php);
     }

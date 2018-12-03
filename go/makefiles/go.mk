@@ -29,6 +29,7 @@ go_prepare_env:
 	make go_run_in_php
 	make go_php_kill
 	make go_up
+	sleep 15
 
 ## Install Drupal.
 go_drupal_install:
