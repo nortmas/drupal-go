@@ -16,7 +16,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 
 ## Installation
 1) To avoid incompatibilities please make sure that all other docker environments on your local machine are stopped. Or run `docker container stop $(docker ps -aq)`
-2) In your `www` directory run `git clone git@github.com:nortmas/drupal-go.git <project-machine-name> && cd <project-machine-name>`. 
+2) In your projects root dirrectory (`www` for example) run `git clone git@github.com:nortmas/drupal-go.git <project-machine-name> && cd <project-machine-name> && rm -r .git`. 
    (NOTE: For the sake of consistency, name your project directory as a project machine name.)
 3) If it's your first project with Drupal GO, for the convenience you may set the aliases (highly recommended):
     * `mkdir ~/.dgo && cp $(pwd)/go/scripts/aliases.sh ~/.dgo/aliases.sh`
@@ -70,7 +70,6 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `make go_run_behat` - Run behat tests.
 * `make go_drupal_update` - Update Drupal core with dependencies.
 * `make go_update_translations` - Update Drupal translations.
-* `make go_set_files_permissions` - Set right permissions for the files directory.
 * `make go_code_sniff` - Check codebase with phpcs sniffers to make sure it conforms https://www.drupal.org/docs/develop/standards
 * `make go_code_fix` - Fix codebase according to Drupal standards https://www.drupal.org/docs/develop/standards
 * `make go_up` - Up the docker containers.

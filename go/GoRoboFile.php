@@ -190,10 +190,8 @@ class GoRoboFile extends Tasks {
       $this->fileSystem->remove([
         $this->projectRoot . '/.env',
         $this->projectRoot . '/.gitlab-ci.yml',
-        $this->projectRoot . '/drush/sites',
-        $this->projectRoot . '/drush/drush.yml',
+        $this->projectRoot . '/drush',
         $this->projectRoot . '/composer.lock',
-        $this->projectRoot . '/docker-compose.override.yml',
         $this->projectRoot . '/certs',
         $this->projectRoot . '/deploy',
         $this->projectRoot . '/config',
@@ -555,20 +553,78 @@ if (file_exists(\$app_root . '/$relative_path/settings.prod.php')) {
 EOT;
       $this->fileSystem->appendToFile($file_settings, $append);
     }
-
   }
 
   /**
    * Set correct file permissions according to the official documentation recommendations.
    * https://www.drupal.org/node/244924
    *
-   * @aliases scfp
+   * @aliases scp
    */
-  public function set_correct_file_permissions() {
-    $config_dir = $this->projectRoot ."/config";
-    $file_settings = $this->defaultSettingsPath . '/settings.php';
-    $this->fileSystem->chmod($file_settings, 0444);
-    $this->fileSystem->chmod($this->defaultSettingsPath, 0755);
+  public function set_correct_permissions() {
+    $user = 'wodby';
+    $group = 'www-data';
+
+    $dirs = [
+      $this->drupalRoot . '/sites/default/files' => 1,
+      $this->drupalRoot . '/sites/default/files/tmp' => 2,
+      $this->drupalRoot . '/sites/default/files/private' => 3,
+    ];
+
+    foreach ($dirs as $dir => $mode) {
+      $this->mkDir($dir, $mode);
+    }
+
+    $this->say('Changing ownership of all contents inside ' . $this->drupalRoot);
+    $this->setOwnership($this->drupalRoot, $user, $group);
+
+    $this->say('Changing permissions of all directories inside ' . $this->projectRoot);
+    $this->commandExec('sudo find ' . $this->projectRoot . ' -type d -exec chmod u=rwx,g=rx,o=rx \'{}\' \;');
+
+    $this->say('Changing permissions of all files inside ' . $this->projectRoot);
+    $this->commandExec('sudo find ' . $this->projectRoot . ' -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
+
+    $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.docker.php  > /dev/null');
+    $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.prod.php  > /dev/null');
+    $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.php  > /dev/null');
+
+    $this->setPermissions($this->projectRoot . '/config');
+    $this->setPermissions($this->defaultSettingsPath . '/files');
+
+    $this->say('Changing permissions of all directories inside ' . $this->projectRoot . '/vendor');
+    $this->setPermissions($this->projectRoot . '/vendor', '2755');
+
+    $this->commandExec('sudo find ' . $this->drupalRoot . ' -name ".htaccess" -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
+  }
+
+  /**
+   * Set subdirectory ownership.
+   * Taken from the module: https://www.drupal.org/project/file_permissions
+   *
+   * @param $directory
+   * @param $user
+   * @param $group
+   */
+  protected function setOwnership($directory, $user, $group) {
+    // Set file permissions.
+    // The 2 means that the group id will be preserved for any new files created
+    // in this directory. What that means is that `www-data` will always be the
+    // group on any files, thereby ensuring that web server and the user will both
+    // always have write permissions to any new files that are placed in this
+    // directory.
+    $this->commandExec('nohup sudo chown -Rv ' . $user . ':' . $group . ' ' . $directory . '  > /dev/null');
+    $this->commandExec('nohup sudo chgrp -Rv ' . $group . ' ' . $directory . '  > /dev/null');
+  }
+
+  /**
+   * Set subdirectory permissions.
+   * Taken from the module: https://www.drupal.org/project/file_permissions
+   *
+   * @param $directory
+   * @param string $mode
+   */
+  protected function setPermissions($directory, $mode = '2775') {
+    $this->commandExec('nohup sudo chmod -R ' . $mode . ' ' . $directory . '  > /dev/null');
   }
 
   /**
@@ -715,6 +771,7 @@ EOT;
    */
   protected function mkDir($dir, $mode = 0) {
     if (!$this->fileSystem->exists($dir)) {
+      $this->say("Creating the directory " . $dir);
       $oldmask = umask(0);
       $this->fileSystem->mkdir($dir);
       umask($oldmask);
@@ -729,7 +786,6 @@ EOT;
           $this->addHtaccess($dir, TRUE);
           break;
       }
-      $this->say("Create a directory " . $dir);
     }
   }
 
@@ -810,6 +866,14 @@ EOT;
         ],
         [
           'path' => 'drush/drush.yml',
+          'dest' => $this->projectRoot . '/drush',
+        ],
+        [
+          'path' => 'drush/PolicyCommands.php',
+          'dest' => $this->projectRoot . '/drush/Commands',
+        ],
+        [
+          'path' => 'drush/drush-run.sh',
           'dest' => $this->projectRoot . '/drush',
         ],
       ],
@@ -992,5 +1056,4 @@ EOT;
     $php = "<?php\n\nreturn " . $php . ";";
     file_put_contents($this->projectRoot . '/GoConfig.php', $php);
   }
-
 }

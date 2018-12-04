@@ -39,7 +39,7 @@ assert_options(ASSERT_ACTIVE, TRUE);
  * In case the error level could not be fetched from the database, as for
  * example the database connection failed, we rely only on this value.
  */
-$config['system.logging']['error_level'] = 'verbose';
+$config['system.logging']['error_level'] = 'hide';
 
 /**
  * Disable the render cache (this includes the page cache).
@@ -107,6 +107,10 @@ $settings['file_private_path'] = 'sites/default/files/private';
  * See full description in default.settings.php.
  */
 $settings['trusted_host_patterns'] = ['^.+$'];
+
+if ($settings['trusted_host_patterns'][0] == '^.+$') {
+  $messenger = \Drupal::messenger()->addMessage('The trusted host patterns are not configured properly! Check the settings.prod.php', 'warning');
+}
 
 /**
  * Config split module settings.
