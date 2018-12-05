@@ -17,11 +17,11 @@ return [
   ],
   'multisite' => [
     # Should be in a format 'alias' => 'real production domain'
-    # Make sure that one of the domain aliases equals the project_machine_name.',
+    # Make sure that one of the domain aliases equals the project_machine_name.
     #'subdomain' => 'subdomain.com',
   ],
   'behat' => [
-    'enable' => 1,
+    'enable' => 0,
   ],
   'mariadb' => [
     'tag' => '10.1-3.3.11',
