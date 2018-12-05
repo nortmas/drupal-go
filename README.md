@@ -22,7 +22,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
     * `mkdir ~/.dgo && cp $(pwd)/go/scripts/aliases.sh ~/.dgo/aliases.sh`
     * Now add this line `source ~/.dgo/aliases.sh` to your `bashrc` or ` bash_profile` or `zshrc` file.
     * Restart your cli. To restart zsh: `exec zsh`, to restart bash: `exec bash -l`.
-4) Check the latest tags for the docker images in the [docker4drupal](https://github.com/wodby/docker4drupal/blob/master/.env). 
+4) Check the latest tags for the docker images in the [docker4drupal](https://github.com/wodby/docker4drupal/blob/master/.env).
 5) Set the configurations you need in the file `GoConfig.php`. 
 6) Run next commands one by one:
     * `make go_lin` OR `make go_mac`, depends on what OS are you using.
