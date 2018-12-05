@@ -1,4 +1,4 @@
-# DEPLOYMENT SET UP FLOW
+# DEPLOYMENT SET UP GUIDELINE
 1) Add developer's public keys to the authorized keys of the deploy user on the server.
 2) Set up GITLAB repository.
 3) Add `SERVER_PRIVATE_KEY` to the GITLAB CI variables with the server private_key value.
