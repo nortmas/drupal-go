@@ -342,6 +342,23 @@ class GoRoboFile extends Tasks {
   }
 
   /**
+   * Export DB to the specified environment.
+   *
+   * @aliases gdb
+   * @param $alias - dev,stage or prod
+   */
+  public function push_db($alias) {
+    $alias = '@' . $this->config['project_machine_name'] . '.' . $alias;
+    $drush_create_db = $this->taskDrushStack()->drush($alias . 'sql-create')->getCommand();
+    $drush_sync = $this->taskDrushStack()->drush('sql-sync --source-dump=/tmp/db.sql @self ' . $alias)->getCommand();
+    $drush_csim = $this->taskDrushStack()->drush($alias . ' cim')->getCommand();
+
+    $this->commandExec($drush_create_db);
+    $this->commandExec($drush_sync);
+    $this->commandExec($drush_csim);
+  }
+
+  /**
    * Import files from the specified environment.
    *
    * @aliases gf
@@ -350,6 +367,18 @@ class GoRoboFile extends Tasks {
   public function get_files($alias) {
     $alias = '@' . $this->config['project_machine_name'] . '.' . $alias . '-files';
     $drush_sync = $this->taskDrushStack()->drush('rsync ' . $alias . ':%files/ @self:%files')->getCommand();
+    $this->commandExec($drush_sync);
+  }
+
+  /**
+   * Export files to the specified environment.
+   *
+   * @aliases pf
+   * @param $alias - dev,stage or prod
+   */
+  public function push_files($alias) {
+    $alias = '@' . $this->config['project_machine_name'] . '.' . $alias . '-files';
+    $drush_sync = $this->taskDrushStack()->drush('rsync @self:%files/ ' . $alias . ':%files ')->getCommand();
     $this->commandExec($drush_sync);
   }
 

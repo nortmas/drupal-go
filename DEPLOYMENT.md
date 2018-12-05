@@ -11,5 +11,5 @@
     * According to the folder/environment, change the `GIT_USER_NAME` for php container.
 7) Run docker `compose up -d` in the created folders.
 8) Create the DB dump locally using the command: `gor dbe`.
-9) Run the `scp db/<file-name>.zip deploy@178.128.83.195:/home/deploy/<project-name>/<project-name>-<branch>/db`.
+9) Run the `scp db/<file-name>.zip deploy@178.128.83.195:/home/deploy/<project-name>/<project-name>-<branch>/db/<file-name>.zip`.
 10) Run the `ssh -ttq deploy@178.128.83.195 "export TERM='xterm' && cd /home/deploy/<project-name>/<project-name>-<branch> && gor dbi"`.
