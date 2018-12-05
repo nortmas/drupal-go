@@ -22,10 +22,15 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
     * `mkdir ~/.dgo && cp $(pwd)/go/scripts/aliases.sh ~/.dgo/aliases.sh`
     * Now add this line `source ~/.dgo/aliases.sh` to your `bashrc` or ` bash_profile` or `zshrc` file.
     * Restart your cli. To restart zsh: `exec zsh`, to restart bash: `exec bash -l`.
-4) If you are Linux user, run: `make go_lin`. If you are MacOS user, run: `make go_mac`, to improve performance read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).
-5) Now, check the latest tags for the docker images in the [docker4drupal](https://github.com/wodby/docker4drupal/blob/master/.env) and set the configurations you need in the file `GoConfig.php` or use the default settings and just run the next commands one by one:
+4) Check the latest tags for the docker images in the [docker4drupal](https://github.com/wodby/docker4drupal/blob/master/.env). 
+5) Set the configurations you need in the file `GoConfig.php`. 
+6) Run next commands one by one:
+    * `make go_lin` OR `make go_mac`, depends on what OS are you using.
     * `make go_prepare_env`
     * `make go_drupal_install`
+    
+## Performance for Mac OS users:
+If you want to improve performance, please read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).
     
 ## Ongoing project installation
 * Get into the project directory: `cd <project-machine-name>`
