@@ -55,6 +55,9 @@ services:
       PHP_BLACKFIRE: 1
 {% endif %}
     volumes:
+{% if deploy == true %}
+      - /tmp/:/tmp/
+{% endif %}
       - ./:/var/www/html
       - ./drush:/etc/drush
 {% if deploy != true %}
@@ -95,7 +98,6 @@ services:
       - ./:/var/www/html
     labels:
 {% if deploy != true %}
-      traefik.backend: '{{ project_machine_name }}_{{ webserver.type }}_1'
       traefik.port: '80'
 {% endif %}
 {% if deploy == true %}

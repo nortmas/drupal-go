@@ -23,9 +23,9 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
     * Now add this line `source ~/.dgo/aliases.sh` to your `bashrc` or ` bash_profile` or `zshrc` file.
     * Restart your cli. To restart zsh: `exec zsh`, to restart bash: `exec bash -l`.
 4) Check the latest tags for the docker images in the [docker4drupal](https://github.com/wodby/docker4drupal/blob/master/.env).
-5) Set the configurations you need in the file `GoConfig.php`. 
-6) Run next commands one by one:
-    * `make go_lin` OR `make go_mac`, depends on what OS are you using.
+5) Set the configurations you need in the file `GoConfig.php`.
+6) Run `make go_lin` OR `make go_mac`, depends on what OS are you using.
+7) Run next commands one by one:
     * `make go_prepare_env`
     * `make go_drupal_install`
     
@@ -34,10 +34,11 @@ If you want to improve performance, please read the [doc](https://wodby.com/docs
     
 ## Ongoing project installation
 * Get into the project directory: `cd <project-machine-name>`
-* Do the steps 1,3,4 from the **Installation** section above.
+* Do the steps 1,3,6 from the **Installation** section above.
 * Run the environment: `make go_up`.
 * Install the dependencies: `goc install`.
 * Import data base dump: `gor dbi`.
+* Implement general rebuild: `gor rebuild`.
 
 ## Credentials and environment information
 * URL: http://`<project_machine_name>`.docker.localhost:8000
@@ -91,6 +92,7 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `robo get_files`, alias `gf`. Import files from the specified environment. It requires argument `alias` (dev,stage or prod)
 * `robo rebuild` Execute necessary actions after a pull from the repository.
 * `robo set_correct_file_permissions`, alias `scfp`. Set correct file permissions according to the official documentation recommendations.
+* `robo set_settings_writable`, alias `ssw`. Set writable permissions for settings files.
 * `robo multisite` Generate directory structure and necessary configuration files for specified domains.
 * `robo behat_setup` Set up behat auto tests.
 * `robo reconf` Reconfigure settings for the particular set of files. May accept arguments: `drupal`, `drush`, `docker`, `gitlab`, `behat`, `phpunit`. `default` (by default) includes drupal, drush, docker))

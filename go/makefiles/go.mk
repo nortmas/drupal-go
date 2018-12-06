@@ -31,12 +31,17 @@ go_prepare_env:
 	make go_up
 	sleep 15
 
+## Check if the .env exists.
+go_check_env:
+	@[ -f .env ] && true || echo "\033[31m File .env doesn't exist. Please run go_lin or go_mac commands. \033[0m"; exit 1;
+
 ## Install Drupal.
 go_drupal_install:
 	$(call DRUPAL_PHP_ROBO, go)
 
 ## Run php container in order to prepare project.
 go_set_php_container:
+	make go_check_env
 	docker run -d --rm --name $(INIT_PHP_NAME) -v $(CURRENT_PATH):/var/www/html $(INIT_PHP_IMAGE)
 
 ## Run commands in php container.
@@ -67,13 +72,16 @@ go_reset_structure:
 
 ## Up the docker containers.
 go_up:
-	@echo "Build and run containers..."
+	make go_check_env
 	docker-compose up -d --remove-orphans
 
 ## Stop and remove the docker containers and networks.
 go_down:
-	@echo "Removing network & containers"
 	docker-compose down --remove-orphans
+
+## Stop and remove all docker containers, images and networks.
+go_down_rm:
+	docker-compose down --rmi all
 
 ## Restart containers.
 go_restart:

@@ -270,6 +270,9 @@ class GoRoboFile extends Tasks {
    * @aliases dbe
    */
   public function db_export() {
+    if (!$this->fileSystem->exists($this->projectRoot . '/db')) {
+      $this->fileSystem->mkdir($this->projectRoot . '/db');
+    }
     $file_name = '../db/' . date('d.m.Y-h.i.s') . '.sql';
     $drush_db_exp = $this->taskDrushStack()
       ->siteAlias('@self')
@@ -344,7 +347,7 @@ class GoRoboFile extends Tasks {
   /**
    * Export DB to the specified environment.
    *
-   * @aliases gdb
+   * @aliases pdb
    * @param $alias - dev,stage or prod
    */
   public function push_db($alias) {
@@ -604,8 +607,8 @@ EOT;
       $this->mkDir($dir, $mode);
     }
 
-    $this->say('Changing ownership of all contents inside ' . $this->drupalRoot);
-    $this->setOwnership($this->drupalRoot, $user, $group);
+    $this->say('Changing ownership of all contents inside ' . $this->projectRoot);
+    $this->setOwnership($this->projectRoot, $user, $group);
 
     $this->say('Changing permissions of all directories inside ' . $this->projectRoot);
     $this->commandExec('sudo find ' . $this->projectRoot . ' -type d -exec chmod u=rwx,g=rx,o=rx \'{}\' \;');
@@ -622,8 +625,20 @@ EOT;
 
     $this->say('Changing permissions of all directories inside ' . $this->projectRoot . '/vendor');
     $this->setPermissions($this->projectRoot . '/vendor', '2755');
+    $this->setPermissions($this->projectRoot . '/drush/drush-run.sh', '2755');
 
     $this->commandExec('sudo find ' . $this->drupalRoot . ' -name ".htaccess" -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
+  }
+
+  /**
+   * Set writable permissions for settings files.
+   *
+   * @aliases ssw
+   */
+  public function set_settings_writable() {
+    $this->commandExec('nohup chmod 644 ' . $this->defaultSettingsPath . '/settings.docker.php  > /dev/null');
+    $this->commandExec('nohup chmod 644 ' . $this->defaultSettingsPath . '/settings.prod.php  > /dev/null');
+    $this->commandExec('nohup chmod 644 ' . $this->defaultSettingsPath . '/settings.php  > /dev/null');
   }
 
   /**
@@ -1077,7 +1092,7 @@ EOT;
 
     if (empty($this->config['multisite'])) {
       $help_text = "    # Should be in a format 'alias' => 'real production domain'\n";
-      $help_text .= "    # Make sure that one of the domain aliases equals the project_machine_name.',\n";
+      $help_text .= "    # Make sure that one of the domain aliases equals the project_machine_name.\n";
       $help_text .= "    #'subdomain' => 'subdomain.com',\n";
       $php = str_replace("'multisite' => [\n", "'multisite' => [\n" . $help_text, $php);
     }

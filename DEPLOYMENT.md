@@ -9,7 +9,6 @@
 6) Take the file `deploy/docker-compose.yml` as a pattern and copy it to each created folder on the server.
     * According to the folder/environment, change the `traefik.frontend.rule` for apache container.
     * According to the folder/environment, change the `GIT_USER_NAME` for php container.
-7) Run docker `compose up -d` in the created folders.
-8) Create the DB dump locally using the command: `gor dbe`.
-9) Run the `scp db/<file_name>.zip deploy@178.128.83.195:/home/deploy/<project_dir>/<project_dir>-<branch>/db/<file_name>.zip`.
-10) Run the `ssh -ttq deploy@178.128.83.195 "export TERM='xterm' && cd /home/deploy/<project_dir>/<project_dir>-<branch> && gor dbi"`.
+7) Run docker `make go_up` in the created folders.
+8) Locally run `gor pdb dev` to export your local DB to DEV environment.
+10) Locally run `gor pf dev` to export your local `files` folder to DEV environment.
