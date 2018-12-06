@@ -107,11 +107,6 @@ services:
       traefik.frontend.port: '443'
 {% endif %}
       traefik.frontend.rule: 'Host:{{ domains }}'
-{% if deploy == true %}
-    networks:
-      - default
-      - proxy
-{% endif %}
 {% if varnish.enable %}
 
   varnish:
