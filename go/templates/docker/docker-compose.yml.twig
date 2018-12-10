@@ -66,11 +66,6 @@ services:
 {% if webgrind.enable %}
       - files:/mnt/files
 {% endif %}
-{% if deploy == true %}
-    networks:
-      - default
-      - proxy
-{% endif %}
 
   {{ webserver.type }}:
 {% if webserver.type == 'nginx' %}
@@ -108,6 +103,11 @@ services:
       traefik.frontend.protocol: 'https'
       traefik.frontend.port: '443'
       traefik.frontend.rule: 'Host:{{ domains }}'
+{% if deploy == true %}
+    networks:
+      - default
+      - proxy
+{% endif %}
 {% if varnish.enable %}
 
   varnish:
