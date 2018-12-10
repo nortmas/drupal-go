@@ -99,13 +99,14 @@ services:
     labels:
 {% if deploy != true %}
       traefik.port: '80'
+      traefik.frontend.entryPoints: 'https,http'
 {% endif %}
 {% if deploy == true %}
-      traefik.enable: 'true'
       traefik.docker.network: 'proxy'
+{% endif %}
+      traefik.enable: 'true'
       traefik.frontend.protocol: 'https'
       traefik.frontend.port: '443'
-{% endif %}
       traefik.frontend.rule: 'Host:{{ domains }}'
 {% if varnish.enable %}
 
@@ -302,11 +303,13 @@ services:
 
   traefik:
     image: traefik
-    command: -c /dev/null --web --docker --logLevel=INFO
-    ports:
-      - '{{ port }}:80'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.toml:/etc/traefik/traefik.toml
+      - ./acme.json:/acme.json
+    ports:
+      - {{ port }}:80
+      - 443:443
 {% endif %}
 
 volumes:

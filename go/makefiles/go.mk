@@ -33,7 +33,8 @@ go_prepare_env:
 
 ## Check if the .env exists.
 go_check_env:
-	@[ -f .env ] && true || echo "\033[31m File .env doesn't exist. Please run go_lin or go_mac commands. \033[0m"; exit 1;
+	@[ -f acme.json ] && true || (touch acme.json && chmod 600 acme.json)
+	@[ -f .env ] && true || (echo "\033[31m File .env doesn't exist. Please run go_lin or go_mac commands. \033[0m" && exit 1)
 
 ## Install Drupal.
 go_drupal_install:

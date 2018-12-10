@@ -192,7 +192,7 @@ class GoRoboFile extends Tasks {
         $this->projectRoot . '/.gitlab-ci.yml',
         $this->projectRoot . '/drush',
         $this->projectRoot . '/composer.lock',
-        $this->projectRoot . '/certs',
+        //$this->projectRoot . '/certs',
         $this->projectRoot . '/deploy',
         $this->projectRoot . '/config',
         $this->projectRoot . '/db',
@@ -404,7 +404,7 @@ class GoRoboFile extends Tasks {
   protected function configureProject($ovewrite = FALSE) {
     $dirs = [
       $this->projectRoot . '/config' => 0,
-      $this->projectRoot . '/certs' => 1,
+      //$this->projectRoot . '/certs' => 1,
       $this->projectRoot . '/config/default' => 1,
       $this->projectRoot . '/config/local' => 1,
       $this->projectRoot . '/config/dev' => 1,
@@ -924,6 +924,10 @@ EOT;
       'docker' => [
         [
           'path' => 'docker/docker-compose.yml',
+          'dest' => $this->projectRoot,
+        ],
+        [
+          'path' => 'docker/traefik.toml',
           'dest' => $this->projectRoot,
         ],
       ],

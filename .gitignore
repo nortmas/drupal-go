@@ -21,6 +21,9 @@ web/themes/custom/*/yarn.lock
 # Ignore Drupal's file directory
 /web/sites/*/files/
 
+#Ignore acme.json file as it constantly being regenerated.
+acme.json
+
 # Ignore SimpleTest multi-site environment.
 /web/sites/simpletest
 
