@@ -188,7 +188,6 @@ class GoRoboFile extends Tasks {
     if ($do) {
       $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
       $this->fileSystem->remove([
-        $this->projectRoot . '/.env',
         $this->projectRoot . '/traefik.toml',
         $this->projectRoot . '/.gitlab-ci.yml',
         $this->projectRoot . '/drush',
