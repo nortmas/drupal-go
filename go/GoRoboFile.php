@@ -107,7 +107,7 @@ class GoRoboFile extends Tasks {
     $message = 'Available domains: ';
     $domains = $this->getDomains();
     foreach (explode(',', $domains) as $domain) {
-      $message .= "\n" . 'http://' . $domain . ':' . $this->config['port'];
+      $message .= "\n" . 'https://' . $domain;
     }
     $this->yell($message);
   }
@@ -189,6 +189,7 @@ class GoRoboFile extends Tasks {
       $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
       $this->fileSystem->remove([
         $this->projectRoot . '/.env',
+        $this->projectRoot . '/traefik.toml',
         $this->projectRoot . '/.gitlab-ci.yml',
         $this->projectRoot . '/drush',
         $this->projectRoot . '/composer.lock',

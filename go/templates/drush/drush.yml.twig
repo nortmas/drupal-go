@@ -4,7 +4,7 @@ drush:
     config:
       - '${env.home}/.drush/config/drush.yml'
 options:
-  uri: 'http://{{ project_machine_name }}.docker.localhost:{{ port }}'
+  uri: 'https://{{ project_machine_name }}.docker.localhost'
 command:
   core:
     rsync:

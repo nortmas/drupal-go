@@ -4,7 +4,6 @@ return [
   'project_name' => 'Drupal Go',
   'project_machine_name' => 'dgo',
   'include_basic_modules' => 1,
-  'port' => 8000,
   'server' => [
     'domain' => '178.128.83.195.xip.io',
     'project_dir' => 'drupal_go',
@@ -17,7 +16,7 @@ return [
   ],
   'multisite' => [
     # Should be in a format 'alias' => 'real production domain'
-    # Make sure that one of the domain aliases equals the project_machine_name.',
+    # Make sure that one of the domain aliases equals the project_machine_name.
     #'subdomain' => 'subdomain.com',
   ],
   'behat' => [
