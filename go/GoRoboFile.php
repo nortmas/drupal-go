@@ -560,23 +560,26 @@ class GoRoboFile extends Tasks {
 
       $append = <<<EOT
 
+\$dotenv = new Dotenv\Dotenv('../');
+\$dotenv->load();
+
 if (file_exists(\$app_root . '/$relative_path/settings.docker.php')) {
-  if (getenv('ENV') === 'local') {
+  if (getenv('GO_ENV') === 'local') {
     // LOCAL environment
     include \$app_root . '/$relative_path/settings.docker.php';
   }
-  elseif (getenv('ENV') === 'dev') {
+  elseif (getenv('GO_ENV') === 'dev') {
     // DEV environment
     include \$app_root . '/$relative_path/settings.docker.php';
   }
 }
 
 if (file_exists(\$app_root . '/$relative_path/settings.prod.php')) {
-  if (getenv('ENV') === 'stage') {
+  if (getenv('GO_ENV') === 'stage') {
     // STAGE environment
     include \$app_root . '/$relative_path/settings.prod.php';
   }
-  elseif (getenv('ENV') === 'prod') {
+  elseif (getenv('GO_ENV') === 'prod') {
     // PRODUCTION environment
     include \$app_root . '/$relative_path/settings.prod.php';
   }
