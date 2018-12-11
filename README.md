@@ -15,7 +15,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Installation
-1) To avoid incompatibilities please make sure that all other docker environments on your local machine are stopped. Or run `docker container stop $(docker ps -aq)`
+1) To avoid incompatibilities please make sure that your port `80` is available and all other docker environments on your local machine are stopped. Or run `docker container stop $(docker ps -aq)`
 2) In your projects root dirrectory (`www` for example) run `git clone git@github.com:nortmas/drupal-go.git <project-machine-name> && cd <project-machine-name> && rm -r .git`. 
    (NOTE: For the sake of consistency, name your project directory as a project machine name.)
 3) If it's your first project with Drupal GO, for the convenience you may set the aliases (highly recommended):
