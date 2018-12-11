@@ -127,7 +127,7 @@ class GoRoboFile extends Tasks {
       ->sitesSubdir('default')
       ->accountMail('admin@example.com')
       ->accountName('admin')
-      ->accountPass('$admin2Admin')
+      ->accountPass('GoIn2house!')
       ->mysqlDbUrl(getenv('DB_USER') . ':' . getenv('DB_PASSWORD') . '@mariadb:3306/' . getenv('DB_NAME'))
       ->disableUpdateStatusModule()
       ->siteInstall($profile)
