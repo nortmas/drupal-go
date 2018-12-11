@@ -561,22 +561,22 @@ class GoRoboFile extends Tasks {
       $append = <<<EOT
 
 if (file_exists(\$app_root . '/$relative_path/settings.docker.php')) {
-  if (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby') {
+  if (getenv('ENV') === 'local') {
     // LOCAL environment
     include \$app_root . '/$relative_path/settings.docker.php';
   }
-  elseif (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby-dev') {
+  elseif (getenv('ENV') === 'dev') {
     // DEV environment
     include \$app_root . '/$relative_path/settings.docker.php';
   }
 }
 
 if (file_exists(\$app_root . '/$relative_path/settings.prod.php')) {
-  if (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby-stage') {
+  if (getenv('ENV') === 'stage') {
     // STAGE environment
     include \$app_root . '/$relative_path/settings.prod.php';
   }
-  elseif (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby-master') {
+  elseif (getenv('ENV') === 'prod') {
     // PRODUCTION environment
     include \$app_root . '/$relative_path/settings.prod.php';
   }
