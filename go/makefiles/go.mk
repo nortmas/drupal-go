@@ -50,13 +50,19 @@ go_run_in_php:
 	$(call INIT_PHP_COMPOSER, install)
 	$(call INIT_PHP_ROBO, prepare)
 
-## Create .env file with specific settings for Mac.
+## Add specific settings for Mac to the .env file.
 go_mac:
-	echo 'OS=macos-\nPHP_XDEBUG_REMOTE_CONNECT_BACK=0' > .env
+	make go_env
+	sed -i '2 i\OS=macos-\nPHP_XDEBUG_REMOTE_CONNECT_BACK=0' .env
 
-## Create .env file with specific settings for Linux.
+## Add specific settings for Linux to the .env file.
 go_lin:
-	echo 'OS=\nPHP_XDEBUG_REMOTE_CONNECT_BACK=1' > .env
+	make go_env
+	sed -i '2 i\OS=\nPHP_XDEBUG_REMOTE_CONNECT_BACK=1' .env
+
+## Create .env file using template.
+go_env:
+	cp -n go/templates/.env .env
 
 ## Kill php container.
 go_php_kill:

@@ -8,7 +8,8 @@
     * `<branch_name>` - git branch name (`dev`, `stage`, `prod`)
 6) Take the file `deploy/docker-compose.yml` as a pattern and copy it to each created folder on the server.
     * According to the folder/environment, change the `traefik.frontend.rule` for apache container.
-    * According to the folder/environment, change the `GIT_USER_NAME` for php container.
-7) Run docker `make go_up` in the created folders.
-8) Locally run `gor pdb dev` to export your local DB to DEV environment.
+7) Run docker `make go_env` in the created folders.
+    * Configure the `.env` file according to the environment. The variable `ENV` can be: `local`, `dev`, `stage`, `prod`.
+8) Run docker `make go_up` in the created folders.
+9) Locally run `gor pdb dev` to export your local DB to DEV environment.
 10) Locally run `gor pf dev` to export your local `files` folder to DEV environment.

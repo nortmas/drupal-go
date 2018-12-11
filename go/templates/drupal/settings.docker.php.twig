@@ -1,9 +1,9 @@
 <?php
 
 $databases['default']['default'] = [
-  'database' => 'drupal',
-  'username' => 'drupal',
-  'password' => 'drupal',
+  'database' => getenv('DB_NAME'),
+  'username' => getenv('DB_USER'),
+  'password' => getenv('DB_PASSWORD'),
   'prefix' => '',
   'host' => 'mariadb',
   'port' => '3306',
@@ -118,7 +118,7 @@ $settings['trusted_host_patterns'] = ['^.+$'];
 /**
 * Config split module settings.
 */
-if (isset($_ENV['GIT_USER_NAME']) && $_ENV['GIT_USER_NAME'] === 'wodby-dev') {
+if (getenv('ENV') === 'dev') {
   // DEV environment
   $config['config_split.config_split.local']['status'] = FALSE;
   $config['config_split.config_split.dev']['status'] = TRUE;

@@ -43,7 +43,7 @@ If you want to improve performance, please read the [doc](https://wodby.com/docs
 ## Credentials and environment information
 * URL: http://`<project_machine_name>`.docker.localhost:8000
 * User: `admin`
-* Password: `admin2admin`
+* Password: `$admin2Admin`
 
 ## How to extend?
 * If you need specific settings for your local environment, use the `docker-compose.override.yml` file.

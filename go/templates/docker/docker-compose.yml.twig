@@ -7,10 +7,10 @@ services:
     restart: always
 {% endif %}
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: drupal
-      MYSQL_USER: drupal
-      MYSQL_PASSWORD: drupal
+      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+      MYSQL_DATABASE: $DB_NAME
+      MYSQL_USER: $DB_USER
+      MYSQL_PASSWORD: $DB_PASSWORD
 {% if deploy != true %}
     ports:
       - 3306:3306
@@ -28,13 +28,10 @@ services:
 {% endif %}
     environment:
       DB_HOST: mariadb
-      DB_USER: drupal
-      DB_PASSWORD: drupal
-      DB_NAME: drupal
       DB_DRIVER: mysql
-{% if deploy == true %}
-      GIT_USER_NAME: 'wodby-dev'
-{% endif %}
+      DB_NAME: $DB_NAME
+      DB_USER: $DB_USER
+      DB_PASSWORD: $DB_PASSWORD
 {% if php.xdebug and deploy != true %}
       PHP_XDEBUG: 1
       PHP_XDEBUG_DEFAULT_ENABLE: 1
