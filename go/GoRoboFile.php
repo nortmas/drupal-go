@@ -745,7 +745,12 @@ EOT;
     $dco_file_name = 'docker-compose.override.yml';
     if ($this->fileSystem->exists($dco_file_name)) {
       $override_yaml = Yaml::parse(file_get_contents($dco_file_name));
-      unset($override_yaml['services'][$container_name]);
+      if ($container_name == 'xdebug') {
+        unset($override_yaml['services']['php']);
+      }
+      else {
+        unset($override_yaml['services'][$container_name]);
+      }
       $rendered = Yaml::dump($override_yaml, 9, 2);
       file_put_contents($dco_file_name, $rendered);
       $this->say("The " . $container_name . " has been removed from " . $dco_file_name);
