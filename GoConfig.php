@@ -26,7 +26,6 @@ return [
     'tag' => '10.1-3.3.11',
   ],
   'php' => [
-    'xdebug' => 1,
     'tag' => '7.2-dev-${OS}4.9.2',
   ],
   'webserver' => [

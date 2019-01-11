@@ -560,26 +560,23 @@ class GoRoboFile extends Tasks {
 
       $append = <<<EOT
 
-\$dotenv = new Dotenv\Dotenv('../');
-\$dotenv->load();
-
 if (file_exists(\$app_root . '/$relative_path/settings.docker.php')) {
-  if (getenv('GO_ENV') === 'local') {
+  if (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby') {
     // LOCAL environment
     include \$app_root . '/$relative_path/settings.docker.php';
   }
-  elseif (getenv('GO_ENV') === 'dev') {
+  elseif (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby-dev') {
     // DEV environment
     include \$app_root . '/$relative_path/settings.docker.php';
   }
 }
 
 if (file_exists(\$app_root . '/$relative_path/settings.prod.php')) {
-  if (getenv('GO_ENV') === 'stage') {
+  if (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby-stage') {
     // STAGE environment
     include \$app_root . '/$relative_path/settings.prod.php';
   }
-  elseif (getenv('GO_ENV') === 'prod') {
+  elseif (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby-master') {
     // PRODUCTION environment
     include \$app_root . '/$relative_path/settings.prod.php';
   }
@@ -675,6 +672,20 @@ EOT;
   }
 
   /**
+   * Preapare yml file to add only xdebug configurations.
+   * @param array $yaml
+   */
+  protected function containerAddXdebug(&$yaml) {
+    unset($yaml['services']['php']['image']);
+    unset($yaml['services']['php']['volumes']);
+    foreach ($yaml['services']['php']['environment'] as $key => $value) {
+      if (!strstr($key, 'PHP_')) {
+        unset($yaml['services']['php']['environment'][$key]);
+      }
+    }
+  }
+
+  /**
    * Add container to the docker-compose.override.yml
    * @aliases cta
    * @param string $container_name
@@ -695,13 +706,21 @@ EOT;
     elseif ($container_name == 'selenium') {
       $temp_conf['behat']['enable'] = 1;
     }
+    elseif ($container_name == 'xdebug') {
+      $temp_conf['php']['xdebug'] = 1;
+    }
     else {
       $temp_conf[$container_name]['enable'] = 1;
     }
 
-    $twig_loader->setTemplate($dc_file_name, file_get_contents($this->goRoot . '/templates/' . $dc_file_name . '.twig'));
+    $twig_loader->setTemplate($dc_file_name, file_get_contents($this->goRoot . '/templates/docker/' . $dc_file_name . '.twig'));
     $rendered = $twig->render($dc_file_name, $temp_conf);
     $yaml = Yaml::parse($rendered);
+
+    if ($container_name == 'xdebug') {
+      $container_name = 'php';
+      $this->containerAddXdebug($yaml);
+    }
 
     if (!$this->fileSystem->exists($dco_file_name)) {
       $override_yaml['version'] = $yaml['version'];
@@ -775,15 +794,15 @@ EOT;
     $global_conf = $this->config;
     if (isset($options['vars'])) {
       $global_conf += $options['vars'];
-      if (isset($options['vars']['deploy'])) {
+      if (isset($options['vars']['deploy_version'])) {
         $global_conf['php']['tag'] = str_replace('${OS}', '', $global_conf['php']['tag']);
       }
     }
 
     if ($template == 'docker-compose.yml') {
-      $global_conf['deploy'] = isset($options['vars']['deploy']) ?: FALSE;
-      $global_conf['domains'] = $this->getDomains($global_conf['deploy']);
-      $global_conf['service_domain'] = $this->getDomains($global_conf['deploy'], TRUE);
+      $global_conf['deploy_version'] = isset($options['vars']['deploy_version']) ?: FALSE;
+      $global_conf['domains'] = $this->getDomains($global_conf['deploy_version']);
+      $global_conf['service_domain'] = $this->getDomains($global_conf['deploy_version'], TRUE);
       $this->config += $global_conf;
     }
 
@@ -939,7 +958,7 @@ EOT;
           'path' => 'docker/docker-compose.yml',
           'dest' => $this->projectRoot . '/deploy',
           'vars' => [
-            'deploy' => TRUE,
+            'deploy_version' => TRUE,
           ]
         ],
       ],

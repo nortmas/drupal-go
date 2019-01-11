@@ -115,7 +115,7 @@ if ($settings['trusted_host_patterns'][0] == '^.+$') {
 /**
  * Config split module settings.
  */
-if (getenv('GO_ENV') === 'stage') {
+if (getenv('ENV') === 'stage') {
   // STAGE environment
   $config['config_split.config_split.local']['status'] = FALSE;
   $config['config_split.config_split.dev']['status'] = FALSE;
@@ -126,7 +126,7 @@ if (getenv('GO_ENV') === 'stage') {
   $config['environment_indicator.indicator']['fg_color'] = '#ccc';
   $config['environment_indicator.indicator']['name'] = 'Local';
 }
-elseif (getenv('GO_ENV') === 'prod') {
+elseif (getenv('ENV') === 'prod') {
   // PRODUCTION environment
   $config['config_split.config_split.local']['status'] = FALSE;
   $config['config_split.config_split.dev']['status'] = FALSE;

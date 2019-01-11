@@ -3,7 +3,7 @@ version: '3'
 services:
   mariadb:
     image: 'wodby/mariadb:{{ mariadb.tag }}'
-{% if deploy == true %}
+{% if deploy_version == true %}
     restart: always
 {% endif %}
     environment:
@@ -11,19 +11,19 @@ services:
       MYSQL_DATABASE: $DB_NAME
       MYSQL_USER: $DB_USER
       MYSQL_PASSWORD: $DB_PASSWORD
-{% if deploy != true %}
+{% if deploy_version != true %}
     ports:
       - 3306:3306
 {% endif %}
     volumes:
-{% if deploy != true %}
+{% if deploy_version != true %}
       - ./db:/docker-entrypoint-initdb.d
 {% endif %}
       - db:/var/lib/mysql
 
   php:
     image: 'wodby/drupal-php:{{ php.tag }}'
-{% if deploy == true %}
+{% if deploy_version == true %}
     restart: always
 {% endif %}
     environment:
@@ -32,11 +32,12 @@ services:
       DB_NAME: $DB_NAME
       DB_USER: $DB_USER
       DB_PASSWORD: $DB_PASSWORD
-{% if php.xdebug and deploy != true %}
-      PHP_XDEBUG: "${PHP_XDEBUG}"
-      PHP_XDEBUG_DEFAULT_ENABLE: "${PHP_XDEBUG_DEFAULT_ENABLE}"
+{% if php.xdebug and deploy_version != true %}
+      PHP_XDEBUG: 1
+      PHP_XDEBUG_DEFAULT_ENABLE: 1
+      PHP_XDEBUG_REMOTE_CONNECT_BACK: 0
+      PHP_IDE_CONFIG: serverName=docker
       PHP_XDEBUG_REMOTE_AUTOSTART: "${PHP_XDEBUG_REMOTE_AUTOSTART}"
-      PHP_XDEBUG_REMOTE_CONNECT_BACK: "${PHP_XDEBUG_REMOTE_CONNECT_BACK}"
       PHP_XDEBUG_REMOTE_HOST: "${PHP_XDEBUG_REMOTE_HOST}"
 {% if webgrind.enable %}
       PHP_XDEBUG_PROFILER_ENABLE: 1
@@ -53,12 +54,12 @@ services:
       PHP_BLACKFIRE: 1
 {% endif %}
     volumes:
-{% if deploy == true %}
+{% if deploy_version == true %}
       - /tmp/:/tmp/
 {% endif %}
       - ./:/var/www/html
       - ./drush:/etc/drush
-{% if deploy != true %}
+{% if deploy_version != true %}
       - ~/.ssh/id_rsa:/home/wodby/.ssh/id_rsa
 {% endif %}
 {% if webgrind.enable %}
@@ -71,7 +72,7 @@ services:
 {% elseif webserver.type == 'apache' %}
     image: 'wodby/apache:{{ webserver.apache_tag }}'
 {% endif %}
-{% if deploy == true %}
+{% if deploy_version == true %}
     restart: always
 {% endif %}
     depends_on:
@@ -90,18 +91,18 @@ services:
     volumes:
       - ./:/var/www/html
     labels:
-{% if deploy != true %}
+{% if deploy_version != true %}
       traefik.port: '80'
       traefik.frontend.entryPoints: 'https,http'
 {% endif %}
-{% if deploy == true %}
+{% if deploy_version == true %}
       traefik.docker.network: 'proxy'
 {% endif %}
       traefik.enable: 'true'
       traefik.frontend.protocol: 'https'
       traefik.frontend.port: '443'
       traefik.frontend.rule: 'Host:{{ domains }}'
-{% if deploy == true %}
+{% if deploy_version == true %}
     networks:
       - default
       - proxy
@@ -110,7 +111,7 @@ services:
 
   varnish:
     image: 'wodby/drupal-varnish:{{ varnish.tag }}'
-{% if deploy == true %}
+{% if deploy_version == true %}
     restart: always
 {% endif %}
     depends_on:
@@ -128,11 +129,11 @@ services:
 
   redis:
     image: 'wodby/redis:{{ redis.tag }}'
-{% if deploy == true %}
+{% if deploy_version == true %}
     restart: always
 {% endif %}
 {% endif %}
-{% if dbbrowser.enable and deploy != true %}
+{% if dbbrowser.enable and deploy_version != true %}
 {% if dbbrowser.type == 'adminer' %}
 
   adminer:
@@ -163,7 +164,7 @@ services:
 
   solr:
     image: 'wodby/drupal-solr:{{ solr.tag }}'
-{% if deploy == true %}
+{% if deploy_version == true %}
     restart: always
 {% endif %}
     environment:
@@ -177,7 +178,7 @@ services:
 
   mailhog:
     image: 'mailhog/mailhog'
-{% if deploy == true %}
+{% if deploy_version == true %}
     restart: always
 {% endif %}
     labels:
@@ -189,7 +190,7 @@ services:
 
   nodejs:
     image: 'wodby/drupal-node:{{ node.tag }}'
-{% if deploy == true %}
+{% if deploy_version == true %}
     restart: always
 {% endif %}
     environment:
@@ -204,7 +205,7 @@ services:
 
   node:
     image: 'node:alpine'
-{% if deploy == true %}
+{% if deploy_version == true %}
     restart: always
 {% endif %}
     working_dir: /app
@@ -221,7 +222,7 @@ services:
 {% if memcached.enable %}
 
   memcached:
-{% if deploy == true %}
+{% if deploy_version == true %}
     restart: always
 {% endif %}
     image: 'wodby/memcached:{{ memcached.tag }}'
@@ -230,7 +231,7 @@ services:
 
   rsyslog:
     image: 'wodby/rsyslog:{{ rsyslog.tag }}'
-{% if deploy == true %}
+{% if deploy_version == true %}
     restart: always
 {% endif %}
 {% endif %}
@@ -238,7 +239,7 @@ services:
 
   athenapdf:
     image: 'arachnysdocker/athenapdf-service:{{ athenapdf.tag }}'
-{% if deploy == true %}
+{% if deploy_version == true %}
     restart: always
 {% endif %}
     environment:
@@ -249,7 +250,7 @@ services:
       WEAVER_WORKER_TIMEOUT: 90
       WEAVER_CONVERSION_FALLBACK: false
 {% endif %}
-{% if blackfire.enable and deploy != true %}
+{% if blackfire.enable and deploy_version != true %}
 
   blackfire:
     image: 'blackfire/blackfire'
@@ -257,7 +258,7 @@ services:
       BLACKFIRE_SERVER_ID: '{{ blackfire.id }}'
       BLACKFIRE_SERVER_TOKEN: '{{ blackfire.token }}'
 {% endif %}
-{% if webgrind.enable and deploy != true %}
+{% if webgrind.enable and deploy_version != true %}
 
   webgrind:
     # add XDEBUG_PROFILE=1 to your request to profile that
@@ -271,7 +272,7 @@ services:
     volumes:
       - files:/mnt/files
 {% endif %}
-{% if portainer.enable and deploy != true %}
+{% if portainer.enable and deploy_version != true %}
 
   portainer:
     image: portainer/portainer
@@ -297,7 +298,7 @@ services:
     ports:
       - 5900:5900
 {% endif %}
-{% if deploy != true %}
+{% if deploy_version != true %}
 
   traefik:
     image: traefik
@@ -312,7 +313,7 @@ services:
 
 volumes:
   db:
-{% if deploy == true %}
+{% if deploy_version == true %}
 
 networks:
   proxy:
