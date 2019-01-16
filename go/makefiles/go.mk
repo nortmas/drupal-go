@@ -53,8 +53,8 @@ go_run_in_php:
 ## Add specific settings for Mac to the .env file.
 go_mac:
 	make go_env
-	sed -i '2 i\OS=macos-' .env
-	sed -i '12 a\PHP_XDEBUG_REMOTE_HOST=10.254.254.254' .env
+	sed -i '' -e "2s/^//p; 2s/^.*/OS=macos-/" .env
+	sed -i '' -e "12s/^//p; 12s/^.*/PHP_XDEBUG_REMOTE_HOST=10.254.254.254/" .env
 
 ## Add specific settings for Linux to the .env file.
 go_lin:
