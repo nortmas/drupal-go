@@ -592,10 +592,15 @@ EOT;
    * https://www.drupal.org/node/244924
    *
    * @aliases scp
+   *
+   * @param bool $sudo
+   *   Shows whether the commands supposed to be run as sudo or not.
+   * @param string $user
+   * @param string $group
    */
-  public function set_correct_permissions() {
-    $user = 'wodby';
-    $group = 'www-data';
+  public function set_correct_permissions($sudo = TRUE, $user = 'wodby', $group = 'www-data') {
+
+    $sudo_word = $sudo ? 'sudo ' : '';
 
     $dirs = [
       $this->drupalRoot . '/sites/default/files' => 1,
@@ -607,27 +612,29 @@ EOT;
       $this->mkDir($dir, $mode);
     }
 
-    $this->say('Changing ownership of all contents inside ' . $this->projectRoot);
-    $this->setOwnership($this->projectRoot, $user, $group);
+    if ($user && $group) {
+      $this->say('Changing ownership of all contents inside ' . $this->projectRoot);
+      $this->setOwnership($this->projectRoot, $user, $group, $sudo);
+    }
 
     $this->say('Changing permissions of all directories inside ' . $this->projectRoot);
-    $this->commandExec('sudo find ' . $this->projectRoot . ' -type d -exec chmod u=rwx,g=rx,o=rx \'{}\' \;');
+    $this->commandExec($sudo_word . 'find ' . $this->projectRoot . ' -type d -exec chmod u=rwx,g=rx,o=rx \'{}\' \;');
 
     $this->say('Changing permissions of all files inside ' . $this->projectRoot);
-    $this->commandExec('sudo find ' . $this->projectRoot . ' -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
+    $this->commandExec($sudo_word . 'find ' . $this->projectRoot . ' -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
 
     $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.docker.php  > /dev/null');
     $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.prod.php  > /dev/null');
     $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.php  > /dev/null');
 
-    $this->setPermissions($this->projectRoot . '/config');
-    $this->setPermissions($this->defaultSettingsPath . '/files');
+    $this->setPermissions($this->projectRoot . '/config', $sudo);
+    $this->setPermissions($this->defaultSettingsPath . '/files', $sudo);
 
     $this->say('Changing permissions of all directories inside ' . $this->projectRoot . '/vendor');
-    $this->setPermissions($this->projectRoot . '/vendor', '2755');
-    $this->setPermissions($this->projectRoot . '/drush/drush-run.sh', '2755');
+    $this->setPermissions($this->projectRoot . '/vendor', '2755', $sudo);
+    $this->setPermissions($this->projectRoot . '/drush/drush-run.sh', '2755', $sudo);
 
-    $this->commandExec('sudo find ' . $this->drupalRoot . ' -name ".htaccess" -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
+    $this->commandExec($sudo_word . 'find ' . $this->drupalRoot . ' -name ".htaccess" -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
   }
 
   /**
@@ -648,16 +655,19 @@ EOT;
    * @param $directory
    * @param $user
    * @param $group
+   * @param bool $sudo
+   *   Shows whether the commands supposed to be run as sudo or not.
    */
-  protected function setOwnership($directory, $user, $group) {
+  protected function setOwnership($directory, $user, $group, $sudo = TRUE) {
     // Set file permissions.
     // The 2 means that the group id will be preserved for any new files created
     // in this directory. What that means is that `www-data` will always be the
     // group on any files, thereby ensuring that web server and the user will both
     // always have write permissions to any new files that are placed in this
     // directory.
-    $this->commandExec('nohup sudo chown -Rv ' . $user . ':' . $group . ' ' . $directory . '  > /dev/null');
-    $this->commandExec('nohup sudo chgrp -Rv ' . $group . ' ' . $directory . '  > /dev/null');
+    $sudo = $sudo ? 'sudo ' : '';
+    $this->commandExec('nohup ' . $sudo . 'chown -Rv ' . $user . ':' . $group . ' ' . $directory . '  > /dev/null');
+    $this->commandExec('nohup ' . $sudo . 'chgrp -Rv ' . $group . ' ' . $directory . '  > /dev/null');
   }
 
   /**
@@ -666,9 +676,12 @@ EOT;
    *
    * @param $directory
    * @param string $mode
+   * @param bool $sudo
+   *   Shows whether the commands supposed to be run as sudo or not.
    */
-  protected function setPermissions($directory, $mode = '2775') {
-    $this->commandExec('nohup sudo chmod -R ' . $mode . ' ' . $directory . '  > /dev/null');
+  protected function setPermissions($directory, $mode = '2775', $sudo = TRUE) {
+    $sudo = $sudo ? 'sudo ' : '';
+    $this->commandExec('nohup ' . $sudo . 'chmod -R ' . $mode . ' ' . $directory . '  > /dev/null');
   }
 
   /**
