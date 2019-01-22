@@ -602,11 +602,6 @@ EOT;
 
     $sudo_word = $sudo ? 'sudo ' : '';
 
-    if (!$this->fileSystem->exists($this->defaultSettingsPath . '/files')) {
-      // make sure that internal folders can be created.
-      $this->setPermissions($this->defaultSettingsPath . '/files', $sudo);
-    }
-
     $dirs = [
       $this->drupalRoot . '/sites/default/files' => 1,
       $this->drupalRoot . '/sites/default/files/tmp' => 2,
@@ -632,8 +627,8 @@ EOT;
     $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.prod.php  > /dev/null');
     $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.php  > /dev/null');
 
-    $this->setPermissions($this->projectRoot . '/config', $sudo);
-    $this->setPermissions($this->defaultSettingsPath . '/files', $sudo);
+    $this->setPermissions($this->projectRoot . '/config', '2755', $sudo);
+    $this->setPermissions($this->defaultSettingsPath . '/files', '2755', $sudo);
 
     $this->say('Changing permissions of all directories inside ' . $this->projectRoot . '/vendor');
     $this->setPermissions($this->projectRoot . '/vendor', '2755', $sudo);
