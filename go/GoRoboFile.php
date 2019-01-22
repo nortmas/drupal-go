@@ -602,6 +602,11 @@ EOT;
 
     $sudo_word = $sudo ? 'sudo ' : '';
 
+    if (!$this->fileSystem->exists($this->defaultSettingsPath . '/files')) {
+      // make sure that internal folders can be created.
+      $this->setPermissions($this->defaultSettingsPath . '/files', $sudo);
+    }
+
     $dirs = [
       $this->drupalRoot . '/sites/default/files' => 1,
       $this->drupalRoot . '/sites/default/files/tmp' => 2,
