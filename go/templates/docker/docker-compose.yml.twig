@@ -65,6 +65,11 @@ services:
 {% if webgrind.enable %}
       - files:/mnt/files
 {% endif %}
+{% if deploy_version == true %}
+    networks:
+      - default
+      - proxy
+{% endif %}
 
   {{ webserver.type }}:
 {% if webserver.type == 'nginx' %}
