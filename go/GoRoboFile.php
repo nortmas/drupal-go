@@ -628,7 +628,7 @@ EOT;
     $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.php  > /dev/null');
 
     $this->setPermissions($this->projectRoot . '/config', '2755', $sudo);
-    $this->setPermissions($this->defaultSettingsPath . '/files', '2755', $sudo);
+    $this->setPermissions($this->defaultSettingsPath . '/files', '2775', $sudo);
 
     $this->say('Changing permissions of all directories inside ' . $this->projectRoot . '/vendor');
     $this->setPermissions($this->projectRoot . '/vendor', '2755', $sudo);
