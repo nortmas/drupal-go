@@ -1,12 +1,6 @@
 {
   "name": "Drupal Go",
   "description": "Drupal 8 project.",
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "https://packages.drupal.org/8"
-    }
-  ],
   "require": {
     "composer/installers": "^1.2",
     "cweagans/composer-patches": "^1.6",
@@ -56,5 +50,11 @@
         "type:drupal-drush"
       ]
     }
-  }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packages.drupal.org/8"
+    }
+  ],
 }
