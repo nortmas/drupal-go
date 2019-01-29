@@ -298,6 +298,16 @@ services:
     ports:
       - 5900:5900
 {% endif %}
+{% if emulsify.enable and deploy_version != true %}
+
+  emulsify:
+    image: 'nortmas/emulsify-pattern-lab'
+    restart: always
+    command: yarn install
+    working_dir: /node
+    volumes:
+      - ./web/themes/custom/{{ emulsify.theme }}:/node
+{% endif %}
 {% if deploy_version != true %}
 
   traefik:

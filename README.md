@@ -112,6 +112,8 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `athenapdf`
 * `webgrind`
 * `blackfire`
+* `emulsify`
+* `xdebug`
 
 ### How can I apply patches to downloaded modules?
 If you need to apply patches (depending on the project being modified, a pull 

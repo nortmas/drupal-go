@@ -33,6 +33,10 @@ return [
     'nginx_tag' => '1.15-5.0.17',
     'apache_tag' => '2.4-4.0.2',
   ],
+  'emulsify' => [
+    'enable' => 0,
+    'theme' => 'dgo',
+  ],
   'mailhog' => [
     'enable' => 0,
   ],

@@ -14,6 +14,11 @@ $databases['default']['default'] = [
 // Use prod service parameters.
 $settings['container_yamls'][] = $app_root . '/sites/default/default.services.yml';
 
+// Set canonical urls to use https instead of http.
+// See: https://www.drupal.org/project/metatag/issues/2842049#comment-12246885
+$settings['reverse_proxy'] = TRUE;
+$settings['reverse_proxy_addresses'] = array($_SERVER['REMOTE_ADDR']);
+
 /**
  * Assertions.
  *
