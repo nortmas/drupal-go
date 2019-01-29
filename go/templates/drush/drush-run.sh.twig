@@ -11,4 +11,4 @@ PARENT="$(dirname "${DIR}")"
 # Get into the folder.
 cd ${PARENT}
 # Run drush inside the container.
-docker-compose run --rm php drush $@
+docker-compose run -u root --rm php drush $@
