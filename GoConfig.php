@@ -37,7 +37,9 @@ return [
   ],
   'emulsify' => [
     'enable' => 0,
-    'theme' => 'dgo',
+  ],
+  'node' => [
+    'enable' => 0,
   ],
   'mailhog' => [
     'enable' => 0,
@@ -58,11 +60,6 @@ return [
   'redis' => [
     'enable' => 0,
     'tag' => '4-3.0.1',
-  ],
-  'node' => [
-    'enable' => 0,
-    'key' => '',
-    'tag' => '1.0-2.0.0',
   ],
   'memcached' => [
     'enable' => 1,
