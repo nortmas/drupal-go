@@ -18,23 +18,26 @@ return [
   ],
   'multisite' => [
     # Should be in a format 'alias' => 'real production domain'
-    # Make sure that one of the domain aliases equals the project_machine_name.',
+    # Make sure that one of the domain aliases equals the project_machine_name.
     #'subdomain' => 'subdomain.com',
   ],
   'behat' => [
-    'enable' => 1,
+    'enable' => 0,
   ],
   'mariadb' => [
     'tag' => '10.1-3.3.11',
   ],
   'php' => [
-    'xdebug' => 1,
     'tag' => '7.2-dev-${OS}4.9.2',
   ],
   'webserver' => [
     'type' => 'apache',
     'nginx_tag' => '1.15-5.0.17',
     'apache_tag' => '2.4-4.0.2',
+  ],
+  'emulsify' => [
+    'enable' => 0,
+    'theme' => 'dgo',
   ],
   'mailhog' => [
     'enable' => 0,

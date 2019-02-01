@@ -31,12 +31,18 @@ go_prepare_env:
 	make go_up
 	sleep 15
 
+## Check if the .env exists.
+go_check_env:
+	@[ -f acme.json ] && true || (touch acme.json && chmod 600 acme.json)
+	@[ -f .env ] && true || (echo "\033[31m File .env doesn't exist. Please run go_lin or go_mac commands. \033[0m" && exit 1)
+
 ## Install Drupal.
 go_drupal_install:
 	$(call DRUPAL_PHP_ROBO, go)
 
 ## Run php container in order to prepare project.
 go_set_php_container:
+	make go_check_env
 	docker run -d --rm --name $(INIT_PHP_NAME) -v $(CURRENT_PATH):/var/www/html $(INIT_PHP_IMAGE)
 
 ## Run commands in php container.
@@ -44,13 +50,21 @@ go_run_in_php:
 	$(call INIT_PHP_COMPOSER, install)
 	$(call INIT_PHP_ROBO, prepare)
 
-## Create .env file with specific settings for Mac.
+## Add specific settings for Mac to the .env file.
 go_mac:
-	echo 'OS=macos-\nPHP_XDEBUG_REMOTE_CONNECT_BACK=0' > .env
+	make go_env
+	sed -i '' -e "2s/^//p; 2s/^.*/OS=macos-/" .env
+	sed -i '' -e "12s/^//p; 12s/^.*/PHP_XDEBUG_REMOTE_HOST=10.254.254.254/" .env
 
-## Create .env file with specific settings for Linux.
+## Add specific settings for Linux to the .env file.
 go_lin:
-	echo 'OS=\nPHP_XDEBUG_REMOTE_CONNECT_BACK=1' > .env
+	make go_env
+	sed -i '2 i\OS=' .env
+	sed -i '12 a\PHP_XDEBUG_REMOTE_HOST=172.17.0.1' .env
+
+## Create .env file using template.
+go_env:
+	cp -n go/templates/.env .env
 
 ## Kill php container.
 go_php_kill:
@@ -67,13 +81,16 @@ go_reset_structure:
 
 ## Up the docker containers.
 go_up:
-	@echo "Build and run containers..."
+	make go_check_env
 	docker-compose up -d --remove-orphans
 
 ## Stop and remove the docker containers and networks.
 go_down:
-	@echo "Removing network & containers"
 	docker-compose down --remove-orphans
+
+## Stop and remove all docker containers, images and networks.
+go_down_rm:
+	docker-compose down --rmi all
 
 ## Restart containers.
 go_restart:

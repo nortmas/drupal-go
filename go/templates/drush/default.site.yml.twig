@@ -1,13 +1,20 @@
 # See https://github.com/drush-ops/drush/blob/master/examples/example.site.yml
+{% set first_domain = project_machine_name %}
+{% if multisite is not empty %}
+  {% for key, value in multisite|slice(0,1) %}
+      {% set first_domain = key %}
+  {% endfor %}
+{% endif %}
+
 self:
   root: '/var/www/html/web'
-  uri: '{{ project_machine_name }}.docker.localhost:{{ port }}'
+  uri: '{{ first_domain }}.docker.localhost'
 
 dev:
   host: '{{ server.host }}'
   user: '{{ server.user }}'
   root: '/var/www/html/web'
-  uri: '{{ project_machine_name }}.dev.{{ server.domain }}'
+  uri: '{{ first_domain }}.dev.{{ server.domain }}'
   paths:
     drush-script: '/home/{{ server.user }}/{{ server.project_dir }}/{{ server.project_dir }}-dev/drush/drush-run.sh'
 
@@ -15,7 +22,7 @@ dev-files:
   host: '{{ server.host }}'
   user: '{{ server.user }}'
   root: '/home/{{ server.user }}/{{ server.project_dir }}/{{ server.project_dir }}-dev/web'
-  uri: '{{ project_machine_name }}.dev.{{ server.domain }}'
+  uri: '{{ first_domain }}.dev.{{ server.domain }}'
   paths:
     files: 'sites/default/files'
 
@@ -23,7 +30,7 @@ stage:
   host: '{{ server.host }}'
   user: '{{ server.user }}'
   root: '/var/www/html/web'
-  uri: '{{ project_machine_name }}.stage.{{ server.domain }}'
+  uri: '{{ first_domain }}.stage.{{ server.domain }}'
   paths:
     drush-script: '/home/{{ server.user }}/{{ server.project_dir }}/{{ server.project_dir }}-stage/drush/drush-run.sh'
 
@@ -31,7 +38,7 @@ stage-files:
   host: '{{ server.host }}'
   user: '{{ server.user }}'
   root: '/home/{{ server.user }}/{{ server.project_dir }}/{{ server.project_dir }}-stage/web'
-  uri: '{{ project_machine_name }}.stage.{{ server.domain }}'
+  uri: '{{ first_domain }}.stage.{{ server.domain }}'
   paths:
     files: 'sites/default/files'
 
@@ -39,7 +46,7 @@ prod:
   host: '{{ server.host }}'
   user: '{{ server.user }}'
   root: '/var/www/html/web'
-  uri: '{{ project_machine_name }}.prod.{{ server.domain }}'
+  uri: '{{ first_domain }}.prod.{{ server.domain }}'
   paths:
       drush-script: '/home/{{ server.user }}/{{ server.project_dir }}/{{ server.project_dir }}-master/drush/drush-run.sh'
 
@@ -47,6 +54,6 @@ prod-files:
   host: '{{ server.host }}'
   user: '{{ server.user }}'
   root: '/home/{{ server.user }}/{{ server.project_dir }}/{{ server.project_dir }}-master/web'
-  uri: '{{ project_machine_name }}.prod.{{ server.domain }}'
+  uri: '{{ first_domain }}.prod.{{ server.domain }}'
   paths:
     files: 'sites/default/files'

@@ -15,29 +15,35 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Installation
-1) To avoid incompatibilities please make sure that all other docker environments on your local machine are stopped. Or run `docker container stop $(docker ps -aq)`
+1) To avoid incompatibilities please make sure that your port `80` is available and all other docker environments on your local machine are stopped. Or run `docker container stop $(docker ps -aq)`
 2) In your projects root dirrectory (`www` for example) run `git clone git@github.com:nortmas/drupal-go.git <project-machine-name> && cd <project-machine-name> && rm -r .git`. 
    (NOTE: For the sake of consistency, name your project directory as a project machine name.)
 3) If it's your first project with Drupal GO, for the convenience you may set the aliases (highly recommended):
     * `mkdir ~/.dgo && cp $(pwd)/go/scripts/aliases.sh ~/.dgo/aliases.sh`
     * Now add this line `source ~/.dgo/aliases.sh` to your `bashrc` or ` bash_profile` or `zshrc` file.
     * Restart your cli. To restart zsh: `exec zsh`, to restart bash: `exec bash -l`.
-4) If you are Linux user, run: `make go_lin`. If you are MacOS user, run: `make go_mac`, to improve performance read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).
-5) Now, check the latest tags for the docker images in the [docker4drupal](https://github.com/wodby/docker4drupal/blob/master/.env) and set the configurations you need in the file `GoConfig.php` or use the default settings and just run the next commands one by one:
+4) Check the latest tags for the docker images in the [docker4drupal](https://github.com/wodby/docker4drupal/blob/master/.env).
+5) Set the configurations you need in the file `GoConfig.php`.
+6) Run `make go_lin` OR `make go_mac`, depends on what OS are you using.
+7) Run next commands one by one:
     * `make go_prepare_env`
     * `make go_drupal_install`
     
+## Performance for Mac OS users:
+If you want to improve performance, please read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).
+    
 ## Ongoing project installation
 * Get into the project directory: `cd <project-machine-name>`
-* Do the steps 1,3,4 from the **Installation** section above.
+* Do the steps 1,3,6 from the **Installation** section above.
 * Run the environment: `make go_up`.
 * Install the dependencies: `goc install`.
 * Import data base dump: `gor dbi`.
+* Implement general rebuild: `gor rebuild`.
 
 ## Credentials and environment information
-* URL: http://`<project_machine_name>`.docker.localhost:8000
+* URL: https://`<project_machine_name>`.docker.localhost
 * User: `admin`
-* Password: `admin2admin`
+* Password: `GoIn2house!`
 
 ## How to extend?
 * If you need specific settings for your local environment, use the `docker-compose.override.yml` file.
@@ -52,7 +58,6 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 ## Understanding Go configurations
 * `project_name` - Will be used for the drupal site name and composer.json project name.
 * `project_machine_name` - Will be used for different needs to unify some configurations also will be used as a url prefix.
-* `port` - The port which will be used for the local site url.
 * `include_basic_modules` - Will include the set of prepared modules and enable them after installation.
 * `multisite` - You can specify the array of needed domains to create the folder structure automatically.
 * `deploy` - Configure GitLab CI files and deployment flow.
@@ -86,6 +91,7 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `robo get_files`, alias `gf`. Import files from the specified environment. It requires argument `alias` (dev,stage or prod)
 * `robo rebuild` Execute necessary actions after a pull from the repository.
 * `robo set_correct_file_permissions`, alias `scfp`. Set correct file permissions according to the official documentation recommendations.
+* `robo set_settings_writable`, alias `ssw`. Set writable permissions for settings files.
 * `robo multisite` Generate directory structure and necessary configuration files for specified domains.
 * `robo behat_setup` Set up behat auto tests.
 * `robo reconf` Reconfigure settings for the particular set of files. May accept arguments: `drupal`, `drush`, `docker`, `gitlab`, `behat`, `phpunit`. `default` (by default) includes drupal, drush, docker))
@@ -106,6 +112,8 @@ FYI: If you set `memcached` to be enabled, it will also enable memcache drupal m
 * `athenapdf`
 * `webgrind`
 * `blackfire`
+* `emulsify`
+* `xdebug`
 
 ### How can I apply patches to downloaded modules?
 If you need to apply patches (depending on the project being modified, a pull 

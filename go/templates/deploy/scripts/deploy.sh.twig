@@ -29,3 +29,6 @@ DEPLOY="cd $PROJECT_PATH &&
 
 echo ssh -ttq -i ~/.ssh/stage_private_key $SSH_AUTH "export TERM='xterm' && $DEPLOY"
 ssh -ttq -i ~/.ssh/stage_private_key $SSH_AUTH "export TERM='xterm' && $DEPLOY"
+
+# Remove private key.
+rm ~/.ssh/stage_private_key

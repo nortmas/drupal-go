@@ -107,7 +107,7 @@ class GoRoboFile extends Tasks {
     $message = 'Available domains: ';
     $domains = $this->getDomains();
     foreach (explode(',', $domains) as $domain) {
-      $message .= "\n" . 'http://' . $domain . ':' . $this->config['port'];
+      $message .= "\n" . 'https://' . $domain;
     }
     $this->yell($message);
   }
@@ -127,8 +127,8 @@ class GoRoboFile extends Tasks {
       ->sitesSubdir('default')
       ->accountMail('admin@example.com')
       ->accountName('admin')
-      ->accountPass('admin2admin')
-      ->mysqlDbUrl('drupal:drupal@mariadb:3306/drupal')
+      ->accountPass('GoIn2house!')
+      ->mysqlDbUrl(getenv('DB_USER') . ':' . getenv('DB_PASSWORD') . '@mariadb:3306/' . getenv('DB_NAME'))
       ->disableUpdateStatusModule()
       ->siteInstall($profile)
       ->getCommand();
@@ -188,11 +188,11 @@ class GoRoboFile extends Tasks {
     if ($do) {
       $this->fileSystem->chmod($this->defaultSettingsPath, 0775);
       $this->fileSystem->remove([
-        $this->projectRoot . '/.env',
+        $this->projectRoot . '/traefik.toml',
         $this->projectRoot . '/.gitlab-ci.yml',
         $this->projectRoot . '/drush',
         $this->projectRoot . '/composer.lock',
-        $this->projectRoot . '/certs',
+        //$this->projectRoot . '/certs',
         $this->projectRoot . '/deploy',
         $this->projectRoot . '/config',
         $this->projectRoot . '/db',
@@ -270,6 +270,9 @@ class GoRoboFile extends Tasks {
    * @aliases dbe
    */
   public function db_export() {
+    if (!$this->fileSystem->exists($this->projectRoot . '/db')) {
+      $this->fileSystem->mkdir($this->projectRoot . '/db');
+    }
     $file_name = '../db/' . date('d.m.Y-h.i.s') . '.sql';
     $drush_db_exp = $this->taskDrushStack()
       ->siteAlias('@self')
@@ -342,6 +345,23 @@ class GoRoboFile extends Tasks {
   }
 
   /**
+   * Export DB to the specified environment.
+   *
+   * @aliases pdb
+   * @param $alias - dev,stage or prod
+   */
+  public function push_db($alias) {
+    $alias = '@' . $this->config['project_machine_name'] . '.' . $alias;
+    $drush_create_db = $this->taskDrushStack()->drush($alias . 'sql-create')->getCommand();
+    $drush_sync = $this->taskDrushStack()->drush('sql-sync --source-dump=/tmp/db.sql @self ' . $alias)->getCommand();
+    $drush_csim = $this->taskDrushStack()->drush($alias . ' cim')->getCommand();
+
+    $this->commandExec($drush_create_db);
+    $this->commandExec($drush_sync);
+    $this->commandExec($drush_csim);
+  }
+
+  /**
    * Import files from the specified environment.
    *
    * @aliases gf
@@ -350,6 +370,18 @@ class GoRoboFile extends Tasks {
   public function get_files($alias) {
     $alias = '@' . $this->config['project_machine_name'] . '.' . $alias . '-files';
     $drush_sync = $this->taskDrushStack()->drush('rsync ' . $alias . ':%files/ @self:%files')->getCommand();
+    $this->commandExec($drush_sync);
+  }
+
+  /**
+   * Export files to the specified environment.
+   *
+   * @aliases pf
+   * @param $alias - dev,stage or prod
+   */
+  public function push_files($alias) {
+    $alias = '@' . $this->config['project_machine_name'] . '.' . $alias . '-files';
+    $drush_sync = $this->taskDrushStack()->drush('rsync @self:%files/ ' . $alias . ':%files ')->getCommand();
     $this->commandExec($drush_sync);
   }
 
@@ -372,7 +404,7 @@ class GoRoboFile extends Tasks {
   protected function configureProject($ovewrite = FALSE) {
     $dirs = [
       $this->projectRoot . '/config' => 0,
-      $this->projectRoot . '/certs' => 1,
+      //$this->projectRoot . '/certs' => 1,
       $this->projectRoot . '/config/default' => 1,
       $this->projectRoot . '/config/local' => 1,
       $this->projectRoot . '/config/dev' => 1,
@@ -560,10 +592,15 @@ EOT;
    * https://www.drupal.org/node/244924
    *
    * @aliases scp
+   *
+   * @param bool $sudo
+   *   Shows whether the commands supposed to be run as sudo or not.
+   * @param string $user
+   * @param string $group
    */
-  public function set_correct_permissions() {
-    $user = 'wodby';
-    $group = 'www-data';
+  public function set_correct_permissions($sudo = TRUE, $user = 'wodby', $group = 'www-data') {
+
+    $sudo_word = $sudo ? 'sudo ' : '';
 
     $dirs = [
       $this->drupalRoot . '/sites/default/files' => 1,
@@ -575,26 +612,40 @@ EOT;
       $this->mkDir($dir, $mode);
     }
 
-    $this->say('Changing ownership of all contents inside ' . $this->drupalRoot);
-    $this->setOwnership($this->drupalRoot, $user, $group);
+    if ($user && $group) {
+      $this->say('Changing ownership of all contents inside ' . $this->projectRoot);
+      $this->setOwnership($this->projectRoot, $user, $group, $sudo);
+    }
 
     $this->say('Changing permissions of all directories inside ' . $this->projectRoot);
-    $this->commandExec('sudo find ' . $this->projectRoot . ' -type d -exec chmod u=rwx,g=rx,o=rx \'{}\' \;');
+    $this->commandExec($sudo_word . 'find ' . $this->projectRoot . ' -type d -exec chmod u=rwx,g=rx,o=rx \'{}\' \;');
 
     $this->say('Changing permissions of all files inside ' . $this->projectRoot);
-    $this->commandExec('sudo find ' . $this->projectRoot . ' -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
+    $this->commandExec($sudo_word . 'find ' . $this->projectRoot . ' -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
 
     $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.docker.php  > /dev/null');
     $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.prod.php  > /dev/null');
     $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.php  > /dev/null');
 
-    $this->setPermissions($this->projectRoot . '/config');
-    $this->setPermissions($this->defaultSettingsPath . '/files');
+    $this->setPermissions($this->projectRoot . '/config', '2755', $sudo);
+    $this->setPermissions($this->defaultSettingsPath . '/files', '2775', $sudo);
 
     $this->say('Changing permissions of all directories inside ' . $this->projectRoot . '/vendor');
-    $this->setPermissions($this->projectRoot . '/vendor', '2755');
+    $this->setPermissions($this->projectRoot . '/vendor', '2755', $sudo);
+    $this->setPermissions($this->projectRoot . '/drush/drush-run.sh', '2755', $sudo);
 
-    $this->commandExec('sudo find ' . $this->drupalRoot . ' -name ".htaccess" -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
+    $this->commandExec($sudo_word . 'find ' . $this->drupalRoot . ' -name ".htaccess" -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
+  }
+
+  /**
+   * Set writable permissions for settings files.
+   *
+   * @aliases ssw
+   */
+  public function set_settings_writable() {
+    $this->commandExec('nohup chmod 644 ' . $this->defaultSettingsPath . '/settings.docker.php  > /dev/null');
+    $this->commandExec('nohup chmod 644 ' . $this->defaultSettingsPath . '/settings.prod.php  > /dev/null');
+    $this->commandExec('nohup chmod 644 ' . $this->defaultSettingsPath . '/settings.php  > /dev/null');
   }
 
   /**
@@ -604,16 +655,19 @@ EOT;
    * @param $directory
    * @param $user
    * @param $group
+   * @param bool $sudo
+   *   Shows whether the commands supposed to be run as sudo or not.
    */
-  protected function setOwnership($directory, $user, $group) {
+  protected function setOwnership($directory, $user, $group, $sudo = TRUE) {
     // Set file permissions.
     // The 2 means that the group id will be preserved for any new files created
     // in this directory. What that means is that `www-data` will always be the
     // group on any files, thereby ensuring that web server and the user will both
     // always have write permissions to any new files that are placed in this
     // directory.
-    $this->commandExec('nohup sudo chown -Rv ' . $user . ':' . $group . ' ' . $directory . '  > /dev/null');
-    $this->commandExec('nohup sudo chgrp -Rv ' . $group . ' ' . $directory . '  > /dev/null');
+    $sudo = $sudo ? 'sudo ' : '';
+    $this->commandExec('nohup ' . $sudo . 'chown -Rv ' . $user . ':' . $group . ' ' . $directory . '  > /dev/null');
+    $this->commandExec('nohup ' . $sudo . 'chgrp -Rv ' . $group . ' ' . $directory . '  > /dev/null');
   }
 
   /**
@@ -622,9 +676,26 @@ EOT;
    *
    * @param $directory
    * @param string $mode
+   * @param bool $sudo
+   *   Shows whether the commands supposed to be run as sudo or not.
    */
-  protected function setPermissions($directory, $mode = '2775') {
-    $this->commandExec('nohup sudo chmod -R ' . $mode . ' ' . $directory . '  > /dev/null');
+  protected function setPermissions($directory, $mode = '2775', $sudo = TRUE) {
+    $sudo = $sudo ? 'sudo ' : '';
+    $this->commandExec('nohup ' . $sudo . 'chmod -R ' . $mode . ' ' . $directory . '  > /dev/null');
+  }
+
+  /**
+   * Preapare yml file to add only xdebug configurations.
+   * @param array $yaml
+   */
+  protected function containerAddXdebug(&$yaml) {
+    unset($yaml['services']['php']['image']);
+    unset($yaml['services']['php']['volumes']);
+    foreach ($yaml['services']['php']['environment'] as $key => $value) {
+      if (!strstr($key, 'PHP_')) {
+        unset($yaml['services']['php']['environment'][$key]);
+      }
+    }
   }
 
   /**
@@ -648,13 +719,21 @@ EOT;
     elseif ($container_name == 'selenium') {
       $temp_conf['behat']['enable'] = 1;
     }
+    elseif ($container_name == 'xdebug') {
+      $temp_conf['php']['xdebug'] = 1;
+    }
     else {
       $temp_conf[$container_name]['enable'] = 1;
     }
 
-    $twig_loader->setTemplate($dc_file_name, file_get_contents($this->goRoot . '/templates/' . $dc_file_name . '.twig'));
+    $twig_loader->setTemplate($dc_file_name, file_get_contents($this->goRoot . '/templates/docker/' . $dc_file_name . '.twig'));
     $rendered = $twig->render($dc_file_name, $temp_conf);
     $yaml = Yaml::parse($rendered);
+
+    if ($container_name == 'xdebug') {
+      $container_name = 'php';
+      $this->containerAddXdebug($yaml);
+    }
 
     if (!$this->fileSystem->exists($dco_file_name)) {
       $override_yaml['version'] = $yaml['version'];
@@ -679,7 +758,12 @@ EOT;
     $dco_file_name = 'docker-compose.override.yml';
     if ($this->fileSystem->exists($dco_file_name)) {
       $override_yaml = Yaml::parse(file_get_contents($dco_file_name));
-      unset($override_yaml['services'][$container_name]);
+      if ($container_name == 'xdebug') {
+        unset($override_yaml['services']['php']);
+      }
+      else {
+        unset($override_yaml['services'][$container_name]);
+      }
       $rendered = Yaml::dump($override_yaml, 9, 2);
       file_put_contents($dco_file_name, $rendered);
       $this->say("The " . $container_name . " has been removed from " . $dco_file_name);
@@ -728,15 +812,15 @@ EOT;
     $global_conf = $this->config;
     if (isset($options['vars'])) {
       $global_conf += $options['vars'];
-      if (isset($options['vars']['deploy'])) {
+      if (isset($options['vars']['deploy_version'])) {
         $global_conf['php']['tag'] = str_replace('${OS}', '', $global_conf['php']['tag']);
       }
     }
 
     if ($template == 'docker-compose.yml') {
-      $global_conf['deploy'] = isset($options['vars']['deploy']) ?: FALSE;
-      $global_conf['domains'] = $this->getDomains($global_conf['deploy']);
-      $global_conf['service_domain'] = $this->getDomains($global_conf['deploy'], TRUE);
+      $global_conf['deploy_version'] = isset($options['vars']['deploy_version']) ?: FALSE;
+      $global_conf['domains'] = $this->getDomains($global_conf['deploy_version']);
+      $global_conf['service_domain'] = $this->getDomains($global_conf['deploy_version'], TRUE);
       $this->config += $global_conf;
     }
 
@@ -882,13 +966,17 @@ EOT;
           'path' => 'docker/docker-compose.yml',
           'dest' => $this->projectRoot,
         ],
+        [
+          'path' => 'docker/traefik.toml',
+          'dest' => $this->projectRoot,
+        ],
       ],
       'docker_deploy' => [
         [
           'path' => 'docker/docker-compose.yml',
           'dest' => $this->projectRoot . '/deploy',
           'vars' => [
-            'deploy' => TRUE,
+            'deploy_version' => TRUE,
           ]
         ],
       ],
@@ -1048,7 +1136,7 @@ EOT;
 
     if (empty($this->config['multisite'])) {
       $help_text = "    # Should be in a format 'alias' => 'real production domain'\n";
-      $help_text .= "    # Make sure that one of the domain aliases equals the project_machine_name.',\n";
+      $help_text .= "    # Make sure that one of the domain aliases equals the project_machine_name.\n";
       $help_text .= "    #'subdomain' => 'subdomain.com',\n";
       $php = str_replace("'multisite' => [\n", "'multisite' => [\n" . $help_text, $php);
     }
