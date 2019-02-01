@@ -213,13 +213,12 @@ services:
 {% endif %}
     working_dir: /app
     labels:
-      traefik.backend: '{{ project_machine_name }}_node_1'
+      traefik.backend: 'node'
       traefik.port: '3000'
-      traefik.frontend.rule: 'Host:front.{{ service_domain }}'
     expose:
       - '3000'
     volumes:
-      - ./{{ node.path }}:/app
+      - ./web/themes/custom/{{ theme_name }}:/app
     command: sh -c 'npm install && npm run start'
 {% endif %}
 {% if memcached.enable %}
