@@ -4,6 +4,8 @@ return [
   'project_name' => 'Drupal Go',
   'project_machine_name' => 'dgo',
   'include_basic_modules' => 1,
+  'theme_name' => 'bartik',
+  'port' => 8000,
   'server' => [
     'domain' => '178.128.83.195.xip.io',
     'project_dir' => 'drupal_go',
@@ -35,7 +37,9 @@ return [
   ],
   'emulsify' => [
     'enable' => 0,
-    'theme' => 'dgo',
+  ],
+  'node' => [
+    'enable' => 0,
   ],
   'mailhog' => [
     'enable' => 0,
@@ -56,12 +60,6 @@ return [
   'redis' => [
     'enable' => 0,
     'tag' => '4-3.0.1',
-  ],
-  'node' => [
-    'enable' => 0,
-    'key' => '',
-    'path' => '',
-    'tag' => '1.0-2.0.0',
   ],
   'memcached' => [
     'enable' => 1,
