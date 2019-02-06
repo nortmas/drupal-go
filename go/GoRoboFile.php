@@ -332,16 +332,20 @@ class GoRoboFile extends Tasks {
    *
    * @aliases gdb
    * @param $alias - dev,stage or prod
+   * @param $cim - whether to apply cim after db import
    */
-  public function get_db($alias) {
+  public function get_db($alias, $cim = TRUE) {
     $alias = '@' . $this->config['project_machine_name'] . '.' . $alias;
     $drush_create_db = $this->taskDrushStack()->drush('sql-create')->getCommand();
     $drush_sync = $this->taskDrushStack()->drush('sql-sync --source-dump=/tmp/db.sql ' . $alias . ' @self')->getCommand();
-    $drush_csim = $this->taskDrushStack()->drush('cim')->getCommand();
 
     $this->commandExec($drush_create_db);
     $this->commandExec($drush_sync);
-    $this->commandExec($drush_csim);
+
+    if ($cim) {
+      $drush_csim = $this->taskDrushStack()->drush('cim')->getCommand();
+      $this->commandExec($drush_csim);
+    }
   }
 
   /**
