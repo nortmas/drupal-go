@@ -4,10 +4,10 @@
 #
 
 # Generate variables depending on the current CI job variables.
-DIR=${SERVER}"_SERVER_DIR"
-HOST=${SERVER}"_SERVER_HOST"
-USER=${SERVER}"_SERVER_USER"
-PRIVATE_KEY=${SERVER}"_SERVER_PRIVATE_KEY"
+eval DIR=\$${SERVER}"_SERVER_DIR"
+eval HOST=\$${SERVER}"_SERVER_HOST"
+eval USER=\$${SERVER}"_SERVER_USER"
+eval PRIVATE_KEY=\$${SERVER}"_SERVER_PRIVATE_KEY"
 
 # Set variables.
 PROJECT_PATH="~/$DIR"
