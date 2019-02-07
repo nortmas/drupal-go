@@ -5,8 +5,8 @@ $databases['default']['default'] = [
   'username' => getenv('DB_USER'),
   'password' => getenv('DB_PASSWORD'),
   'prefix' => '',
-  'host' => getenv('DB_HOST'),
-  'port' => getenv('DB_PORT'),
+  'host' => 'mariadb',
+  'port' => '3306',
   'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
   'driver' => 'mysql',
 ];
@@ -120,7 +120,7 @@ if ($settings['trusted_host_patterns'][0] == '^.+$') {
 /**
  * Config split module settings.
  */
-if (getenv('ENV') === 'stage') {
+if (getenv('GO_ENV') === 'stage') {
   // STAGE environment
   $config['config_split.config_split.local']['status'] = FALSE;
   $config['config_split.config_split.dev']['status'] = FALSE;
@@ -131,7 +131,7 @@ if (getenv('ENV') === 'stage') {
   $config['environment_indicator.indicator']['fg_color'] = '#ccc';
   $config['environment_indicator.indicator']['name'] = 'Local';
 }
-elseif (getenv('ENV') === 'prod') {
+elseif (getenv('GO_ENV') === 'prod') {
   // PRODUCTION environment
   $config['config_split.config_split.local']['status'] = FALSE;
   $config['config_split.config_split.dev']['status'] = FALSE;
