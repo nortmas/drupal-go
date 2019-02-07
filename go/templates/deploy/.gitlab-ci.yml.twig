@@ -1,8 +1,11 @@
 variables:
   ARTIFACT_DIR: {{ deploy.runner_artifact_dir }}
-  SERVER_DIR: {{ server.project_dir }}
-  SERVER_HOST: {{ server.host }}
-  SERVER_USER: {{ server.user }}
+  DEV_SERVER_DIR: {{ dev_server.project_dir }}
+  DEV_SERVER_HOST: {{ dev_server.host }}
+  DEV_SERVER_USER: {{ dev_server.user }}
+  PROD_SERVER_DIR: {{ prod_server.project_dir }}
+  PROD_SERVER_HOST: {{ prod_server.host }}
+  PROD_SERVER_USER: {{ prod_server.user }}
 
 stages:
   - deploy
@@ -14,6 +17,7 @@ deploy_dev:
     - dev
   variables:
    BRANCH: dev
+   SERVER: DEV
   before_script:
     - chmod -R 764 ./deploy/scripts/*
     - ./deploy/scripts/artifact.sh
@@ -28,6 +32,7 @@ deploy_stage:
     - stage
   variables:
    BRANCH: stage
+   SERVER: PROD
   before_script:
     - chmod -R 764 ./deploy/scripts/*
     - ./deploy/scripts/artifact.sh
@@ -42,6 +47,7 @@ deploy_master:
     - master
   variables:
    BRANCH: master
+   SERVER: PROD
   before_script:
     - chmod -R 764 ./deploy/scripts/*
     - ./deploy/scripts/artifact.sh

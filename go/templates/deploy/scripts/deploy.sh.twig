@@ -3,13 +3,19 @@
 # Deploy artifacts.
 #
 
+# Generate variables depending on the current CI job variables.
+DIR=${SERVER}"_SERVER_DIR"
+HOST=${SERVER}"_SERVER_HOST"
+USER=${SERVER}"_SERVER_USER"
+PRIVATE_KEY=${SERVER}"_SERVER_PRIVATE_KEY"
+
 # Set variables.
-PROJECT_PATH="~/$SERVER_DIR"
-SSH_AUTH="$SERVER_USER@$SERVER_HOST"
+PROJECT_PATH="~/$DIR"
+SSH_AUTH="$USER@$HOST"
 
 # Create file with privet ssh key from staging server.
 cat >> ~/.ssh/stage_private_key <<EOF
-$SERVER_PRIVATE_KEY
+$PRIVATE_KEY
 EOF
 chmod 600 ~/.ssh/stage_private_key
 
@@ -21,10 +27,10 @@ scp -i ~/.ssh/stage_private_key $ARTIFACT_DIR/$BRANCH.tgz $SSH_AUTH:$PROJECT_PAT
 DEPLOY="cd $PROJECT_PATH &&
        mkdir tmp-$BRANCH
        tar -zxf $BRANCH.tgz -C tmp-$BRANCH &&
-       rsync -a --del --exclude-from 'tmp-$BRANCH/deploy/.rsync-deploy-exclude' tmp-$BRANCH/ $SERVER_DIR-$BRANCH/ &&
+       rsync -a --del --exclude-from 'tmp-$BRANCH/deploy/.rsync-deploy-exclude' tmp-$BRANCH/ $DIR-$BRANCH/ &&
        rm $BRANCH.tgz &&
        rm -rf tmp-$BRANCH &&
-       cd $SERVER_DIR-$BRANCH &&
+       cd $DIR-$BRANCH &&
        make go_"$BRANCH"_deploy"
 
 echo ssh -ttq -i ~/.ssh/stage_private_key $SSH_AUTH "export TERM='xterm' && $DEPLOY"

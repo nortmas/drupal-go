@@ -780,7 +780,7 @@ EOT;
    * @param bool $service
    */
   protected function getDomains($server = FALSE, $service = FALSE) {
-    $main_domain = $server ? '.dev.' . $this->config['server']['domain'] : '.docker.localhost';
+    $main_domain = $server ? '.dev.' . $this->config['dev_server']['domain'] : '.docker.localhost';
     if (!$service) {
       if (!empty($this->config['multisite'])) {
         $domains = implode($main_domain . ',', array_keys($this->config['multisite']));
