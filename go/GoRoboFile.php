@@ -22,6 +22,8 @@ class GoRoboFile extends Tasks {
 
   use Boedah\Robo\Task\Drush\loadTasks;
 
+  const LOCAL_DOMAIN = 'docker.localhost';
+
   /** var string */
   protected $projectRoot;
   /** var string */
@@ -715,6 +717,7 @@ EOT;
     $dco_file_name = 'docker-compose.override.yml';
 
     $temp_conf = $this->config;
+    $temp_conf['service_domain'] = self::LOCAL_DOMAIN;
 
     if ($container_name == 'adminer' || $container_name ==  'pma') {
       $temp_conf['dbbrowser']['enable'] = 1;
@@ -780,7 +783,7 @@ EOT;
    * @param bool $service
    */
   protected function getDomains($server = FALSE, $service = FALSE) {
-    $main_domain = $server ? '.dev.' . $this->config['dev_server']['domain'] : '.docker.localhost';
+    $main_domain = $server ? '.dev.' . $this->config['dev_server']['domain'] : '.' . self::LOCAL_DOMAIN;
     if (!$service) {
       if (!empty($this->config['multisite'])) {
         $domains = implode($main_domain . ',', array_keys($this->config['multisite']));
