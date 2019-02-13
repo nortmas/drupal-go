@@ -188,6 +188,10 @@ services:
 {% endif %}
     labels:
       traefik.port: '8025'
+      traefik.frontend.entryPoints: 'https,http'
+      traefik.enable: 'true'
+      traefik.frontend.protocol: 'https'
+      traefik.frontend.port: '443'
       traefik.frontend.rule: 'Host:mailhog.{{ service_domain }}'
 {% endif %}
 {% if node.enable %}
