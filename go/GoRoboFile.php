@@ -319,7 +319,7 @@ class GoRoboFile extends Tasks {
     $drush_cim = $this->taskDrushStack()->drush('cim')->getCommand();
     $drush_updb = $this->taskDrushStack()->drush('updb')->getCommand();
     $drush_eu = $this->taskDrushStack()->drush('entity-updates')->getCommand();
-    $composer_install = $this->taskComposerInstall()->getCommand();
+    $composer_install = $this->taskComposerInstall()->noInteraction()->getCommand();
 
     $this->commandExec($drush_cc_drush);
     $this->commandExec($drush_cim);
