@@ -4,13 +4,13 @@
 #
 
 # Generate variables depending on the current CI job variables.
-eval DIR=\$${SERVER}"_SERVER_DIR"
+eval PROJECT_PATH=\$${SERVER}"_SERVER_DIR"
 eval HOST=\$${SERVER}"_SERVER_HOST"
 eval USER=\$${SERVER}"_SERVER_USER"
 eval PRIVATE_KEY=\$${SERVER}"_SERVER_PRIVATE_KEY"
 
 # Set variables.
-PROJECT_PATH="~/$DIR"
+DIR=$(basename "${PROJECT_PATH}")
 SSH_AUTH="$USER@$HOST"
 
 # Create file with privet ssh key from staging server.
@@ -31,7 +31,7 @@ DEPLOY="cd $PROJECT_PATH &&
        rm $BRANCH.tgz &&
        rm -rf tmp-$BRANCH &&
        cd $DIR-$BRANCH &&
-       make go_"$BRANCH"_deploy"
+       make "$COMMAND
 
 echo ssh -ttq -i ~/.ssh/stage_private_key $SSH_AUTH "export TERM='xterm' && $DEPLOY"
 ssh -ttq -i ~/.ssh/stage_private_key $SSH_AUTH "export TERM='xterm' && $DEPLOY"

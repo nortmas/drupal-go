@@ -1,4 +1,4 @@
-.SILENT:
+MAKEFLAGS += --no-print-directory
 
 ## Include .env file if exists.
 ifneq ("$(wildcard .env)","")
@@ -23,7 +23,7 @@ include $(CURRENT_PATH)/go/makefiles/help.mk
 include $(CURRENT_PATH)/go/makefiles/tools.mk
 include $(CURRENT_PATH)/go/makefiles/deploy.mk
 
-.PHONY: go_prepare_env go_set_php_container go_run_in_php go_mac go_lin go_php_kill go_up go_down go_restart go_reset_structure
+.SILENT: go_env go_lin go_mac go_check_env
 
 ## Roll out the environment.
 go_prepare_env:
@@ -68,7 +68,7 @@ go_lin:
 
 ## Create .env file using template.
 go_env:
-	if [ -f .env.extra ]; then rm -f .env; fi
+	if [ -f .env ]; then rm -f .env; fi
 	cp -n go/templates/.env .env
 
 ## Kill php container.

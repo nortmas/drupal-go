@@ -18,6 +18,7 @@ deploy_dev:
   variables:
    BRANCH: dev
    SERVER: DEV
+   COMMAND: go_stage_deploy
   before_script:
     - chmod -R 764 ./deploy/scripts/*
     - ./deploy/scripts/artifact.sh
@@ -33,6 +34,7 @@ deploy_stage:
   variables:
    BRANCH: stage
    SERVER: PROD
+   COMMAND: go_stage_deploy
   before_script:
     - chmod -R 764 ./deploy/scripts/*
     - ./deploy/scripts/artifact.sh
@@ -48,6 +50,7 @@ deploy_master:
   variables:
    BRANCH: master
    SERVER: PROD
+   COMMAND: go_master_deploy
   before_script:
     - chmod -R 764 ./deploy/scripts/*
     - ./deploy/scripts/artifact.sh

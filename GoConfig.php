@@ -7,13 +7,13 @@ return [
   'theme_name' => 'bartik',
   'prod_server' => [
     'domain' => '178.128.83.195.xip.io',
-    'project_dir' => 'drupal_go',
+    'project_dir' => '~/drupal_go',
     'host' => '178.128.83.195',
     'user' => 'deploy',
   ],
   'dev_server' => [
     'domain' => '178.128.83.195.xip.io',
-    'project_dir' => 'drupal_go',
+    'project_dir' => '~/drupal_go',
     'host' => '178.128.83.195',
     'user' => 'deploy',
   ],
