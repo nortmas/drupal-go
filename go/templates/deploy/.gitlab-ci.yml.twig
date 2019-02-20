@@ -18,7 +18,7 @@ deploy_dev:
   variables:
    BRANCH: dev
    SERVER: DEV
-   COMMAND: go_stage_deploy
+   COMMAND: go_dev_deploy
   before_script:
     - chmod -R 764 ./deploy/scripts/*
     - ./deploy/scripts/artifact.sh
