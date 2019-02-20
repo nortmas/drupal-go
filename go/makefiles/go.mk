@@ -54,13 +54,13 @@ go_run_in_php:
 go_mac:
 	make go_env
 	sed -i '' -e "2s/^//p; 2s/^.*/OS=macos-/" .env
-	sed -i '' -e "13s/^//p; 13s/^.*/PHP_XDEBUG_REMOTE_HOST=10.254.254.254/" .env
+	sed -i '' -e "14s/^//p; 14s/^.*/PHP_XDEBUG_REMOTE_HOST=host.docker.internal/" .env
 
 ## Add specific settings for Linux to the .env file.
 go_lin:
 	make go_env
 	sed -i '2 i\OS=' .env
-	sed -i '13 a\PHP_XDEBUG_REMOTE_HOST=172.17.0.1' .env
+	sed -i '14 a\PHP_XDEBUG_REMOTE_HOST=172.17.0.1' .env
 
 ## Create .env file using template.
 go_env:
