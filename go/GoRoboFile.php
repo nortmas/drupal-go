@@ -640,6 +640,20 @@ EOT;
     $this->setPermissions($this->projectRoot . '/vendor', '2755', $sudo);
     $this->setPermissions($this->projectRoot . '/drush/drush-run.sh', '2755', $sudo);
 
+    // Make emulsify scripts executable.
+    $emulsify_scripts = $this->drupalRoot . '/themes/custom/' . $this->config['theme_name'] . '/scripts';
+    if ($this->fileSystem->exists($emulsify_scripts)) {
+      $this->say('Changing permissions of emulsify scripts inside ' . $emulsify_scripts);
+      $this->setPermissions($emulsify_scripts,'2755', $sudo);
+    }
+
+    // Make node_modules scripts executable.
+    $emulsify_scripts = $this->drupalRoot . '/themes/custom/' . $this->config['theme_name'] . '/node_modules';
+    if ($this->fileSystem->exists($emulsify_scripts)) {
+      $this->say('Changing permissions of node_modules scripts inside ' . $emulsify_scripts);
+      $this->setPermissions($emulsify_scripts,'2755', $sudo);
+    }
+
     $this->commandExec($sudo_word . 'find ' . $this->drupalRoot . ' -name ".htaccess" -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
   }
 
