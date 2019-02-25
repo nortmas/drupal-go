@@ -618,29 +618,51 @@ EOT;
       $this->mkDir($dir, $mode);
     }
 
-    if ($user && $group) {
-      $this->say('Changing ownership of all contents inside ' . $this->projectRoot);
-      $this->setOwnership($this->projectRoot, $user, $group, $sudo);
+    $this->say('Changing ownership of all contents inside ' . $this->projectRoot);
+    $this->setOwnership($this->projectRoot, $user, $group, $sudo);
+
+    $exclude_folders = ['vendor', 'node_modules', 'config', 'files'];
+    $exclusions = '';
+    foreach ($exclude_folders as $folder) {
+      $exclusions .= ' ! -path "*/' . $folder . '/*"';
     }
 
+    $dir_conds = '-type d ! -perm u=rwx,g=rx,o=rx' . $exclusions;
+    $file_conds = '-type f ! -perm u=rw,g=r,o=r' . $exclusions;
+
     $this->say('Changing permissions of all directories inside ' . $this->projectRoot);
-    $this->commandExec($sudo_word . 'find ' . $this->projectRoot . ' -type d -exec chmod u=rwx,g=rx,o=rx \'{}\' \;');
+    $this->commandExec($sudo_word . 'find ' . $this->projectRoot . ' ' . $dir_conds . ' -exec chmod u=rwx,g=rx,o=rx "{}" \;');
 
     $this->say('Changing permissions of all files inside ' . $this->projectRoot);
-    $this->commandExec($sudo_word . 'find ' . $this->projectRoot . ' -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
+    $this->commandExec($sudo_word . 'find ' . $this->projectRoot . ' ' . $file_conds . ' -exec chmod u=rw,g=r,o=r "{}" \;');
 
-    $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.docker.php  > /dev/null');
-    $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.prod.php  > /dev/null');
-    $this->commandExec('nohup chmod 444 ' . $this->defaultSettingsPath . '/settings.php  > /dev/null');
+    $this->commandExec('chmod 444 ' . $this->defaultSettingsPath . '/settings.docker.php');
+    $this->commandExec('chmod 444 ' . $this->defaultSettingsPath . '/settings.prod.php');
+    $this->commandExec('chmod 444 ' . $this->defaultSettingsPath . '/settings.php');
 
     $this->setPermissions($this->projectRoot . '/config', '2755', $sudo);
     $this->setPermissions($this->defaultSettingsPath . '/files', '2775', $sudo);
+    $this->setGroupForNewFiles($this->defaultSettingsPath . '/files', $group, $sudo);
 
     $this->say('Changing permissions of all directories inside ' . $this->projectRoot . '/vendor');
     $this->setPermissions($this->projectRoot . '/vendor', '2755', $sudo);
     $this->setPermissions($this->projectRoot . '/drush/drush-run.sh', '2755', $sudo);
 
-    $this->commandExec($sudo_word . 'find ' . $this->drupalRoot . ' -name ".htaccess" -type f -exec chmod u=rw,g=r,o=r \'{}\' \;');
+    // Make emulsify scripts executable.
+    $emulsify_scripts = $this->drupalRoot . '/themes/custom/' . $this->config['theme_name'] . '/scripts';
+    if ($this->fileSystem->exists($emulsify_scripts)) {
+      $this->say('Changing permissions of emulsify scripts inside ' . $emulsify_scripts);
+      $this->setPermissions($emulsify_scripts,'2755', $sudo);
+    }
+
+    // Make node_modules scripts executable.
+    $emulsify_scripts = $this->drupalRoot . '/themes/custom/' . $this->config['theme_name'] . '/node_modules';
+    if ($this->fileSystem->exists($emulsify_scripts)) {
+      $this->say('Changing permissions of node_modules scripts inside ' . $emulsify_scripts);
+      $this->setPermissions($emulsify_scripts,'2755', $sudo);
+    }
+
+    $this->commandExec($sudo_word . 'find ' . $this->drupalRoot . ' -name ".htaccess" -type f -exec chmod u=rw,g=r,o=r "{}" \;');
   }
 
   /**
@@ -649,9 +671,10 @@ EOT;
    * @aliases ssw
    */
   public function set_settings_writable() {
-    $this->commandExec('nohup chmod 644 ' . $this->defaultSettingsPath . '/settings.docker.php  > /dev/null');
-    $this->commandExec('nohup chmod 644 ' . $this->defaultSettingsPath . '/settings.prod.php  > /dev/null');
-    $this->commandExec('nohup chmod 644 ' . $this->defaultSettingsPath . '/settings.php  > /dev/null');
+    $this->commandExec('chmod 755 ' . $this->defaultSettingsPath);
+    $this->commandExec('chmod 644 ' . $this->defaultSettingsPath . '/settings.docker.php');
+    $this->commandExec('chmod 644 ' . $this->defaultSettingsPath . '/settings.prod.php');
+    $this->commandExec('chmod 644 ' . $this->defaultSettingsPath . '/settings.php');
   }
 
   /**
@@ -665,15 +688,27 @@ EOT;
    *   Shows whether the commands supposed to be run as sudo or not.
    */
   protected function setOwnership($directory, $user, $group, $sudo = TRUE) {
-    // Set file permissions.
-    // The 2 means that the group id will be preserved for any new files created
-    // in this directory. What that means is that `www-data` will always be the
-    // group on any files, thereby ensuring that web server and the user will both
-    // always have write permissions to any new files that are placed in this
-    // directory.
     $sudo = $sudo ? 'sudo ' : '';
-    $this->commandExec('nohup ' . $sudo . 'chown -Rv ' . $user . ':' . $group . ' ' . $directory . '  > /dev/null');
-    $this->commandExec('nohup ' . $sudo . 'chgrp -Rv ' . $group . ' ' . $directory . '  > /dev/null');
+    $cond = ' \( ! -user ' . $user . ' -or ! -group ' . $group . ' \)';
+    $this->commandExec($sudo . 'find ' . $directory . $cond . ' -exec chown -R ' . $user . ':' . $group . ' "{}" \;');
+  }
+
+  /**
+   * Set group id that will be preserved for any new files created in this directory.
+   * Taken from the module: https://www.drupal.org/project/file_permissions
+   *
+   * @param $directory
+   * @param $group
+   * @param bool $sudo
+   *   Shows whether the commands supposed to be run as sudo or not.
+   */
+  protected function setGroupForNewFiles($directory, $group, $sudo = TRUE) {
+    // The `www-data` will always be the group of any files, thereby ensuring
+    // that web server and the user will both always have write permissions
+    // to any new files that are placed in this directory.
+    $sudo = $sudo ? 'sudo ' : '';
+    $this->commandExec($sudo . 'find ' . $directory . ' -type d -exec chgrp ' . $group . ' "{}" \;');
+    $this->commandExec($sudo . 'find ' . $directory . ' -type d -exec chmod g+s "{}" \;');
   }
 
   /**
@@ -687,7 +722,7 @@ EOT;
    */
   protected function setPermissions($directory, $mode = '2775', $sudo = TRUE) {
     $sudo = $sudo ? 'sudo ' : '';
-    $this->commandExec('nohup ' . $sudo . 'chmod -R ' . $mode . ' ' . $directory . '  > /dev/null');
+    $this->commandExec($sudo . 'chmod -R ' . $mode . ' ' . $directory);
   }
 
   /**
