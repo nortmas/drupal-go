@@ -627,11 +627,11 @@ EOT;
       $exclusions .= ' ! -path "*/' . $folder . '/*"';
     }
 
-    $dir_conds = '-type d ! -perm u=rwx,g=rx,o=rx' . $exclusions;
+    $dir_conds = '-type d ! -perm 2755' . $exclusions;
     $file_conds = '-type f ! -perm u=rw,g=r,o=r' . $exclusions;
 
     $this->say('Changing permissions of all directories inside ' . $this->projectRoot);
-    $this->commandExec($sudo_word . 'find ' . $this->projectRoot . ' ' . $dir_conds . ' -exec chmod u=rwx,g=rx,o=rx "{}" \;');
+    $this->commandExec($sudo_word . 'find ' . $this->projectRoot . ' ' . $dir_conds . ' -exec chmod 2755 "{}" \;');
 
     $this->say('Changing permissions of all files inside ' . $this->projectRoot);
     $this->commandExec($sudo_word . 'find ' . $this->projectRoot . ' ' . $file_conds . ' -exec chmod u=rw,g=r,o=r "{}" \;');
@@ -644,7 +644,7 @@ EOT;
     $this->setPermissions($this->defaultSettingsPath . '/files', '2775', $sudo);
     $this->setGroupForNewFiles($this->defaultSettingsPath . '/files', $group, $sudo);
 
-    $this->say('Changing permissions of all directories inside ' . $this->projectRoot . '/vendor');
+    $this->say('Changing permissions of all the files inside ' . $this->projectRoot . '/vendor');
     $this->setPermissions($this->projectRoot . '/vendor', '2755', $sudo);
     $this->setPermissions($this->projectRoot . '/drush/drush-run.sh', '2755', $sudo);
 
