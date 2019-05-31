@@ -1,5 +1,5 @@
 {
-  "name": "Drupal Go",
+  "name": "nortmas/drupal-go",
   "description": "Drupal 8 project.",
   "require": {
     "composer/installers": "^1.2",
