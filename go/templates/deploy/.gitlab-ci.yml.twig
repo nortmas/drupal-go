@@ -1,24 +1,21 @@
 variables:
   ARTIFACT_DIR: {{ deploy.runner_artifact_dir }}
-  DEV_SERVER_DIR: {{ dev_server.project_dir }}
-  DEV_SERVER_HOST: {{ dev_server.host }}
-  DEV_SERVER_USER: {{ dev_server.user }}
-  PROD_SERVER_DIR: {{ prod_server.project_dir }}
-  PROD_SERVER_HOST: {{ prod_server.host }}
-  PROD_SERVER_USER: {{ prod_server.user }}
 
 stages:
   - deploy
   - test
 
-deploy_dev:
+{% for key, server in servers %}
+deploy_{{key}}:
   stage: deploy
   only:
-    - dev
+    - {{key}}
   variables:
-   BRANCH: dev
-   SERVER: DEV
-   COMMAND: go_dev_deploy
+   BRANCH: {{key}}
+   SERVER_DIR: {{ server.project_dir }}
+   SERVER_HOST: {{ server.host }}
+   SERVER_USER: {{ server.user }}
+   COMMAND: go_{{key}}_deploy
   before_script:
     - chmod -R 764 ./deploy/scripts/*
     - ./deploy/scripts/artifact.sh
@@ -27,39 +24,8 @@ deploy_dev:
   after_script:
     - ./deploy/scripts/finalize.sh
 
-deploy_stage:
-  stage: deploy
-  only:
-    - stage
-  variables:
-   BRANCH: stage
-   SERVER: PROD
-   COMMAND: go_stage_deploy
-  before_script:
-    - chmod -R 764 ./deploy/scripts/*
-    - ./deploy/scripts/artifact.sh
-  script:
-    - ./deploy/scripts/deploy.sh
-  after_script:
-    - ./deploy/scripts/finalize.sh
-
-deploy_master:
-  stage: deploy
-  only:
-    - master
-  variables:
-   BRANCH: master
-   SERVER: PROD
-   COMMAND: go_master_deploy
-  before_script:
-    - chmod -R 764 ./deploy/scripts/*
-    - ./deploy/scripts/artifact.sh
-  script:
-    - ./deploy/scripts/deploy.sh
-  after_script:
-    - ./deploy/scripts/finalize.sh
+{% endfor %}
 {% if behat.enable %}
-
 behat_build:
   stage: test
   only:

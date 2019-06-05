@@ -57,14 +57,20 @@ go_mac:
 	make go_env
 	sed -i '' -e "2s/^//p; 2s/^.*/OS=macos-/" .env
 	sed -i '' -e "12s/^//p; 12s/^.*/PHP_XDEBUG_REMOTE_HOST=host.docker.internal/" .env
-	if [ -f .env.extra ]; then cat .env.extra >> .env; fi
+	if [ -f .env.extra.enc ]; then make go_add_extra; fi
+	#if [ -f .env.extra ]; then cat .env.extra >> .env; fi
 
 ## Add specific settings for Linux to the .env file.
 go_lin:
 	make go_env
 	sed -i '2 i\OS=' .env
 	sed -i '12 a\PHP_XDEBUG_REMOTE_HOST=172.17.0.1' .env
-	if [ -f .env.extra ]; then cat .env.extra >> .env; fi
+	if [ -f .env.extra.enc ]; then make go_add_extra; fi
+	#if [ -f .env.extra ]; then cat .env.extra >> .env; fi
+
+## Add encrypeted info form the file .env.extra.enc to the .env file.
+go_add_extra:
+	openssl aes-256-cbc -d -salt -pbkdf2 -in .env.extra.enc -p | awk 'NR>3' >> .env
 
 ## Create .env file using template.
 go_env:

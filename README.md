@@ -16,7 +16,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 
 ## Installation
 1) To avoid incompatibilities please make sure that your port `80` is available and all other docker environments on your local machine are stopped. Or run `docker container stop $(docker ps -aq)`
-2) In your projects root dirrectory (`www` for example) run `git clone git@github.com:nortmas/drupal-go.git <project-machine-name> && cd <project-machine-name> && rm -r .git`. 
+2) In your project root directory (`www` for example) run `git clone git@github.com:nortmas/drupal-go.git <project-machine-name> && cd <project-machine-name> && rm -r .git`. 
    (NOTE: For the sake of consistency, name your project directory as a project machine name.)
 3) If it's your first project with Drupal GO, for the convenience you may set the aliases (highly recommended):
     * `mkdir ~/.dgo && cp $(pwd)/go/scripts/aliases.sh ~/.dgo/aliases.sh`
@@ -61,7 +61,7 @@ If you want to improve performance, please read the [doc](https://wodby.com/docs
 * `include_basic_modules` - Will include the set of prepared modules and enable them after installation.
 * `multisite` - You can specify the array of needed domains to create the folder structure automatically.
 * `deploy` - Configure GitLab CI files and deployment flow.
-* `server` - Configure remote server that will contain dev, stage and prod environments.
+* `server` - Configure remote server that will contain dev, stage and master (prod) environments.
 * `behat` - Used for Behat configuration files.
 * All other configurations are related to the [docker4drupal](https://github.com/wodby/docker4drupal)
 

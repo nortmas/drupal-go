@@ -167,9 +167,9 @@ class GoRoboFile extends Tasks {
   }
 
   /**
-   * Recreate configuration files.
-   * @param string $set The name of set of the files to be recreated.
-   *   May have values: drupal, drush, docker, deploy, behat, phpunit.
+   * Recreate configuration files. [drupal, drush, docker, docker_deploy, behat, multisite, deploy]
+   * @param string $set The name of s1et of the files to be recreated.
+   *   May have values: drupal, drush, docker, docker_deploy, behat, multisite, deploy.
    */
   public function reconf($set = 'default') {
     $this->io()->caution("This action will overwrite all previously created configs.");
@@ -818,7 +818,7 @@ EOT;
    * @param bool $service
    */
   protected function getDomains($server = FALSE, $service = FALSE) {
-    $main_domain = $server ? '.dev.' . $this->config['dev_server']['domain'] : '.' . self::LOCAL_DOMAIN;
+    $main_domain = $server ? '.dev.' . $this->config['servers']['dev']['domain'] : '.' . self::LOCAL_DOMAIN;
     if (!$service) {
       if (!empty($this->config['multisite'])) {
         $domains = implode($main_domain . ',', array_keys($this->config['multisite']));

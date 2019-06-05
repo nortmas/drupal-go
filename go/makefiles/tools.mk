@@ -17,6 +17,14 @@ go_update_translations:
 	$(call DRUPAL_PHP_DRUSH, locale-check)
 	$(call DRUPAL_PHP_DRUSH, locale-update)
 
+## Encrypt env.extra file with the password.
+go_env_enc:
+	openssl enc -aes-256-cbc -salt -pbkdf2 -in .env.extra -out .env.extra.enc
+
+## Decrypt the env.extra file using the password.
+go_env_dec:
+	openssl aes-256-cbc -d -salt -pbkdf2 -in .env.extra.enc -out .env.extra
+
 ## Check codebase with phpcs sniffers to make sure it conforms https://www.drupal.org/docs/develop/standards
 go_code_sniff:
 	docker run --rm \

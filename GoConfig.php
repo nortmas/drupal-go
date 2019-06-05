@@ -5,17 +5,25 @@ return [
   'project_machine_name' => 'dgo',
   'include_basic_modules' => 1,
   'theme_name' => 'bartik',
-  'prod_server' => [
-    'domain' => '178.128.83.195.xip.io',
-    'project_dir' => '~/drupal_go',
-    'host' => '178.128.83.195',
-    'user' => 'deploy',
-  ],
-  'dev_server' => [
-    'domain' => '178.128.83.195.xip.io',
-    'project_dir' => '~/drupal_go',
-    'host' => '178.128.83.195',
-    'user' => 'deploy',
+  'servers' => [
+    'dev' => [
+      'domain' => '178.128.83.195.xip.io',
+      'project_dir' => '~/drupal_go',
+      'host' => '178.128.83.195',
+      'user' => 'deploy',
+    ],
+    'stage' => [
+      'domain' => '178.128.83.195.xip.io',
+      'project_dir' => '~/drupal_go',
+      'host' => '178.128.83.195',
+      'user' => 'deploy',
+    ],
+    'master' => [
+      'domain' => '178.128.83.195.xip.io',
+      'project_dir' => '~/drupal_go',
+      'host' => '178.128.83.195',
+      'user' => 'deploy',
+    ],
   ],
   'deploy' => [
     'enable' => 1,

@@ -10,50 +10,21 @@ self:
   root: '/var/www/html/web'
   uri: '{{ first_domain }}.docker.localhost'
 
-dev:
-  host: '{{ dev_server.host }}'
-  user: '{{ dev_server.user }}'
+{% for key, server in servers %}
+{{ key }}:
+  host: '{{ server.host }}'
+  user: '{{ server.user }}'
   root: '/var/www/html/web'
-  uri: '{{ first_domain }}.dev.{{ dev_server.domain }}'
+  uri: '{{ first_domain }}.{{ key }}.{{ server.domain }}'
   paths:
-    drush-script: '/home/{{ dev_server.user }}/{{ dev_server.project_dir }}/{{ dev_server.project_dir }}-dev/drush/drush-run.sh'
+    drush-script: '/home/{{ server.user }}/{{ project_machine_name }}/{{ project_machine_name }}-{{ key }}/drush/drush-run.sh'
 
-dev-files:
-  host: '{{ dev_server.host }}'
-  user: '{{ dev_server.user }}'
-  root: '/home/{{ dev_server.user }}/{{ dev_server.project_dir }}/{{ dev_server.project_dir }}-dev/web'
-  uri: '{{ first_domain }}.dev.{{ dev_server.domain }}'
+{{ key }}-files:
+  host: '{{ server.host }}'
+  user: '{{ server.user }}'
+  root: '/home/{{ server.user }}/{{ project_machine_name }}/{{ project_machine_name }}-{{ key }}/web'
+  uri: '{{ first_domain }}.{{ key }}.{{ server.domain }}'
   paths:
     files: 'sites/default/files'
 
-stage:
-  host: '{{ prod_server.host }}'
-  user: '{{ prod_server.user }}'
-  root: '/var/www/html/web'
-  uri: '{{ first_domain }}.stage.{{ prod_server.domain }}'
-  paths:
-    drush-script: '/home/{{ prod_server.user }}/{{ prod_server.project_dir }}/{{ prod_server.project_dir }}-stage/drush/drush-run.sh'
-
-stage-files:
-  host: '{{ prod_server.host }}'
-  user: '{{ prod_server.user }}'
-  root: '/home/{{ prod_server.user }}/{{ prod_server.project_dir }}/{{ prod_server.project_dir }}-stage/web'
-  uri: '{{ first_domain }}.stage.{{ prod_server.domain }}'
-  paths:
-    files: 'sites/default/files'
-
-prod:
-  host: '{{ prod_server.host }}'
-  user: '{{ prod_server.user }}'
-  root: '/var/www/html/web'
-  uri: '{{ first_domain }}.prod.{{ prod_server.domain }}'
-  paths:
-      drush-script: '/home/{{ prod_server.user }}/{{ prod_server.project_dir }}/{{ prod_server.project_dir }}-master/drush/drush-run.sh'
-
-prod-files:
-  host: '{{ prod_server.host }}'
-  user: '{{ prod_server.user }}'
-  root: '/home/{{ prod_server.user }}/{{ prod_server.project_dir }}/{{ prod_server.project_dir }}-master/web'
-  uri: '{{ first_domain }}.prod.{{ prod_server.domain }}'
-  paths:
-    files: 'sites/default/files'
+{% endfor %}

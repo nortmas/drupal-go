@@ -3,15 +3,14 @@
 # Deploy artifacts.
 #
 
-# Generate variables depending on the current CI job variables.
-eval PROJECT_PATH=\$${SERVER}"_SERVER_DIR"
-eval HOST=\$${SERVER}"_SERVER_HOST"
-eval USER=\$${SERVER}"_SERVER_USER"
-eval PRIVATE_KEY=\$${SERVER}"_SERVER_PRIVATE_KEY"
+# Create an uppercase prefix based on the branch name.
+PREFIX="${BRANCH^^}"
+# Generate variables depending on the current environment.
+eval PRIVATE_KEY=\$${PREFIX}"_SERVER_PRIVATE_KEY"
 
 # Set variables.
-DIR=$(basename "${PROJECT_PATH}")
-SSH_AUTH="$USER@$HOST"
+DIR=$(basename "${SERVER_DIR}")
+SSH_AUTH="$SERVER_USER@$SERVER_HOST"
 
 # Create file with privet ssh key from staging server.
 cat >> ~/.ssh/stage_private_key <<EOF
@@ -20,11 +19,11 @@ EOF
 chmod 600 ~/.ssh/stage_private_key
 
 # Upload the archive with artifact to the server.
-echo scp -i ~/.ssh/stage_private_key $ARTIFACT_DIR/$BRANCH.tgz $SSH_AUTH:$PROJECT_PATH/$BRANCH.tgz
-scp -i ~/.ssh/stage_private_key $ARTIFACT_DIR/$BRANCH.tgz $SSH_AUTH:$PROJECT_PATH/$BRANCH.tgz
+echo scp -i ~/.ssh/stage_private_key $ARTIFACT_DIR/$BRANCH.tgz $SSH_AUTH:$SERVER_DIR/$BRANCH.tgz
+scp -i ~/.ssh/stage_private_key $ARTIFACT_DIR/$BRANCH.tgz $SSH_AUTH:$SERVER_DIR/$BRANCH.tgz
 
 # SSH to the server, unzip archive, rsync and deploy.
-DEPLOY="cd $PROJECT_PATH &&
+DEPLOY="cd $SERVER_DIR &&
        mkdir tmp-$BRANCH
        tar -zxf $BRANCH.tgz -C tmp-$BRANCH &&
        rsync -a --del --exclude-from 'tmp-$BRANCH/deploy/.rsync-deploy-exclude' tmp-$BRANCH/ $DIR-$BRANCH/ &&
