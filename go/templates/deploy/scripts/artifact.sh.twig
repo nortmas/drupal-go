@@ -4,12 +4,15 @@
 #
 
 # Set variables.
+USER="$( whoami )"
+PROJECT_DIR="$( pwd )"
 BUILD_DIR="$ARTIFACT_DIR/$BRANCH"
 MODULES_DIR="$BUILD_DIR/web/modules/"
 LIBRARIES_DIR="$BUILD_DIR/web/libraries/"
 
-# Sometimes, the job is launched as root user.
-if [ "$USER" != "gitlab-runner" ]; then echo "WARNING: this job was launched with user '$USER'"; fi
+echo "INFO: Current user: '$USER'"
+echo "INFO: PROJECT_DIR: '$PROJECT_DIR'"
+echo "INFO: BUILD_DIR: '$BUILD_DIR'"
 
 # Check mandatory variables.
 if [ -z "$ARTIFACT_DIR" ]; then echo "ARTIFACT_DIR is unset"; exit 33; else echo "ARTIFACT_DIR is set to '$ARTIFACT_DIR'"; fi
@@ -22,8 +25,8 @@ fi
 mkdir -p $BUILD_DIR
 
 # Create the artifact.
-echo rsync -a --del --exclude-from "$CI_PROJECT_DIR/deploy/.rsync-artifact-exclude" "$CI_PROJECT_DIR/" "$BUILD_DIR/"
-rsync -a --del --exclude-from "$CI_PROJECT_DIR/deploy/.rsync-artifact-exclude" "$CI_PROJECT_DIR/" "$BUILD_DIR/"
+echo rsync -a --del --exclude-from "$PROJECT_DIR/deploy/.rsync-artifact-exclude" "$PROJECT_DIR/" "$BUILD_DIR/"
+rsync -a --del --exclude-from "$PROJECT_DIR/deploy/.rsync-artifact-exclude" "$PROJECT_DIR/" "$BUILD_DIR/"
 
 # Remove .git from contrib modules.
 if [ -d "$MODULES_DIR" ]; then

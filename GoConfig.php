@@ -11,23 +11,26 @@ return [
       'project_dir' => '~/drupal_go',
       'host' => '178.128.83.195',
       'user' => 'deploy',
+      'branch' => 'dev'
     ],
     'stage' => [
       'domain' => '178.128.83.195.xip.io',
       'project_dir' => '~/drupal_go',
       'host' => '178.128.83.195',
       'user' => 'deploy',
+      'branch' => 'stage'
     ],
-    'master' => [
+    'prod' => [
       'domain' => '178.128.83.195.xip.io',
       'project_dir' => '~/drupal_go',
       'host' => '178.128.83.195',
       'user' => 'deploy',
+      'branch' => 'master'
     ],
   ],
   'deploy' => [
     'enable' => 1,
-    'runner_artifact_dir' => '/home/gitlab-runner/artifacts',
+    'runner_artifact_dir' => '/builds/artifact',
   ],
   'multisite' => [
     # Should be in a format 'alias' => 'real production domain'

@@ -8,10 +8,13 @@ stages:
 {% for key, server in servers %}
 deploy_{{key}}:
   stage: deploy
+  image: nortmas/drupal-go-runner
+  tags:
+    - docker
   only:
-    - {{key}}
+    - {{server.branch}}
   variables:
-   BRANCH: {{key}}
+   BRANCH: {{server.branch}}
    SERVER_DIR: {{ server.project_dir }}
    SERVER_HOST: {{ server.host }}
    SERVER_USER: {{ server.user }}
@@ -28,6 +31,9 @@ deploy_{{key}}:
 {% if behat.enable %}
 behat_build:
   stage: test
+  image: nortmas/drupal-go-runner
+  tags:
+    - docker
   only:
     - dev
   variables:

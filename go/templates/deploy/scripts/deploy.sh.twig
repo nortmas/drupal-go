@@ -11,16 +11,17 @@ eval PRIVATE_KEY=\$${PREFIX}"_SERVER_PRIVATE_KEY"
 # Set variables.
 DIR=$(basename "${SERVER_DIR}")
 SSH_AUTH="$SERVER_USER@$SERVER_HOST"
+PRIVATE_KEY_PATH="/builds/stage_private_key"
 
 # Create file with privet ssh key from staging server.
-cat >> ~/.ssh/stage_private_key <<EOF
+cat >> $PRIVATE_KEY_PATH <<EOF
 $PRIVATE_KEY
 EOF
-chmod 600 ~/.ssh/stage_private_key
+chmod 600 $PRIVATE_KEY_PATH
 
 # Upload the archive with artifact to the server.
-echo scp -i ~/.ssh/stage_private_key $ARTIFACT_DIR/$BRANCH.tgz $SSH_AUTH:$SERVER_DIR/$BRANCH.tgz
-scp -i ~/.ssh/stage_private_key $ARTIFACT_DIR/$BRANCH.tgz $SSH_AUTH:$SERVER_DIR/$BRANCH.tgz
+echo scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no $ARTIFACT_DIR/$BRANCH.tgz $SSH_AUTH:$SERVER_DIR/$BRANCH.tgz
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no $ARTIFACT_DIR/$BRANCH.tgz $SSH_AUTH:$SERVER_DIR/$BRANCH.tgz
 
 # SSH to the server, unzip archive, rsync and deploy.
 DEPLOY="cd $SERVER_DIR &&
@@ -32,8 +33,8 @@ DEPLOY="cd $SERVER_DIR &&
        cd $DIR-$BRANCH &&
        make "$COMMAND
 
-echo ssh -ttq -i ~/.ssh/stage_private_key $SSH_AUTH "export TERM='xterm' && $DEPLOY"
-ssh -ttq -i ~/.ssh/stage_private_key $SSH_AUTH "export TERM='xterm' && $DEPLOY"
+echo ssh -ttq -i $PRIVATE_KEY_PATH $SSH_AUTH "export TERM='xterm' && $DEPLOY"
+ssh -ttq -i $PRIVATE_KEY_PATH $SSH_AUTH "export TERM='xterm' && $DEPLOY"
 
 # Remove private key.
-rm ~/.ssh/stage_private_key
+rm $PRIVATE_KEY_PATH

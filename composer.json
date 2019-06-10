@@ -1,7 +1,7 @@
 {
   "name": "nortmas/drupal-go",
   "description": "Drupal 8 project.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "require": {
     "composer/installers": "^1.2",
     "cweagans/composer-patches": "^1.6",

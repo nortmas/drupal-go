@@ -15,15 +15,15 @@ self:
   host: '{{ server.host }}'
   user: '{{ server.user }}'
   root: '/var/www/html/web'
-  uri: '{{ first_domain }}.{{ key }}.{{ server.domain }}'
+  uri: '{{ first_domain }}.{{server.branch}}.{{ server.domain }}'
   paths:
-    drush-script: '/home/{{ server.user }}/{{ project_machine_name }}/{{ project_machine_name }}-{{ key }}/drush/drush-run.sh'
+    drush-script: '/home/{{ server.user }}/{{ project_machine_name }}/{{ project_machine_name }}-{{server.branch}}/drush/drush-run.sh'
 
 {{ key }}-files:
   host: '{{ server.host }}'
   user: '{{ server.user }}'
-  root: '/home/{{ server.user }}/{{ project_machine_name }}/{{ project_machine_name }}-{{ key }}/web'
-  uri: '{{ first_domain }}.{{ key }}.{{ server.domain }}'
+  root: '/home/{{ server.user }}/{{ project_machine_name }}/{{ project_machine_name }}-{{server.branch}}/web'
+  uri: '{{ first_domain }}.{{server.branch}}.{{ server.domain }}'
   paths:
     files: 'sites/default/files'
 

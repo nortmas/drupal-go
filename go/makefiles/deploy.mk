@@ -11,7 +11,7 @@ go_stage_deploy:
 	$(call DRUPAL_PHP_ROBO, rebuild)
 
 ## Run commands needed for PROD deployment.
-go_master_deploy:
+go_prod_deploy:
 	$(call DRUPAL_PHP_COMPOSER, install --no-interaction)
 	$(call DRUPAL_PHP_ROBO, dbe)
 	$(call DRUPAL_PHP_ROBO, set_correct_permissions)
