@@ -230,7 +230,7 @@ class GoRoboFile extends Tasks {
         "behat/mink-zombie-driver" => "^1.4",
         "devinci/devinci-behat-extension" => "dev-master",
         "drupal/drupal-extension" => "^3.4",
-        "emuse/behat-html-formatter" => "^0.1.0",
+        "emuse/behat-html-formatter" => "^0.2.0",
         "jarnaiz/behat-junit-formatter" => "^1.3",
       ];
       foreach ($modules as $name => $version) {

@@ -39,17 +39,18 @@ return [
   ],
   'behat' => [
     'enable' => 0,
+    'selenium_tag' => '3.141.59-oxygen',
   ],
   'mariadb' => [
-    'tag' => '10.1-3.3.11',
+    'tag' => '10.3-3.6.3',
   ],
   'php' => [
-    'tag' => '7.2-dev-${OS}4.9.2',
+    'tag' => '7.3-dev-${OS}4.13.10',
   ],
   'webserver' => [
     'type' => 'apache',
-    'nginx_tag' => '1.15-5.0.17',
-    'apache_tag' => '2.4-4.0.2',
+    'nginx_tag' => '1.17-5.6.7',
+    'apache_tag' => '2.4-4.1.3',
   ],
   'emulsify' => [
     'enable' => 0,
@@ -62,16 +63,16 @@ return [
   ],
   'varnish' => [
     'enable' => 0,
-    'tag' => '4.1-3.0.10',
+    'tag' => '6.0-4.3.4',
   ],
   'dbbrowser' => [
     'enable' => 0,
     'type' => 'adminer',
-    'adminer_tag' => '4.6-3.1.2',
+    'adminer_tag' => '4-3.6.10',
   ],
   'solr' => [
     'enable' => 0,
-    'tag' => '7.4-3.0.6',
+    'tag' => '8-4.0.3',
   ],
   'redis' => [
     'enable' => 0,
@@ -79,7 +80,7 @@ return [
   ],
   'memcached' => [
     'enable' => 1,
-    'tag' => '1-2.2.1',
+    'tag' => '1-2.3.3',
   ],
   'rsyslog' => [
     'enable' => 0,
@@ -92,7 +93,7 @@ return [
   ],
   'webgrind' => [
     'enable' => 0,
-    'tag' => '1.5-1.6.2',
+    'tag' => '1.5-1.11.8',
   ],
   'blackfire' => [
     'enable' => 0,

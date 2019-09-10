@@ -266,21 +266,21 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
-      - 'traefik.backend=portainer'
-      - 'traefik.port=9000'
-      - 'traefik.frontend.rule=Host:portainer.{{ service_domain }}'
+      traefik.backend: 'portainer'
+      traefik.port: '9000'
+      traefik.frontend.rule: 'Host:portainer.{{ service_domain }}'
 {% endif %}
 {% if behat.enable %}
 
   selenium:
-    image: selenium/standalone-chrome
+    image: 'selenium/standalone-chrome:{{ behat.selenium_tag }}'
     restart: on-failure:5
     volumes:
       - /dev/shm:/dev/shm
     labels:
-      - 'traefik.backend=selenium'
-      - 'traefik.port=4444'
-      - 'traefik.frontend.rule=Host:selenium.{{ service_domain }}'
+      traefik.backend: 'selenium'
+      traefik.port: '4444'
+      traefik.frontend.rule: 'Host:selenium.{{ service_domain }}'
     ports:
       - 5900:5900
 {% endif %}
