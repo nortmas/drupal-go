@@ -29,7 +29,7 @@ deploy_{{key}}:
 
 {% endfor %}
 {% if behat.enable %}
-behat_build:
+behat_test:
   stage: test
   image: nortmas/drupal-go-runner
   tags:
@@ -37,17 +37,18 @@ behat_build:
   only:
     - dev
   variables:
-   BRANCH: dev
+    BRANCH: dev
+    SERVER_DIR: ~/beg
+    COMMAND: go_run_behat
   before_script:
-    - chmod -R 764 ./go/build-scripts/*
+    - chmod -R 764 ./deploy/scripts/*
   script:
-    - ./go/build-scripts/behat.sh
-  after_script:
-    - ./go/build-scripts/finalize.sh
+    - ./deploy/scripts/behat.sh
   artifacts:
     when: always
+    expire_in: 1 week
     paths:
-      - tests/behat/_output
+      - artifact.tgz
   allow_failure: true
-  when: on_success
+  when: manual
 {% endif %}

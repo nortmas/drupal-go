@@ -2,11 +2,45 @@
 #
 # Run behat tests.
 #
-BUILD_DIR="$ARTIFACT_DIR/$BRANCH"
 
-echo "Change directory to $BUILD_DIR"
-cd $BUILD_DIR
-echo "Remove previous artifacts."
-rm -rf tests/behat/_output/*
-echo "Running Behat tests"
-make go_run_behat
+# Create an uppercase prefix based on the branch name.
+PREFIX="${BRANCH^^}"
+# Generate variables depending on the current environment.
+eval PRIVATE_KEY=\$${PREFIX}"_SERVER_PRIVATE_KEY"
+
+# Set variables.
+DIR=$(basename "${SERVER_DIR}")
+SSH_AUTH="$SERVER_USER@$SERVER_HOST"
+PROJECT_PATH="$SERVER_DIR/$DIR-$BRANCH"
+PRIVATE_KEY_PATH="/builds/stage_private_key"
+
+# Create file with privet ssh key from staging server.
+cat >> $PRIVATE_KEY_PATH <<EOF
+$PRIVATE_KEY
+EOF
+chmod 600 $PRIVATE_KEY_PATH
+
+# SSH to the server and run Behat tests.
+RUN_BEHAT="cd $PROJECT_PATH && rm -rf tests/behat/_output/* && make $COMMAND && tar -zcf artifact.tgz tests/behat/_output"
+
+echo ssh -ttq -i $PRIVATE_KEY_PATH $SSH_AUTH -o StrictHostKeyChecking=no "export TERM='xterm' && $RUN_BEHAT "
+ssh -ttq -i $PRIVATE_KEY_PATH $SSH_AUTH -o StrictHostKeyChecking=no "export TERM='xterm' && $RUN_BEHAT"
+
+# Prepare an archive with the test artifact on the server.
+MAKE_ARTIFACT="cd $PROJECT_PATH && tar -zcf artifact.tgz tests/behat/_output"
+
+echo ssh -ttq -i $PRIVATE_KEY_PATH $SSH_AUTH -o StrictHostKeyChecking=no "export TERM='xterm' && $MAKE_ARTIFACT"
+ssh -ttq -i $PRIVATE_KEY_PATH $SSH_AUTH -o StrictHostKeyChecking=no "export TERM='xterm' && $MAKE_ARTIFACT"
+
+# Download the archive with the test artifact from the server.
+echo scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no $SSH_AUTH:$PROJECT_PATH/artifact.tgz artifact.tgz
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no $SSH_AUTH:$PROJECT_PATH/artifact.tgz artifact.tgz
+
+# Remove the test artifact from the server.
+REMOVE_ARTIFACT="cd $PROJECT_PATH && rm artifact.tgz"
+
+echo ssh -ttq -i $PRIVATE_KEY_PATH $SSH_AUTH -o StrictHostKeyChecking=no "export TERM='xterm' && $REMOVE_ARTIFACT"
+ssh -ttq -i $PRIVATE_KEY_PATH $SSH_AUTH -o StrictHostKeyChecking=no "export TERM='xterm' && $REMOVE_ARTIFACT"
+
+# Remove private key.
+rm $PRIVATE_KEY_PATH
