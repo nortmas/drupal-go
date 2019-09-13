@@ -21,7 +21,7 @@ EOF
 chmod 600 $PRIVATE_KEY_PATH
 
 # SSH to the server and run Behat tests.
-RUN_BEHAT="cd $PROJECT_PATH && rm -rf tests/behat/_output/* && make $COMMAND && tar -zcf artifact.tgz tests/behat/_output"
+RUN_BEHAT="cd $PROJECT_PATH && rm -rf tests/behat/_output/* && make $COMMAND"
 
 echo ssh -ttq -i $PRIVATE_KEY_PATH $SSH_AUTH -o StrictHostKeyChecking=no "export TERM='xterm' && $RUN_BEHAT "
 ssh -ttq -i $PRIVATE_KEY_PATH $SSH_AUTH -o StrictHostKeyChecking=no "export TERM='xterm' && $RUN_BEHAT"
