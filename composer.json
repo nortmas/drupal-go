@@ -1,16 +1,16 @@
 {
   "name": "nortmas/drupal-go",
   "description": "Drupal 8 project.",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "require": {
-    "composer/installers": "^1.2",
+    "composer/installers": "^1.7",
     "cweagans/composer-patches": "^1.6.5",
     "drupal/console": "^1.0.2",
-    "drupal/core": "^8.7.0",
-    "drush/drush": "^9.0.0",
-    "drupal-composer/drupal-scaffold": "^2.5",
+    "drupal/core-recommended": "^8.8",
+    "drush/drush": "^9.7.1 | ^10.0.0",
+    "drupal/core-composer-scaffold": "^8.8.0",
     "hirak/prestissimo": "^0.3.7",
-    "vlucas/phpdotenv": "^2.4",
+    "vlucas/phpdotenv": "^4.0",
     "webflo/drupal-finder": "^1.0.0",
     "webmozart/path-util": "^2.3",
     "zaporylie/composer-drupal-optimizations": "^1.1"
@@ -18,7 +18,7 @@
   "require-dev": {
     "boedah/robo-drush": "~3",
     "consolidation/robo": "^1.0.0",
-    "webflo/drupal-core-require-dev": "^8.7.0"
+    "drupal/core-dev": "^8.8"
   },
   "conflict": {
     "drupal/drupal": "*"

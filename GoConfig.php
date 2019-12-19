@@ -89,7 +89,7 @@ return [
   'athenapdf' => [
     'enable' => 0,
     'key' => '',
-    'tag' => '2.10.0',
+    'tag' => '2.16.0',
   ],
   'webgrind' => [
     'enable' => 0,
