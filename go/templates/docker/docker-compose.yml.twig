@@ -65,6 +65,17 @@ services:
 {% if webgrind.enable %}
       - files:/mnt/files
 {% endif %}
+{% if crontab.enable %}
+
+  crond:
+{% if deploy_version == true %}
+    restart: always
+{% endif %}
+    image: 'wodby/drupal-php:{{ php.tag }}'
+    command: sudo -E LD_PRELOAD=/usr/lib/preloadable_libiconv.so crond -f -d 0
+    volumes:
+      - ./crontab:/etc/crontabs/www-data
+{% endif %}
 
   {{ webserver.type }}:
 {% if webserver.type == 'nginx' %}

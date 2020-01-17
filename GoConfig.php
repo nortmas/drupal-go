@@ -47,6 +47,9 @@ return [
   'php' => [
     'tag' => '7.3-dev-${OS}4.13.10',
   ],
+  'crontab' => [
+    'enable' => 0,
+  ],
   'webserver' => [
     'type' => 'apache',
     'nginx_tag' => '1.17-5.6.7',

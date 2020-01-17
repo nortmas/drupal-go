@@ -105,6 +105,9 @@ class GoRoboFile extends Tasks {
     if ($this->config['deploy']['enable'] == TRUE) {
       $this->deploy_setup();
     }
+    if ($this->config['crontab']['enable'] == TRUE) {
+      $this->crontab_setup();
+    }
     $this->removeNeedlessModules();
     $message = 'Available domains: ';
     $domains = $this->getDomains();
@@ -169,7 +172,7 @@ class GoRoboFile extends Tasks {
   /**
    * Recreate configuration files. [drupal, drush, docker, docker_deploy, behat, multisite, deploy]
    * @param string $set The name of s1et of the files to be recreated.
-   *   May have values: drupal, drush, docker, docker_deploy, behat, multisite, deploy.
+   *   May have values: drupal, drush, docker, docker_deploy, behat, multisite, deploy, crontab.
    */
   public function reconf($set = 'default') {
     $this->io()->caution("This action will overwrite all previously created configs.");
@@ -209,6 +212,19 @@ class GoRoboFile extends Tasks {
    */
   public function multisite() {
     $this->setUpMultisite();
+  }
+
+  /**
+   * Creates a crontab file.
+   *
+   * @aliases crontab
+   */
+  public function crontab_setup() {
+    $options = [
+      'path' => 'crontab',
+      'dest' => $this->projectRoot,
+    ];
+    $this->makeFileTemplate($options, FALSE);
   }
 
   /**

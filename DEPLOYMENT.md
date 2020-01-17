@@ -9,7 +9,7 @@
 8) [Install Docker Compose](https://docs.docker.com/compose/install/) on the server.
 9) Generate id_rsa and id_rsa.pub without password on the server.
 10) Add `public_key` to authorized_keys on the server where it was generated.
-11) Add `<BRANCH_NAME>_SERVER_PRIVATE_KEY` to the GITLAB CI variables, as a value use the `private_key` taken from the server.
+11) Add `<BRANCH_NAME>_SERVER_PRIVATE_KEY` to the GITLAB CI variables, as a value use the `private_key` taken from the server. See the section `Variables that have to be created in GIT lAB CD/CI.` below.
 12) Prepare the folders and project files:
    * Create folder on the server according to the pattern: /home/`<user_name>`/`<project_machine_name>`.
    * Enter to the created folder.
@@ -33,3 +33,9 @@
 * Locally run `robo gdb dev` to import DEV DB to your local environment.
 * Locally run `robo gf dev` to import DEV files` folder` to your local environment.
 * Locally run `drush @<alias> ws` to see the logs on the DEV. [See all Drush commands.](https://drushcommands.com)
+
+# Variables that have to be created in GIT lAB CD/CI.
+* SERVER_HOST
+* SERVER_USER
+* DEV_SERVER_PRIVATE_KEY
+* STAGE_SERVER_PRIVATE_KEY

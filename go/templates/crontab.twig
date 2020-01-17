@@ -1,0 +1,2 @@
+# Run cron every 30 minutes. See the cornd docker container.
+*/30 * * * * /usr/bin/wget -O - -q -t 1 http://apache/cron/[security-key]
