@@ -1,4 +1,12 @@
 # see https://github.com/drush-ops/drush/blob/master/examples/example.drush.yml
+{% set first_domain = project_machine_name %}
+{% if multisite is not empty %}
+  {% for key, value in multisite|slice(0,1) %}
+    {% set first_domain = key %}
+  {% endfor %}
+{% endif %}
+options:
+  uri: '{{ first_domain }}.docker.localhost'
 drush:
   paths:
     config:
