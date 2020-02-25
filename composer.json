@@ -1,7 +1,7 @@
 {
   "name": "nortmas/drupal-go",
   "description": "Drupal 8 project.",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "require": {
     "composer/installers": "^1.7",
     "cweagans/composer-patches": "^1.6.5",
@@ -30,8 +30,14 @@
     "sort-packages": true
   },
   "extra": {
+    "composer-exit-on-patch-failure": true,
     "patchLevel": {
       "drupal/core": "-p2"
+    },
+    "drupal-scaffold": {
+      "locations": {
+        "web-root": "web/"
+      }
     },
     "installer-paths": {
       "web/core": [

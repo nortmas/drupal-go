@@ -37,8 +37,10 @@ behat_test:
   only:
     - dev
   variables:
-    BRANCH: dev
-    SERVER_DIR: ~/beg
+    BRANCH: {{servers.dev.branch}}
+    SERVER_DIR: {{ servers.dev.project_dir }}
+    SERVER_HOST: {{ servers.dev.host }}
+    SERVER_USER: {{ servers.dev.user }}
     COMMAND: go_run_behat
   before_script:
     - chmod -R 764 ./deploy/scripts/*
