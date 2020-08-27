@@ -847,9 +847,10 @@ EOT;
    */
   protected function getDomains($server = FALSE, $service = FALSE) {
     $main_domain = $server ? '.dev.' . $this->config['servers']['dev']['domain'] : '.' . self::LOCAL_DOMAIN;
+    $domains = array_keys($this->config['multisite']);
     if (!$service) {
       if (!empty($this->config['multisite'])) {
-        $domains = implode($main_domain . ',', array_keys($this->config['multisite']));
+        $domains = implode($main_domain . ',', $domains);
       }
       else {
         $domains = $this->config['project_machine_name'];
@@ -858,6 +859,9 @@ EOT;
       return $domains;
     }
     else {
+      if (!empty($this->config['multisite'])) {
+        return current($domains) . $main_domain;
+      }
       return $this->config['project_machine_name'] . $main_domain;
     }
   }
