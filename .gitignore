@@ -43,3 +43,32 @@ docker-compose.override.yml
 
 # Ignore Mac DS files
 *.DS_Store
+
+# Default drupal ignore.
+#/web/.htaccess
+#/web/robots.txt
+/web/.csslintrc
+/web/.editorconfig
+/web/.eslintignore
+/web/.eslintrc.json
+/web/.gitattributes
+/web/.ht.router.php
+/web/autoload.php
+/web/example.gitignore
+/web/index.php
+/web/INSTALL.txt
+/web/LICENSE.txt
+/web/README.txt
+/web/update.php
+/web/web.config
+/web/modules/README.txt
+/web/profiles/README.txt
+/web/themes/README.txt
+/web/sites/README.txt
+
+# Exclude all DB dumps due to security reasons.
+db/*.sql
+db/*.sql.gz
+
+# Exclude crontab file because it must belong to root user.
+crontab

@@ -99,7 +99,7 @@ $settings['rebuild_access'] = FALSE;
  * See https://www.drupal.org/node/1928898 for more information
  * about global configuration override.
  */
-$config['system.file']['path']['temporary'] = 'sites/default/files/tmp';
+$config['file_temp_path'] = 'sites/default/files/tmp';
 
 /**
  * Private file path.
@@ -127,9 +127,9 @@ if (getenv('GO_ENV') === 'stage') {
   $config['config_split.config_split.stage']['status'] = TRUE;
   $config['config_split.config_split.prod']['status'] = FALSE;
   // Environment indicator module settings.
-  $config['environment_indicator.indicator']['bg_color'] = '#25327e';
+  $config['environment_indicator.indicator']['bg_color'] = '#2f6135';
   $config['environment_indicator.indicator']['fg_color'] = '#ccc';
-  $config['environment_indicator.indicator']['name'] = 'Local';
+  $config['environment_indicator.indicator']['name'] = 'Stage';
 }
 elseif (getenv('GO_ENV') === 'prod') {
   // PRODUCTION environment

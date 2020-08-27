@@ -1,7 +1,7 @@
 {
   "name": "nortmas/drupal-go",
   "description": "Drupal 8 project.",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "require": {
     "composer/installers": "^1.7",
     "cweagans/composer-patches": "^1.6.5",
@@ -37,6 +37,14 @@
     "drupal-scaffold": {
       "locations": {
         "web-root": "web/"
+      },
+      "file-mapping": {
+        "[web-root]/modules/README.txt": false,
+        "[web-root]/profiles/README.txt": false,
+        "[web-root]/themes/README.txt": false,
+        "[web-root]/INSTALL.txt": false,
+        "[web-root]/README.txt": false,
+        "[web-root]/sites/README.txt": false
       }
     },
     "installer-paths": {

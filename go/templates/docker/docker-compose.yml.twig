@@ -32,6 +32,7 @@ services:
       DB_NAME: $DB_NAME
       DB_USER: $DB_USER
       DB_PASSWORD: $DB_PASSWORD
+      DRUSH_URI: {{ main_domain }}
 {% if php.xdebug and deploy_version != true %}
       PHP_XDEBUG: 1
       PHP_XDEBUG_DEFAULT_ENABLE: 1
@@ -79,6 +80,7 @@ services:
       DB_NAME: $DB_NAME
       DB_USER: $DB_USER
       DB_PASSWORD: $DB_PASSWORD
+      DRUSH_URI: {{ main_domain }}
     volumes:
       - ./:/var/www/html
       - ./drush:/etc/drush
@@ -316,7 +318,7 @@ services:
 {% if deploy_version != true %}
 
   traefik:
-    image: traefik
+    image: traefik:v2.2.0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik.toml:/etc/traefik/traefik.toml

@@ -334,6 +334,7 @@ class GoRoboFile extends Tasks {
     $drush_cc_drush = $this->taskDrushStack()->clearCache('drush')->getCommand();
     $drush_cim = $this->taskDrushStack()->drush('cim')->getCommand();
     $drush_updb = $this->taskDrushStack()->drush('updb')->getCommand();
+    $drush_cr = $this->taskDrushStack()->drush('cr')->getCommand();
     $composer_install = $this->taskComposerInstall()->noInteraction()->getCommand();
 
     $this->commandExec($drush_cc_drush);
@@ -341,6 +342,7 @@ class GoRoboFile extends Tasks {
     $this->commandExec($composer_install);
     $this->commandExec($drush_updb);
     $this->commandExec($drush_cim);
+    $this->commandExec($drush_cr);
   }
 
   /**
@@ -580,23 +582,26 @@ class GoRoboFile extends Tasks {
 
       $append = <<<EOT
 
+\$dotenv = Dotenv\Dotenv::createImmutable('../');
+\$dotenv->load();
+
 if (file_exists(\$app_root . '/$relative_path/settings.docker.php')) {
-  if (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby') {
+  if (getenv('GO_ENV') === 'local') {
     // LOCAL environment
     include \$app_root . '/$relative_path/settings.docker.php';
   }
-  elseif (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby-dev') {
+  elseif (getenv('GO_ENV') === 'dev') {
     // DEV environment
     include \$app_root . '/$relative_path/settings.docker.php';
   }
 }
 
 if (file_exists(\$app_root . '/$relative_path/settings.prod.php')) {
-  if (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby-stage') {
+  if (getenv('GO_ENV') === 'stage') {
     // STAGE environment
     include \$app_root . '/$relative_path/settings.prod.php';
   }
-  elseif (isset(\$_ENV['GIT_USER_NAME']) && \$_ENV['GIT_USER_NAME'] === 'wodby-master') {
+  elseif (getenv('GO_ENV') === 'prod') {
     // PRODUCTION environment
     include \$app_root . '/$relative_path/settings.prod.php';
   }
@@ -635,10 +640,11 @@ EOT;
     $this->say('Changing ownership of all contents inside ' . $this->projectRoot);
     $this->setOwnership($this->projectRoot, $user, $group, $sudo);
 
-    $exclude_folders = ['vendor', 'node_modules', 'config', 'files'];
+    $exclude_paths = ['*/vendor/*', '*/node_modules/*', '*/config/*', '*/files/*', $this->projectRoot . '/crontab'];
+
     $exclusions = '';
-    foreach ($exclude_folders as $folder) {
-      $exclusions .= ' ! -path "*/' . $folder . '/*"';
+    foreach ($exclude_paths as $exclude_path) {
+      $exclusions .= ' ! -path "' . $exclude_path . '"';
     }
 
     $dir_conds = '-type d ! -perm 2755' . $exclusions;
@@ -703,8 +709,16 @@ EOT;
    */
   protected function setOwnership($directory, $user, $group, $sudo = TRUE) {
     $sudo = $sudo ? 'sudo ' : '';
-    $cond = ' \( ! -user ' . $user . ' -or ! -group ' . $group . ' \)';
-    $this->commandExec($sudo . 'find ' . $directory . $cond . ' -exec chown -R ' . $user . ':' . $group . ' "{}" \;');
+
+    $exclude_paths = [$directory . '/crontab'];
+
+    $exclusions = '';
+    foreach ($exclude_paths as $exclude_path) {
+      $exclusions .= ' ! -path "' . $exclude_path . '"';
+    }
+
+    $cond = ' \( ! -user ' . $user . ' -or ! -group ' . $group . ' \)' . $exclusions;
+    $this->commandExec($sudo . 'find ' . $directory . '/*' . $cond . ' -exec chown -R ' . $user . ':' . $group . ' "{}" \;');
   }
 
   /**
@@ -876,7 +890,8 @@ EOT;
     if ($template == 'docker-compose.yml') {
       $global_conf['deploy_version'] = isset($options['vars']['deploy_version']) ?: FALSE;
       $global_conf['domains'] = $this->getDomains($global_conf['deploy_version']);
-      $global_conf['service_domain'] = $this->getDomains($global_conf['deploy_version'], TRUE);
+      $global_conf['main_domain'] = $this->getDomains($global_conf['deploy_version'], TRUE);
+      $global_conf['service_domain'] = self::LOCAL_DOMAIN;
       $this->config += $global_conf;
     }
 
