@@ -6,7 +6,7 @@
   {% endfor %}
 {% endif %}
 options:
-  uri: '{{ first_domain }}.docker.localhost'
+  uri: '${env.DRUSH_URI}'
 drush:
   paths:
     config:
