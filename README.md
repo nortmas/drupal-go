@@ -37,7 +37,7 @@ If you want to improve performance, please read the [doc](https://wodby.com/docs
 * Do the steps 1,3,6 from the **Installation** section above.
 * Run the environment: `make go_up`.
 * Install the dependencies: `goc install`.
-* Import data base dump: `gor dbi`.
+* Import database dump: `gor dbi` if you have a dump file `./db/default_[date].sql.gz`.
 * Implement general rebuild: `gor rebuild`.
 
 ## Credentials and environment information

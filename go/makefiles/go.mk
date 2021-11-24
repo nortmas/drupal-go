@@ -8,7 +8,7 @@ endif
 ## Set variables.
 CURRENT_PATH=$(shell pwd)
 INIT_PHP_NAME=go_php
-INIT_PHP_IMAGE=wodby/drupal-php:7.3-dev-$(OS)4.15.0
+INIT_PHP_IMAGE=wodby/drupal-php:7.3-dev-$(OS)4.22.0
 INIT_PHP_CONTAINER=$(shell docker ps --filter name=$(INIT_PHP_NAME) --format "{{ .ID }}")
 INIT_PHP_COMPOSER=docker exec -ti -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) $(INIT_PHP_CONTAINER) composer ${1}
 INIT_PHP_ROBO=docker exec -ti -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) $(INIT_PHP_CONTAINER) vendor/bin/robo ${1}
@@ -64,9 +64,7 @@ go_mac:
 go_lin:
 	make go_env
 	sed -i '2 i\OS=' .env
-	sed -i '12 a\PHP_XDEBUG_REMOTE_HOST=172.17.0.1' .env
 	if [ -f .env.extra.enc ]; then make go_add_extra; fi
-	#if [ -f .env.extra ]; then cat .env.extra >> .env; fi
 
 ## Add encrypeted info form the file .env.extra.enc to the .env file.
 go_add_extra:

@@ -1,12 +1,12 @@
 <?php
 
 $databases['default']['default'] = [
-  'database' => getenv('DB_NAME'),
-  'username' => getenv('DB_USER'),
-  'password' => getenv('DB_PASSWORD'),
+  'database' => $_SERVER['DB_NAME'],
+  'username' => $_SERVER['DB_USER'],
+  'password' => $_SERVER['DB_PASSWORD'],
   'prefix' => '',
-  'host' => getenv('DB_HOST'),
-  'port' => getenv('DB_PORT'),
+  'host' => $_SERVER['DB_HOST'],
+  'port' => $_SERVER['DB_PORT'],
   'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
   'driver' => 'mysql',
 ];
@@ -157,7 +157,7 @@ $settings['trusted_host_patterns'] = ['^.+$'];
 /**
  * Config split module settings.
  */
-if (getenv('GO_ENV') === 'dev') {
+if ($_ENV['GO_ENV'] === 'dev') {
   // DEV environment
   $config['config_split.config_split.local']['status'] = FALSE;
   $config['config_split.config_split.dev']['status'] = TRUE;

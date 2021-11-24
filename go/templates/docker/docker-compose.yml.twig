@@ -35,11 +35,10 @@ services:
       DRUSH_URI: {{ main_domain }}
 {% if php.xdebug and deploy_version != true %}
       PHP_XDEBUG: 1
-      PHP_XDEBUG_DEFAULT_ENABLE: 1
-      PHP_XDEBUG_REMOTE_CONNECT_BACK: 0
+      PHP_XDEBUG_MODE: debug
+      PHP_XDEBUG_START_WITH_REQUEST: 1
+      PHP_XDEBUG_DISCOVER_CLIENT_HOST: 1
       PHP_IDE_CONFIG: serverName=docker
-      PHP_XDEBUG_REMOTE_AUTOSTART: "${PHP_XDEBUG_REMOTE_AUTOSTART}"
-      PHP_XDEBUG_REMOTE_HOST: "${PHP_XDEBUG_REMOTE_HOST}"
 {% if webgrind.enable %}
       PHP_XDEBUG_PROFILER_ENABLE: 1
       PHP_XDEBUG_PROFILER_ENABLE_TRIGGER: 1
@@ -318,7 +317,7 @@ services:
 {% if deploy_version != true %}
 
   traefik:
-    image: traefik:v2.2.0
+    image: traefik:1.7
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik.toml:/etc/traefik/traefik.toml

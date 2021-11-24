@@ -11,21 +11,21 @@ return [
       'project_dir' => '~/drupal_go',
       'host' => '178.128.83.195',
       'user' => 'deploy',
-      'branch' => 'dev'
+      'branch' => 'dev',
     ],
     'stage' => [
       'domain' => '178.128.83.195.xip.io',
       'project_dir' => '~/drupal_go',
       'host' => '178.128.83.195',
       'user' => 'deploy',
-      'branch' => 'stage'
+      'branch' => 'stage',
     ],
     'prod' => [
       'domain' => '178.128.83.195.xip.io',
       'project_dir' => '~/drupal_go',
       'host' => '178.128.83.195',
       'user' => 'deploy',
-      'branch' => 'master'
+      'branch' => 'master',
     ],
   ],
   'deploy' => [
@@ -42,10 +42,10 @@ return [
     'selenium_tag' => '3.141.59-oxygen',
   ],
   'mariadb' => [
-    'tag' => '10.4-3.7.6',
+    'tag' => '10.6-3.15.0',
   ],
   'php' => [
-    'tag' => '7.3-dev-${OS}4.15.0',
+    'tag' => '8.0-dev-${OS}4.29.7',
   ],
   'crontab' => [
     'enable' => 0,
@@ -53,7 +53,7 @@ return [
   'webserver' => [
     'type' => 'apache',
     'nginx_tag' => '1.17-5.6.7',
-    'apache_tag' => '2.4-4.2.3',
+    'apache_tag' => '2.4-4.6.3',
   ],
   'emulsify' => [
     'enable' => 0,
@@ -79,11 +79,11 @@ return [
   ],
   'redis' => [
     'enable' => 0,
-    'tag' => '4-3.0.1',
+    'tag' => '6-3.4.9',
   ],
   'memcached' => [
     'enable' => 0,
-    'tag' => '1-2.4.1',
+    'tag' => '1-2.9.4',
   ],
   'rsyslog' => [
     'enable' => 0,

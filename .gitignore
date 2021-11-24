@@ -69,6 +69,7 @@ docker-compose.override.yml
 # Exclude all DB dumps due to security reasons.
 db/*.sql
 db/*.sql.gz
+!db/default_*.sql.gz
 
 # Exclude crontab file because it must belong to root user.
 crontab

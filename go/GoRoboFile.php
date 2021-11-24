@@ -52,8 +52,10 @@ class GoRoboFile extends Tasks {
    * Test function.
    */
   public function test() {
-    //$this->deploy_setup();
-    $this->yell('Hello!');
+    $this->deploy_setup();
+    //$this->prepareComposerJson();
+    //$this->installBasicModules();
+    //$this->yell('Hello!');
   }
 
   /**
@@ -92,7 +94,7 @@ class GoRoboFile extends Tasks {
    */
   public function go() {
     $this->install();
-    $this->prepareComposerJson();
+    //$this->prepareComposerJson();
     if ($this->config['include_basic_modules'] == TRUE) {
       $this->installBasicModules();
     }
@@ -492,7 +494,7 @@ class GoRoboFile extends Tasks {
         $file_def_settings = $this->defaultSettingsPath . '/default.settings.php';
 
         $settings['config_directories'] = [
-          CONFIG_SYNC_DIRECTORY => (object) [
+          'settings' => (object) [
             'value' => Path::makeRelative($this->projectRoot . '/config/' . $site_name . '/default/', $this->drupalRoot),
             'required' => TRUE,
           ],
@@ -526,7 +528,7 @@ class GoRoboFile extends Tasks {
         'required' => TRUE,
       ];
       $settings['config_directories'] = [
-        CONFIG_SYNC_DIRECTORY => (object) [
+        'settings' => (object) [
           'value' => Path::makeRelative($this->projectRoot . '/config/default', $this->drupalRoot),
           'required' => TRUE,
         ],
@@ -586,22 +588,22 @@ class GoRoboFile extends Tasks {
 \$dotenv->load();
 
 if (file_exists(\$app_root . '/$relative_path/settings.docker.php')) {
-  if (getenv('GO_ENV') === 'local') {
+  if (\$_SERVER['GO_ENV'] === 'local') {
     // LOCAL environment
     include \$app_root . '/$relative_path/settings.docker.php';
   }
-  elseif (getenv('GO_ENV') === 'dev') {
+  elseif (\$_SERVER['GO_ENV'] === 'dev') {
     // DEV environment
     include \$app_root . '/$relative_path/settings.docker.php';
   }
 }
 
 if (file_exists(\$app_root . '/$relative_path/settings.prod.php')) {
-  if (getenv('GO_ENV') === 'stage') {
+  if (\$_SERVER['GO_ENV'] === 'stage') {
     // STAGE environment
     include \$app_root . '/$relative_path/settings.prod.php';
   }
-  elseif (getenv('GO_ENV') === 'prod') {
+  elseif (\$_SERVER['GO_ENV'] === 'prod') {
     // PRODUCTION environment
     include \$app_root . '/$relative_path/settings.prod.php';
   }
@@ -773,8 +775,8 @@ EOT;
    * @param string $container_name
    */
   public function container_add($container_name) {
-    $twig_loader = new \Twig_Loader_Array([]);
-    $twig = new \Twig_Environment($twig_loader);
+    $twig_loader = new \Twig\Loader\ArrayLoader([]);
+    $twig = new \Twig\Environment($twig_loader);
 
     $dc_file_name = 'docker-compose.yml';
     $dco_file_name = 'docker-compose.override.yml';
@@ -874,8 +876,8 @@ EOT;
    * @param bool $save_origin
    */
   protected function makeFileTemplate($options, $overwrite = FALSE, $save_origin = FALSE) {
-    $twig_loader = new \Twig_Loader_Array([]);
-    $twig = new \Twig_Environment($twig_loader);
+    $twig_loader = new \Twig\Loader\ArrayLoader([]);
+    $twig = new \Twig\Environment($twig_loader);
 
     $template = basename($options['path']);
 
@@ -957,7 +959,7 @@ EOT;
   protected function addHtaccess($dir, $private = FALSE) {
     $htaccess_path = $dir . '/.htaccess';
     if (!file_exists($htaccess_path) && is_writable($dir)) {
-      $htaccess_lines = FileStorage::htaccessLines($private);
+      $htaccess_lines = \Drupal\Component\FileSecurity\FileSecurity::htaccessLines($private);
       file_put_contents($htaccess_path, $htaccess_lines);
     }
   }
@@ -1113,7 +1115,7 @@ EOT;
     }
     if (is_array($set_name)) {
       $cut = array_intersect_key($set, array_flip($set_name));
-      return call_user_func_array('array_merge', $cut);
+      return call_user_func_array('array_merge', array_values($cut));
     }
   }
 
@@ -1171,12 +1173,11 @@ EOT;
    */
   protected function installBasicModules() {
     $modules = [
-      "drupal/admin_toolbar" => "^1.19",
-      "drupal/adminimal_admin_toolbar" => "^1.3",
-      "drupal/adminimal_theme" => "1.x-dev",
-      "drupal/config_split" => "^1.3",
-      "drupal/devel" => "^1.0",
-      "drupal/shield" => "^1.2",
+      "drupal/admin_toolbar" => "^3.0",
+      "drupal/adminimal_admin_toolbar" => "^1.11",
+      "drupal/adminimal_theme" => "^1.6",
+      "drupal/config_split" => "^2.0",
+      "drupal/devel" => "^4.1",
     ];
 
     foreach ($modules as $name => $version) {
