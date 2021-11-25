@@ -59,6 +59,7 @@ docker-compose.override.yml
 /web/INSTALL.txt
 /web/LICENSE.txt
 /web/README.txt
+/web/README.md
 /web/update.php
 /web/web.config
 /web/modules/README.txt
