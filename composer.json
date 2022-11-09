@@ -6,7 +6,7 @@
     "php": ">=7.4",
     "boedah/robo-drush": "^4.0",
     "composer/installers": "^1.9",
-    "consolidation/robo": "4.0.1",
+    "consolidation/robo": "4.0.1 as 1.5.0",
     "cweagans/composer-patches": "^1.7",
     "drupal/console": "^1.0.2",
     "drupal/core-composer-scaffold": "^9.4",
