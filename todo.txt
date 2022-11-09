@@ -1,1 +1,2 @@
 - Replace Memcache with Redis.
+- Replace Deployment flow with ansible.

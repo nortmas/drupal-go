@@ -1173,20 +1173,53 @@ EOT;
    */
   protected function installBasicModules() {
     $modules = [
-      "drupal/admin_toolbar" => "^3.0",
-      "drupal/adminimal_admin_toolbar" => "^1.11",
-      "drupal/adminimal_theme" => "^1.6",
-      "drupal/config_split" => "^2.0",
-      "drupal/devel" => "^4.1",
+      "drupal/admin_toolbar" => "^3.2", // https://www.drupal.org/project/admin_toolbar
+      "drupal/gin_toolbar" => "^1.0@beta", // https://www.drupal.org/project/gin_toolbar
+      "drupal/gin" => "^1.6", // https://www.drupal.org/project/gin
+      "drupal/config_split" => "^2.0", // https://www.drupal.org/project/config_split
+      "drupal/devel" => "^4.1", // https://www.drupal.org/project/devel
+      "drupal/coffee" => "^1.2", // https://www.drupal.org/project/coffee
+      "drupal/chosen" => "^3.0", // https://www.drupal.org/project/chosen
+      "drupal/flood_control" => "^2.2", // https://www.drupal.org/project/flood_control
+      "drupal/environment_indicator" => "^4.0", // https://www.drupal.org/project/environment_indicator
+      "drupal/svg_image" => "^1.8", // https://www.drupal.org/project/svg_image
+      "drupal/svg_image_field" => "^2.1", // https://www.drupal.org/project/svg_image_field
+      "drupal/focal_point" => "^1.5", // https://www.drupal.org/project/focal_point
+      "drupal/masquerade" => "^2.0@beta", // https://www.drupal.org/project/masquerade
+      "drupal/webp" => "^1.0@beta", // https://www.drupal.org/project/webp
+      "drupal/password_policy" => "^3.0", // https://www.drupal.org/project/password_policy
+      "drupal/seckit" => "^2.0", // https://www.drupal.org/project/seckit
+      "drupal/simple_sitemap" => "^4.0", // https://www.drupal.org/project/simple_sitemap
+      // MORE
+      "drupal/metatag" => "^1.22", // https://www.drupal.org/project/metatag
+      "drupal/config_ignore" => "^2.3", // https://www.drupal.org/project/config_ignore
+      "drupal/allowed_formats" => "^1.5", // https://www.drupal.org/project/allowed_formats
+      "drupal/editor_advanced_link" => "^2.0", // https://www.drupal.org/project/editor_advanced_link
+      "drupal/field_group" => "^3.2", // https://www.drupal.org/project/field_group
+      "drupal/hide_revision_field" => "^2.2", // https://www.drupal.org/project/hide_revision_field
+      "drupal/imagemagick" => "^3.3", // https://www.drupal.org/project/imagemagick
+      "drupal/lazy" => "^3.11", // https://www.drupal.org/project/lazy
+      "drupal/linkit" => "^6.0", // https://www.drupal.org/project/linkit
+      "drupal/mail_login" => "^2.4", // https://www.drupal.org/project/mail_login
+      "drupal/maxlength" => "^2.0", // https://www.drupal.org/project/maxlength
+      "drupal/media_library_edit" => "^2.2", // https://www.drupal.org/project/media_library_edit
+      "drupal/media_responsive_thumbnail" => "^1.2", // https://www.drupal.org/project/media_responsive_thumbnail
+      "drupal/paragraphs" => "^1.12", // https://www.drupal.org/project/paragraphs
+      "drupal/paragraphs_browser" => "^1.0", // https://www.drupal.org/project/paragraphs_browser
+      "drupal/pathauto" => "^1.8", // https://www.drupal.org/project/pathauto
+      "drupal/rabbit_hole" => "^1.0@beta", // https://www.drupal.org/project/rabbit_hole
+      "drupal/redirect" => "^1.6", // https://www.drupal.org/project/redirect
+      "drupal/length_indicator" => "^1.2", // https://www.drupal.org/project/length_indicator
+      "drupal/dblog_filter" => "^2.x", // https://www.drupal.org/project/dblog_filter
     ];
 
     foreach ($modules as $name => $version) {
       $this->taskComposerRequire()->dependency($name, $version)->run();
     }
 
-    $drush_en_theme = $this->taskDrushStack()->drush('theme:enable adminimal_theme')->getCommand();
-    $drush_set_theme = $this->taskDrushStack()->drush('cset system.theme admin adminimal_theme')->getCommand();
-    $drush_en_modules = $this->taskDrushStack()->drush('en devel admin_toolbar admin_toolbar_tools adminimal_admin_toolbar config_split')->getCommand();
+    $drush_en_theme = $this->taskDrushStack()->drush('theme:enable gin')->getCommand();
+    $drush_set_theme = $this->taskDrushStack()->drush('cset system.theme admin gin')->getCommand();
+    $drush_en_modules = $this->taskDrushStack()->drush('en devel admin_toolbar admin_toolbar_tools gin_toolbar coffee config_split')->getCommand();
 
     $this->commandExec($drush_en_theme);
     $this->commandExec($drush_set_theme);

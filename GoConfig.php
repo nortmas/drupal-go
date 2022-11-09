@@ -3,7 +3,7 @@
 return [
   'project_name' => 'Drupal Go',
   'project_machine_name' => 'dgo',
-  'include_basic_modules' => 1,
+  'include_basic_modules' => 0,
   'theme_name' => 'bartik',
   'servers' => [
     'dev' => [
@@ -42,18 +42,18 @@ return [
     'selenium_tag' => '3.141.59-oxygen',
   ],
   'mariadb' => [
-    'tag' => '10.6-3.15.0',
+    'tag' => '10.8-3.21.7',
   ],
   'php' => [
-    'tag' => '8.0-dev-${OS}4.29.7',
+    'tag' => '8.1-dev-${OS}4.38.2',
   ],
   'crontab' => [
     'enable' => 0,
   ],
   'webserver' => [
     'type' => 'apache',
-    'nginx_tag' => '1.17-5.6.7',
-    'apache_tag' => '2.4-4.6.3',
+    'nginx_tag' => '1.23-5.25.7',
+    'apache_tag' => '2.4-4.10.3',
   ],
   'emulsify' => [
     'enable' => 0,
@@ -66,24 +66,24 @@ return [
   ],
   'varnish' => [
     'enable' => 0,
-    'tag' => '6.0-4.3.4',
+    'tag' => '6.0-4.11.3',
   ],
   'dbbrowser' => [
     'enable' => 0,
     'type' => 'adminer',
-    'adminer_tag' => '4-3.6.10',
+    'adminer_tag' => '4-3.24.2',
   ],
   'solr' => [
     'enable' => 0,
-    'tag' => '8-4.0.3',
+    'tag' => '8-4.18.1',
   ],
   'redis' => [
     'enable' => 0,
-    'tag' => '6-3.4.9',
+    'tag' => '7-3.14.4',
   ],
   'memcached' => [
     'enable' => 0,
-    'tag' => '1-2.9.4',
+    'tag' => '1-2.13.4',
   ],
   'rsyslog' => [
     'enable' => 0,
@@ -96,7 +96,7 @@ return [
   ],
   'webgrind' => [
     'enable' => 0,
-    'tag' => '1.5-1.11.8',
+    'tag' => '1-1.29.2',
   ],
   'blackfire' => [
     'enable' => 0,

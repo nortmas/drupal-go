@@ -1,22 +1,22 @@
 {
   "name": "nortmas/drupal-go",
   "description": "Drupal 9 project.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "require": {
+    "php": ">=7.4",
     "boedah/robo-drush": "^4.0",
     "composer/installers": "^1.9",
-    "consolidation/robo": "3.0.6 as 1.5.0",
+    "consolidation/robo": "4.0.1",
     "cweagans/composer-patches": "^1.7",
     "drupal/console": "^1.0.2",
-    "drupal/core-composer-scaffold": "^9.1",
-    "drupal/core-recommended": "^9.2",
-    "drush/drush": "^10.3",
+    "drupal/core-composer-scaffold": "^9.4",
+    "drupal/core-recommended": "^9.4",
+    "drush/drush": "^11.0",
     "vlucas/phpdotenv": "^5.4",
-    "webflo/drupal-finder": "^1.2",
-    "zaporylie/composer-drupal-optimizations": "^1.2"
+    "webflo/drupal-finder": "^1.2"
   },
   "require-dev": {
-    "drupal/core-dev": "^9.2"
+    "drupal/core-dev": "^9.4"
   },
   "conflict": {
     "drupal/drupal": "*"
@@ -25,7 +25,13 @@
   "prefer-stable": true,
   "config": {
     "discard-changes": true,
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "composer/installers": true,
+      "cweagans/composer-patches": true,
+      "drupal/core-composer-scaffold": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
   },
   "extra": {
     "composer-exit-on-patch-failure": true,
