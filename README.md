@@ -28,6 +28,10 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
 7) Run next commands one by one:
     * `make go_prepare_env`
     * `make go_drupal_install`
+8) Add lines to the `composer.json` in the `drupal-scaffold/file-mapping` section:
+   * `"[web-root]/robots.txt": false`
+   * `"[web-root]/.htaccess": false`
+   * `"[project-root]/.editorconfig": false`
     
 ## Performance for Mac OS users:
 If you want to improve performance, please read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).

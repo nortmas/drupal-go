@@ -1175,7 +1175,7 @@ EOT;
     $modules = [
       "drupal/admin_toolbar" => "^3.2", // https://www.drupal.org/project/admin_toolbar
       "drupal/gin_toolbar" => "^1.0@beta", // https://www.drupal.org/project/gin_toolbar
-      "drupal/gin" => "^1.6", // https://www.drupal.org/project/gin
+      "drupal/gin" => "^3.0", // https://www.drupal.org/project/gin
       "drupal/config_split" => "^2.0", // https://www.drupal.org/project/config_split
       "drupal/devel" => "^4.1", // https://www.drupal.org/project/devel
       "drupal/coffee" => "^1.2", // https://www.drupal.org/project/coffee
@@ -1210,16 +1210,22 @@ EOT;
       "drupal/rabbit_hole" => "^1.0@beta", // https://www.drupal.org/project/rabbit_hole
       "drupal/redirect" => "^1.6", // https://www.drupal.org/project/redirect
       "drupal/length_indicator" => "^1.2", // https://www.drupal.org/project/length_indicator
-      "drupal/dblog_filter" => "^2.x", // https://www.drupal.org/project/dblog_filter
+      "drupal/dblog_filter" => "^2.2", // https://www.drupal.org/project/dblog_filter
     ];
 
+    $module_names = [];
     foreach ($modules as $name => $version) {
+      if ($name !== 'drupal/gin') {
+        $module_names[] = substr($name, 7);
+      }
       $this->taskComposerRequire()->dependency($name, $version)->run();
     }
 
+    $module_names = implode(' ', $module_names) . ' admin_toolbar_tools';
+
     $drush_en_theme = $this->taskDrushStack()->drush('theme:enable gin')->getCommand();
     $drush_set_theme = $this->taskDrushStack()->drush('cset system.theme admin gin')->getCommand();
-    $drush_en_modules = $this->taskDrushStack()->drush('en devel admin_toolbar admin_toolbar_tools gin_toolbar coffee config_split')->getCommand();
+    $drush_en_modules = $this->taskDrushStack()->drush('en ' . $module_names)->getCommand();
 
     $this->commandExec($drush_en_theme);
     $this->commandExec($drush_set_theme);
