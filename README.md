@@ -62,11 +62,13 @@ If you want to improve performance, please read the [doc](https://wodby.com/docs
 ## Understanding Go configurations
 * `project_name` - Will be used for the drupal site name and composer.json project name.
 * `project_machine_name` - Will be used for different needs to unify some configurations also will be used as a url prefix.
-* `include_basic_modules` - Will include the set of prepared modules and enable them after installation.
 * `multisite` - You can specify the array of needed domains to create the folder structure automatically.
 * `deploy` - Configure GitLab CI files and deployment flow.
 * `server` - Configure remote server that will contain dev, stage and master (prod) environments.
 * `behat` - Used for Behat configuration files.
+* `admin_theme` - Determinate what contrib admin theme to enable.
+* `modules` - Determinate what contrib modules to enable.
+* `submodules_to_enable` - Determinate what submodules to enable.
 * All other configurations are related to the [docker4drupal](https://github.com/wodby/docker4drupal)
 
 FYI: If you set `memcached` to be enabled, it will also enable memcache drupal module and implement appropriate configurations.
