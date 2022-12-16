@@ -1170,13 +1170,11 @@ EOT;
       return;
     }
 
-    $module_names = [];
-
     foreach ($this->config['modules'] as $name => $version) {
-      $module_names[] = substr($name, 7);
-      $this->taskComposerRequire()->dependency($name, $version)->run();
+      $this->taskComposerRequire()->dependency('drupal/' . $name, $version)->run();
     }
 
+    $module_names = array_keys($this->config['modules']);
     $module_names = implode(' ', $module_names);
 
     if (!empty($this->config['submodules_to_enable'])) {
@@ -1196,13 +1194,13 @@ EOT;
       return;
     }
 
-    $admin_theme_name = current($this->config['admin_theme']);
-    $admin_theme_version = current(array_keys($this->config['admin_theme']));
-    $this->taskComposerRequire()->dependency($admin_theme_name, $admin_theme_version)->run();
+    $name = current(array_keys($this->config['admin_theme']));
+    $version = current($this->config['admin_theme']);
 
-    $admin_theme = substr($admin_theme_name, 7);
-    $drush_en_theme = $this->taskDrushStack()->drush('theme:enable ' . $admin_theme)->getCommand();
-    $drush_set_theme = $this->taskDrushStack()->drush('cset system.theme admin ' . $admin_theme)->getCommand();
+    $this->taskComposerRequire()->dependency('drupal/' . $name, $version)->run();
+
+    $drush_en_theme = $this->taskDrushStack()->drush('theme:enable ' . $name)->getCommand();
+    $drush_set_theme = $this->taskDrushStack()->drush('cset system.theme admin ' . $name)->getCommand();
 
     $this->commandExec($drush_en_theme);
     $this->commandExec($drush_set_theme);

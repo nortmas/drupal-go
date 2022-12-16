@@ -8,7 +8,7 @@ go_run_behat:
 
 ## Update Drupal core with dependencies.
 go_drupal_update:
-	$(call DRUPAL_PHP_COMPOSER, update drupal/core-recommended --with-dependencies)
+	$(call DRUPAL_PHP_COMPOSER, require drupal/core-recommended drupal/core-composer-scaffold drupal/core-project-message --update-with-all-dependencies)
 	$(call DRUPAL_PHP_DRUSH, updb)
 	$(call DRUPAL_PHP_DRUSH, cr)
 
