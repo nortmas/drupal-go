@@ -154,6 +154,7 @@ return [
     /** More modules here: https://www.drupal.org/project/paragraphs/ecosystem **/
     'paragraphs'                 => '^1.0', // https://www.drupal.org/project/paragraphs
     'paragraphs_browser'         => '^1.0', // https://www.drupal.org/project/paragraphs_browser
+    // https://www.drupal.org/project/paragraphs_sets
     // https://www.drupal.org/project/paragraphs_ee
     // https://www.drupal.org/project/paragraphs_features
     /** Performance **/
