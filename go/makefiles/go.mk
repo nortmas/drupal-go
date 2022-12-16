@@ -12,11 +12,11 @@ INIT_PHP_IMAGE=wodby/drupal-php:8.1-dev-${OS}4.38.2
 INIT_PHP_CONTAINER=$(shell docker ps --filter name=$(INIT_PHP_NAME) --format "{{ .ID }}")
 INIT_PHP_COMPOSER=docker exec -ti -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) $(INIT_PHP_CONTAINER) composer ${1}
 INIT_PHP_ROBO=docker exec -ti -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) $(INIT_PHP_CONTAINER) vendor/bin/robo ${1}
-DRUPAL_PHP_ROBO=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php vendor/bin/robo ${1}
-DRUPAL_PHP_COMPOSER=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php composer ${1}
-DRUPAL_PHP_DRUSH=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php drush ${1}
-DRUPAL_ROOT_PHP=docker-compose exec --user root:root -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php ${1}
-DRUPAL_PHP=docker-compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php ${1}
+DRUPAL_PHP_ROBO=docker compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php vendor/bin/robo ${1}
+DRUPAL_PHP_COMPOSER=docker compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php composer ${1}
+DRUPAL_PHP_DRUSH=docker compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php drush ${1}
+DRUPAL_ROOT_PHP=docker compose exec --user root:root -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php ${1}
+DRUPAL_PHP=docker compose exec -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) php ${1}
 
 ## Include addtional commands.
 include $(CURRENT_PATH)/go/makefiles/help.mk
@@ -83,7 +83,7 @@ go_php_kill:
 ## Reset file/directory structure to the initial Drupal Go state.
 go_reset_structure:
 	$(call DRUPAL_PHP_ROBO, reset_file_structure)
-	docker-compose down -v --rmi all
+	docker compose down -v --rmi all
 	rm -rf vendor
 	rm -rf web
 	rm -f docker-compose.yml
@@ -91,15 +91,15 @@ go_reset_structure:
 ## Up the docker containers.
 go_up:
 	make go_check_env
-	docker-compose up -d --remove-orphans
+	docker compose up -d --remove-orphans
 
 ## Stop and remove the docker containers and networks.
 go_down:
-	docker-compose down --remove-orphans
+	docker compose down --remove-orphans
 
 ## Stop and remove all docker containers, images and networks.
 go_down_rm:
-	docker-compose down --rmi all
+	docker compose down --rmi all
 
 ## Restart containers.
 go_restart:

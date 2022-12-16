@@ -1,7 +1,7 @@
 {
   "name": "nortmas/drupal-go",
   "description": "Drupal 9 project.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "require": {
     "php": ">=7.4",
     "digipolisgent/robo-drush": "^5.0",

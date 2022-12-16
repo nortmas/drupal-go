@@ -1,6 +1,6 @@
 ## Get into the php container.
 go_sh:
-	docker-compose exec php sh
+	docker compose exec php sh
 
 ## Run behat tests.
 go_run_behat:
