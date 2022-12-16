@@ -122,7 +122,8 @@ return [
     'backup_migrate'             => '^5.0', // https://www.drupal.org/project/backup_migrate
     'backup_migrate_aws_s3'      => '^5.0', // https://www.drupal.org/project/backup_migrate_aws_s3
     'ultimate_cron'              => '^2.0', // https://www.drupal.org/project/ultimate_cron
-    /** User Ecosystem **/
+    'entity_clone'               => '^2.0', // https://www.drupal.org/project/entity_clone
+    /** User Interface **/
     'chosen'                     => '^3.0', // https://www.drupal.org/project/chosen
     'allowed_formats'            => '^1.0', // https://www.drupal.org/project/allowed_formats
     'editor_advanced_link'       => '^2.0', // https://www.drupal.org/project/editor_advanced_link
@@ -146,12 +147,11 @@ return [
     'media_responsive_thumbnail' => '^1.0', // https://www.drupal.org/project/media_responsive_thumbnail
     'imagemagick'                => '^3.0', // https://www.drupal.org/project/imagemagick
     'lazy'                       => '^3.0', // https://www.drupal.org/project/lazy
-    'svg_image'                  => '^1.0', // https://www.drupal.org/project/svg_image
     'svg_image_field'            => '^2.0', // https://www.drupal.org/project/svg_image_field
     'focal_point'                => '^1.0', // https://www.drupal.org/project/focal_point
     'webp'                       => '^1.0', // https://www.drupal.org/project/webp
     /** Paragraph Ecosystem **/
-    /**  More modules here: https://www.drupal.org/project/paragraphs/ecosystem **/
+    /** More modules here: https://www.drupal.org/project/paragraphs/ecosystem **/
     'paragraphs'                 => '^1.0', // https://www.drupal.org/project/paragraphs
     'paragraphs_browser'         => '^1.0', // https://www.drupal.org/project/paragraphs_browser
     // https://www.drupal.org/project/paragraphs_ee
