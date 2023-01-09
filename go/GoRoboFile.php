@@ -439,7 +439,7 @@ class GoRoboFile extends Tasks {
       $this->drupalRoot . '/themes/contrib' => 1,
       $this->drupalRoot . '/sites/default/files' => 1,
       $this->drupalRoot . '/sites/default/files/tmp' => 2,
-      $this->drupalRoot . '/private' => 3,
+      $this->projectRoot . '/private' => 3,
     ];
 
     foreach ($dirs as $dir => $mode) {
@@ -625,7 +625,7 @@ EOT;
     $dirs = [
       $this->drupalRoot . '/sites/default/files' => 1,
       $this->drupalRoot . '/sites/default/files/tmp' => 2,
-      $this->drupalRoot . '/sites/default/files/private' => 3,
+      $this->projectRoot . '/private' => 3,
     ];
 
     foreach ($dirs as $dir => $mode) {
@@ -635,7 +635,7 @@ EOT;
     $this->say('Changing ownership of all contents inside ' . $this->projectRoot);
     $this->setOwnership($this->projectRoot, $user, $group, $sudo);
 
-    $exclude_paths = ['*/vendor/*', '*/node_modules/*', '*/config/*', '*/files/*', $this->projectRoot . '/crontab'];
+    $exclude_paths = ['*/vendor/*', '*/node_modules/*', '*/config/*', '*/files/*', $this->projectRoot . '/crontab', $this->projectRoot . '/private'];
 
     $exclusions = '';
     foreach ($exclude_paths as $exclude_path) {
