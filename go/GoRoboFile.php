@@ -439,7 +439,7 @@ class GoRoboFile extends Tasks {
       $this->drupalRoot . '/themes/contrib' => 1,
       $this->drupalRoot . '/sites/default/files' => 1,
       $this->drupalRoot . '/sites/default/files/tmp' => 2,
-      $this->drupalRoot . '/sites/default/files/private' => 3,
+      $this->drupalRoot . '/private' => 3,
     ];
 
     foreach ($dirs as $dir => $mode) {
