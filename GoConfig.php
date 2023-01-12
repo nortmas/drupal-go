@@ -206,9 +206,14 @@ return [
     'paragraphs'                 => '^1.0', // https://www.drupal.org/project/paragraphs
     'paragraphs_browser'         => '^1.0', // https://www.drupal.org/project/paragraphs_browser
     'entity_reference_revisions' => '^1.0', // https://www.drupal.org/project/entity_reference_revisions
+    'paragraphs_modal_edit'      => '^1.0', // https://www.drupal.org/project/paragraphs_modal_edit
+//  'paragraphs_usage'           => '^1.0', // https://www.drupal.org/project/paragraphs_usage
+//  'paragraph_view_mode'        => '^3.0', // https://www.drupal.org/project/paragraph_view_mode
 //  'paragraphs_sets'            => '^2.0', // https://www.drupal.org/project/paragraphs_sets
 //  'paragraphs_ee'              => '^2.0', // https://www.drupal.org/project/paragraphs_ee
 //  'paragraphs_features'        => '^2.0', // https://www.drupal.org/project/paragraphs_features
+//  'layout_paragraphs'          => '^2.0', // https://www.drupal.org/project/layout_paragraphs
+//  'paragraph_blocks'           => '^3.0', // https://www.drupal.org/project/paragraph_blocks
     /**
      * Performance.
      */
