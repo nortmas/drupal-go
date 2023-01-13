@@ -44,7 +44,7 @@ return [
     'tag' => '10.8-3.21.6',
   ],
   'php' => [
-    'tag' => '8.2-dev-${OS}4.42.6',
+    'tag' => '8.1-dev-${OS}4.38.2',
   ],
   'crontab' => [
     'enable' => 0,
@@ -118,11 +118,11 @@ return [
     'config_pages'                   => '^2.0', // https://www.drupal.org/project/config_pages
     'config_split'                   => '^2.0', // https://www.drupal.org/project/config_split
     'config_ignore'                  => '^2.0', // https://www.drupal.org/project/config_ignore
-    'dblog_filter'                   => '^2.0', // https://www.drupal.org/project/dblog_filter
+//  'dblog_filter'                   => '^2.0', // https://www.drupal.org/project/dblog_filter (THROWS ERROR FOR D10)
     'watchdog_prune'                 => '^2.0', // https://www.drupal.org/project/watchdog_prune
     'stage_file_proxy'               => '^2.0', // https://www.drupal.org/project/stage_file_proxy
     'backup_migrate'                 => '^5.0', // https://www.drupal.org/project/backup_migrate
-    'backup_migrate_aws_s3'          => '^5.0', // https://www.drupal.org/project/backup_migrate_aws_s3
+//  'backup_migrate_aws_s3'          => '^5.0', // https://www.drupal.org/project/backup_migrate_aws_s3 (THE KEY MODULE IS NOT AVAILABLE FOR D10)
     'environment_indicator'          => '^4.0', // https://www.drupal.org/project/environment_indicator
     'entity_redirect'                => '^2.0', // https://www.drupal.org/project/entity_redirect
     'entity_clone'                   => '^2.0', // https://www.drupal.org/project/entity_clone
@@ -131,7 +131,6 @@ return [
     'webform'                        => '^6.0', // https://www.drupal.org/project/webform
     'maillog'                        => '^1.0', // https://www.drupal.org/project/maillog
 //  'reroute_email'                  => '^1.0', // https://www.drupal.org/project/reroute_email
-//  'mail_safety'                    => '^1.0', // https://www.drupal.org/project/mail_safety
 //  'scheduler'                      => '^2.0', // https://www.drupal.org/project/scheduler
 //  'entity_type_clone'              => '^1.0', // https://www.drupal.org/project/entity_type_clone
 //  'taxonomy_manager'               => '^2.0', // https://www.drupal.org/project/taxonomy_manager

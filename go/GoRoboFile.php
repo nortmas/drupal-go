@@ -58,6 +58,13 @@ class GoRoboFile extends Tasks {
   }
 
   /**
+   * Enables modules.
+   */
+  public function enable_modules() {
+    $this->enableModules();
+  }
+
+  /**
    * Prepare
    */
   public function prepare() {
@@ -1174,6 +1181,13 @@ EOT;
       $this->taskComposerRequire()->dependency('drupal/' . $name, $version)->run();
     }
 
+    $this->enableModules();
+  }
+
+  /**
+   * Install modules.
+   */
+  protected function enableModules() {
     $module_names = array_keys($this->config['modules']);
     $module_names = implode(' ', $module_names);
 
@@ -1210,7 +1224,7 @@ EOT;
    * Remove needless modules.
    */
   protected function removeNeedlessModules() {
-    $drush_pmu = $this->taskDrushStack()->drush('pmu color help history quickedit tour search')->getCommand();
+    $drush_pmu = $this->taskDrushStack()->drush('pmu help history tour search')->getCommand();
     $this->commandExec($drush_pmu);
   }
 
