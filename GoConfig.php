@@ -41,18 +41,18 @@ return [
     'selenium_tag' => '3.141.59-oxygen',
   ],
   'mariadb' => [
-    'tag' => '10.8-3.21.7',
+    'tag' => '10.9-3.23.1',
   ],
   'php' => [
-    'tag' => '8.1-dev-${OS}4.38.2',
+    'tag' => '8.2-dev-${OS}4.42.6',
   ],
   'crontab' => [
     'enable' => 0,
   ],
   'webserver' => [
     'type' => 'apache',
-    'nginx_tag' => '1.23-5.25.7',
-    'apache_tag' => '2.4-4.10.3',
+    'nginx_tag' => '1.23-5.29.1',
+    'apache_tag' => '2.4-4.11.1',
   ],
   'emulsify' => [
     'enable' => 0,
@@ -82,7 +82,7 @@ return [
   ],
   'memcached' => [
     'enable' => 0,
-    'tag' => '1-2.13.4',
+    'tag' => '1-2.14.2',
   ],
   'rsyslog' => [
     'enable' => 0,
