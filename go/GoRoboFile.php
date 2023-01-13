@@ -10,7 +10,7 @@ use Robo\Tasks;
 use Drupal\Component\PhpStorage\FileStorage;
 use DrupalFinder\DrupalFinder;
 use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**

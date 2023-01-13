@@ -111,7 +111,7 @@ return [
      */
     'admin_toolbar'                  => '^3.0', // https://www.drupal.org/project/admin_toolbar
     'gin_toolbar'                    => '^1.0', // https://www.drupal.org/project/gin_toolbar
-    'devel'                          => '^4.0', // https://www.drupal.org/project/devel
+    'devel'                          => '^5.1', // https://www.drupal.org/project/devel
     'coffee'                         => '^1.0', // https://www.drupal.org/project/coffee
     'masquerade'                     => '^2.0', // https://www.drupal.org/project/masquerade
     'flood_control'                  => '^2.0', // https://www.drupal.org/project/flood_control
@@ -164,9 +164,9 @@ return [
     'editor_advanced_link'           => '^2.0', // https://www.drupal.org/project/editor_advanced_link
     'link_field_autocomplete_filter' => '^2.0', // https://www.drupal.org/project/link_field_autocomplete_filter
     'field_group'                    => '^3.0', // https://www.drupal.org/project/field_group
-    'dropzonejs'                     => '^4.0', // https://www.drupal.org/project/dropzonejs
-    'media_bulk_upload'              => '^3.0', // https://www.drupal.org/project/media_bulk_upload
-    'hide_revision_field'            => '^2.0', // https://www.drupal.org/project/hide_revision_field
+    'dropzonejs'                     => '^2.0', // https://www.drupal.org/project/dropzonejs
+//  'media_bulk_upload'              => '^3.0', // https://www.drupal.org/project/media_bulk_upload (NOT AVAILABLE FOR D10)
+//  'hide_revision_field'            => '^2.0', // https://www.drupal.org/project/hide_revision_field (NOT AVAILABLE FOR D10)
 //  'smart_trim'                     => '^2.0', // https://www.drupal.org/project/smart_trim
 //  'maxlength'                      => '^2.0', // https://www.drupal.org/project/maxlength
 //  'length_indicator'               => '^1.0', // https://www.drupal.org/project/length_indicator
@@ -194,13 +194,13 @@ return [
     /**
      * Media Ecosystem.
      */
-    'media_library_edit'             => '^2.0', // https://www.drupal.org/project/media_library_edit
-    'media_responsive_thumbnail'     => '^1.0', // https://www.drupal.org/project/media_responsive_thumbnail
+    'media_library_edit'             => '^3.0', // https://www.drupal.org/project/media_library_edit
+//  'media_responsive_thumbnail'     => '^1.0', // https://www.drupal.org/project/media_responsive_thumbnail (NOT AVAILABLE FOR D10)
     'svg_image_field'                => '^2.0', // https://www.drupal.org/project/svg_image_field
-    'focal_point'                    => '^1.0', // https://www.drupal.org/project/focal_point
+    'focal_point'                    => '^2.0', // https://www.drupal.org/project/focal_point
     'imagemagick'                    => '^3.0', // https://www.drupal.org/project/imagemagick
-    'lazy'                           => '^3.0', // https://www.drupal.org/project/lazy
-    'webp'                           => '^1.0', // https://www.drupal.org/project/webp
+//  'lazy'                           => '^3.0', // https://www.drupal.org/project/lazy (NOT AVAILABLE FOR D10)
+//  'webp'                           => '^1.0', // https://www.drupal.org/project/webp (NOT AVAILABLE FOR D10)
 //  'media_thumbnails'               => '^1.0', // https://www.drupal.org/project/media_thumbnails
 //  'oembed_providers'               => '^2.0', // https://www.drupal.org/project/oembed_providers
     /**
@@ -236,8 +236,8 @@ return [
     /**
      * Performance.
      */
-    'advagg'                         => '^2.0', // https://www.drupal.org/project/advagg
-    'warmer'                         => '^2.0', // https://www.drupal.org/project/warmer
+    'advagg'                         => '^6.0', // https://www.drupal.org/project/advagg
+//  'warmer'                         => '^2.0', // https://www.drupal.org/project/warmer (NOT AVAILABLE FOR D10)
     'quicklink'                      => '^2.0', // https://www.drupal.org/project/quicklink
     'big_pipe_sessionless'           => '^2.0', // https://www.drupal.org/project/big_pipe_sessionless
 //  'fast_404'                       => '^2.0', // https://www.drupal.org/project/fast_404
