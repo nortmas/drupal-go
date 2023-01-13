@@ -41,7 +41,7 @@ return [
     'selenium_tag' => '3.141.59-oxygen',
   ],
   'mariadb' => [
-    'tag' => '10.9-3.23.1',
+    'tag' => '10.8-3.21.6',
   ],
   'php' => [
     'tag' => '8.2-dev-${OS}4.42.6',
