@@ -109,25 +109,25 @@ return [
     /**
      * Administration.
      */
-    'gin_toolbar'                    => '^1.0', // https://www.drupal.org/project/gin_toolbar
     'admin_toolbar'                  => '^3.0', // https://www.drupal.org/project/admin_toolbar
-    'config_split'                   => '^2.0', // https://www.drupal.org/project/config_split
+    'gin_toolbar'                    => '^1.0', // https://www.drupal.org/project/gin_toolbar
     'devel'                          => '^4.0', // https://www.drupal.org/project/devel
     'coffee'                         => '^1.0', // https://www.drupal.org/project/coffee
-    'flood_control'                  => '^2.0', // https://www.drupal.org/project/flood_control
-    'environment_indicator'          => '^4.0', // https://www.drupal.org/project/environment_indicator
     'masquerade'                     => '^2.0', // https://www.drupal.org/project/masquerade
+    'flood_control'                  => '^2.0', // https://www.drupal.org/project/flood_control
+    'config_pages'                   => '^2.0', // https://www.drupal.org/project/config_pages
+    'config_split'                   => '^2.0', // https://www.drupal.org/project/config_split
     'config_ignore'                  => '^2.0', // https://www.drupal.org/project/config_ignore
     'dblog_filter'                   => '^2.0', // https://www.drupal.org/project/dblog_filter
     'watchdog_prune'                 => '^2.0', // https://www.drupal.org/project/watchdog_prune
     'stage_file_proxy'               => '^2.0', // https://www.drupal.org/project/stage_file_proxy
     'backup_migrate'                 => '^5.0', // https://www.drupal.org/project/backup_migrate
     'backup_migrate_aws_s3'          => '^5.0', // https://www.drupal.org/project/backup_migrate_aws_s3
-    'ultimate_cron'                  => '^2.0', // https://www.drupal.org/project/ultimate_cron
-    'entity_clone'                   => '^2.0', // https://www.drupal.org/project/entity_clone
-    'config_pages'                   => '^2.0', // https://www.drupal.org/project/config_pages
-    'customerror'                    => '^1.0', // https://www.drupal.org/project/customerror
+    'environment_indicator'          => '^4.0', // https://www.drupal.org/project/environment_indicator
     'entity_redirect'                => '^2.0', // https://www.drupal.org/project/entity_redirect
+    'entity_clone'                   => '^2.0', // https://www.drupal.org/project/entity_clone
+    'ultimate_cron'                  => '^2.0', // https://www.drupal.org/project/ultimate_cron
+    'customerror'                    => '^1.0', // https://www.drupal.org/project/customerror
     'webform'                        => '^6.0', // https://www.drupal.org/project/webform
     'maillog'                        => '^1.0', // https://www.drupal.org/project/maillog
 //  'reroute_email'                  => '^1.0', // https://www.drupal.org/project/reroute_email
@@ -142,9 +142,9 @@ return [
      * System and Development.
      */
     'libraries'                      => '^4.0', // https://www.drupal.org/project/libraries
-    'node_revision_delete'           => '^1.0', // https://www.drupal.org/project/node_revision_delete
-    'twig_field_value'               => '^2.0', // https://www.drupal.org/project/twig_field_value
     'twig_tweak'                     => '^3.0', // https://www.drupal.org/project/twig_tweak
+    'twig_field_value'               => '^2.0', // https://www.drupal.org/project/twig_field_value
+//  'node_revision_delete'           => '^1.0', // https://www.drupal.org/project/node_revision_delete
 //  'smtp'                           => '^1.0', // https://www.drupal.org/project/smtp
 //  'mimemail'                       => '^1.0', // https://www.drupal.org/project/mimemail
 //  'search_api'                     => '^1.0', // https://www.drupal.org/project/search_api
@@ -157,13 +157,13 @@ return [
     /**
      * User Interface.
      */
+    'allowed_formats'                => '^1.0', // https://www.drupal.org/project/allowed_formats
+    'ajax_loader'                    => '^2.0', // https://www.drupal.org/project/ajax_loader
     'chosen'                         => '^3.0', // https://www.drupal.org/project/chosen
     'linkit'                         => '^6.0', // https://www.drupal.org/project/linkit
     'editor_advanced_link'           => '^2.0', // https://www.drupal.org/project/editor_advanced_link
     'link_field_autocomplete_filter' => '^2.0', // https://www.drupal.org/project/link_field_autocomplete_filter
-    'allowed_formats'                => '^1.0', // https://www.drupal.org/project/allowed_formats
     'field_group'                    => '^3.0', // https://www.drupal.org/project/field_group
-    'ajax_loader'                    => '^2.0', // https://www.drupal.org/project/ajax_loader
     'dropzonejs'                     => '^4.0', // https://www.drupal.org/project/dropzonejs
     'media_bulk_upload'              => '^3.0', // https://www.drupal.org/project/media_bulk_upload
     'hide_revision_field'            => '^2.0', // https://www.drupal.org/project/hide_revision_field
@@ -196,10 +196,10 @@ return [
      */
     'media_library_edit'             => '^2.0', // https://www.drupal.org/project/media_library_edit
     'media_responsive_thumbnail'     => '^1.0', // https://www.drupal.org/project/media_responsive_thumbnail
-    'imagemagick'                    => '^3.0', // https://www.drupal.org/project/imagemagick
-    'lazy'                           => '^3.0', // https://www.drupal.org/project/lazy
     'svg_image_field'                => '^2.0', // https://www.drupal.org/project/svg_image_field
     'focal_point'                    => '^1.0', // https://www.drupal.org/project/focal_point
+    'imagemagick'                    => '^3.0', // https://www.drupal.org/project/imagemagick
+    'lazy'                           => '^3.0', // https://www.drupal.org/project/lazy
     'webp'                           => '^1.0', // https://www.drupal.org/project/webp
 //  'media_thumbnails'               => '^1.0', // https://www.drupal.org/project/media_thumbnails
 //  'oembed_providers'               => '^2.0', // https://www.drupal.org/project/oembed_providers
