@@ -81,7 +81,7 @@ return [
     'tag' => '7-3.14.4',
   ],
   'memcached' => [
-    'enable' => 0,
+    'enable' => 1,
     'tag' => '1-2.14.2',
   ],
   'rsyslog' => [
@@ -117,7 +117,7 @@ return [
     'flood_control'                  => '^2.0', // https://www.drupal.org/project/flood_control
     'config_pages'                   => '^2.0', // https://www.drupal.org/project/config_pages
     'config_split'                   => '^2.0', // https://www.drupal.org/project/config_split
-    'config_ignore'                  => '^2.0', // https://www.drupal.org/project/config_ignore
+//  'config_ignore'                  => '^2.0', // https://www.drupal.org/project/config_ignore (NOT AVAILABLE FOR D10)
 //  'dblog_filter'                   => '^2.0', // https://www.drupal.org/project/dblog_filter (THROWS ERROR FOR D10)
     'watchdog_prune'                 => '^2.0', // https://www.drupal.org/project/watchdog_prune
     'stage_file_proxy'               => '^2.0', // https://www.drupal.org/project/stage_file_proxy
@@ -127,9 +127,9 @@ return [
     'entity_redirect'                => '^2.0', // https://www.drupal.org/project/entity_redirect
     'entity_clone'                   => '^2.0', // https://www.drupal.org/project/entity_clone
     'ultimate_cron'                  => '^2.0', // https://www.drupal.org/project/ultimate_cron
-    'customerror'                    => '^1.0', // https://www.drupal.org/project/customerror
-    'webform'                        => '^6.0', // https://www.drupal.org/project/webform
-    'maillog'                        => '^1.0', // https://www.drupal.org/project/maillog
+//  'customerror'                    => '^1.0', // https://www.drupal.org/project/customerror (NOT AVAILABLE FOR D10)
+//  'webform'                        => '^6.0', // https://www.drupal.org/project/webform
+//  'maillog'                        => '^1.0', // https://www.drupal.org/project/maillog
 //  'reroute_email'                  => '^1.0', // https://www.drupal.org/project/reroute_email
 //  'scheduler'                      => '^2.0', // https://www.drupal.org/project/scheduler
 //  'entity_type_clone'              => '^1.0', // https://www.drupal.org/project/entity_type_clone
@@ -140,9 +140,9 @@ return [
     /**
      * System and Development.
      */
-    'libraries'                      => '^4.0', // https://www.drupal.org/project/libraries
     'twig_tweak'                     => '^3.0', // https://www.drupal.org/project/twig_tweak
     'twig_field_value'               => '^2.0', // https://www.drupal.org/project/twig_field_value
+//  'libraries'                      => '^4.0', // https://www.drupal.org/project/libraries (THROWS AN ERROR ON INSTALLATION)
 //  'node_revision_delete'           => '^1.0', // https://www.drupal.org/project/node_revision_delete
 //  'smtp'                           => '^1.0', // https://www.drupal.org/project/smtp
 //  'mimemail'                       => '^1.0', // https://www.drupal.org/project/mimemail
@@ -159,7 +159,7 @@ return [
     'allowed_formats'                => '^1.0', // https://www.drupal.org/project/allowed_formats
     'ajax_loader'                    => '^2.0', // https://www.drupal.org/project/ajax_loader
     'chosen'                         => '^3.0', // https://www.drupal.org/project/chosen
-    'linkit'                         => '^6.0', // https://www.drupal.org/project/linkit
+//  'linkit'                         => '^6.0', // https://www.drupal.org/project/linkit (NOT AVAILABLE FOR D10)
     'editor_advanced_link'           => '^2.0', // https://www.drupal.org/project/editor_advanced_link
     'link_field_autocomplete_filter' => '^2.0', // https://www.drupal.org/project/link_field_autocomplete_filter
     'field_group'                    => '^3.0', // https://www.drupal.org/project/field_group
@@ -207,7 +207,7 @@ return [
      * More modules here: https://www.drupal.org/project/paragraphs/ecosystem.
      */
     'paragraphs'                     => '^1.0', // https://www.drupal.org/project/paragraphs
-    'paragraphs_browser'             => '^1.0', // https://www.drupal.org/project/paragraphs_browser
+//  'paragraphs_browser'             => '^1.0', // https://www.drupal.org/project/paragraphs_browser (NOT AVAILABLE FOR D10)
     'entity_reference_revisions'     => '^1.0', // https://www.drupal.org/project/entity_reference_revisions
     'paragraphs_modal_edit'          => '^1.0', // https://www.drupal.org/project/paragraphs_modal_edit
 //  'paragraph_view_mode'            => '^3.0', // https://www.drupal.org/project/paragraph_view_mode

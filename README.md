@@ -32,6 +32,7 @@ The Drupal Go based on [Composer template for Drupal project](https://github.com
    * `"[web-root]/robots.txt": false`
    * `"[web-root]/.htaccess": false`
    * `"[project-root]/.editorconfig": false`
+9) Go to the `/admin/reports/status` page and check errors. Perhaps you need to install some missing libraries.
     
 ## Performance for Mac OS users:
 If you want to improve performance, please read the [doc](https://wodby.com/docs/stacks/php/local/#user-guided-caching).

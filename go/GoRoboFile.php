@@ -52,7 +52,7 @@ class GoRoboFile extends Tasks {
    * Test function.
    */
   public function test() {
-    $this->deploy_setup();
+    //$this->deploy_setup();
     //$this->prepareComposerJson();
     //$this->yell('Hello!');
   }
@@ -65,27 +65,10 @@ class GoRoboFile extends Tasks {
   }
 
   /**
-   * Prepare
+   * Prepare.
    */
   public function prepare() {
-    if ($this->config['memcached']['enable'] == FALSE) {
-      $memcached = $this->ask("Do you want to set up memcached? Y or N");
-      $this->config['memcached']['enable'] = strtolower($memcached) == 'y' ? 1 : 0;
-      $this->updateGoConf();
-    }
-
-    if ($this->config['behat']['enable'] == FALSE) {
-      $behat = $this->ask("Do you want to set up behat tests? Y or N");
-      $this->config['behat']['enable'] = strtolower($behat) == 'y' ? 1 : 0;
-      $this->updateGoConf();
-    }
-
-    if ($this->config['deploy']['enable'] == FALSE) {
-      $behat = $this->ask("Do you want to set up deployment flow? Y or N");
-      $this->config['deploy']['enable'] = strtolower($behat) == 'y' ? 1 : 0;
-      $this->updateGoConf();
-    }
-
+    //$this->areYouSure();
     $this->configureProject(TRUE);
   }
 
@@ -111,6 +94,10 @@ class GoRoboFile extends Tasks {
       $this->crontab_setup();
     }
     $this->removeNeedlessModules();
+
+    $this->set_correct_permissions();
+    $this->set_settings_writable();
+
     $message = 'Available domains: ';
     $domains = $this->getDomains();
     foreach (explode(',', $domains) as $domain) {
@@ -410,6 +397,29 @@ class GoRoboFile extends Tasks {
   }
 
   /**
+   * Make sure user configured the setting file correctly and ask one more time.
+   */
+  protected function areYouSure() {
+    if ($this->config['memcached']['enable'] == FALSE) {
+      $memcached = $this->ask("Do you want to set up memcached? Y or N");
+      $this->config['memcached']['enable'] = strtolower($memcached) == 'y' ? 1 : 0;
+      $this->updateGoConf();
+    }
+
+    if ($this->config['behat']['enable'] == FALSE) {
+      $behat = $this->ask("Do you want to set up behat tests? Y or N");
+      $this->config['behat']['enable'] = strtolower($behat) == 'y' ? 1 : 0;
+      $this->updateGoConf();
+    }
+
+    if ($this->config['deploy']['enable'] == FALSE) {
+      $behat = $this->ask("Do you want to set up deployment flow? Y or N");
+      $this->config['deploy']['enable'] = strtolower($behat) == 'y' ? 1 : 0;
+      $this->updateGoConf();
+    }
+  }
+
+  /**
    * Wrapper to execute command inside container.
    *
    * @param $command string
@@ -527,11 +537,9 @@ class GoRoboFile extends Tasks {
         'value' => Crypt::randomBytesBase64(55),
         'required' => TRUE,
       ];
-      $settings['config_directories'] = [
-        'settings' => (object) [
-          'value' => Path::makeRelative($this->projectRoot . '/config/default', $this->drupalRoot),
-          'required' => TRUE,
-        ],
+      $settings['settings']['config_sync_directory'] = (object) [
+        'value' => Path::makeRelative($this->projectRoot . '/config/default', $this->drupalRoot),
+        'required' => TRUE,
       ];
     }
 
@@ -1177,13 +1185,15 @@ EOT;
       return;
     }
 
+    $ignore = $this->ask("Do you want to ignore module versions specified in the GoConfig.php and install the newest? Y or N");
+
     foreach ($this->config['modules'] as $name => $version) {
+      $version = strtolower($ignore) == 'y' ? null : $version;
       $this->taskComposerRequire()->dependency('drupal/' . $name, $version)->run();
     }
 
     $this->enableModules();
   }
-
   /**
    * Install modules.
    */

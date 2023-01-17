@@ -1,7 +1,7 @@
 {
   "name": "nortmas/drupal-go",
   "description": "Drupal 10 project.",
-  "version": "0.1.7",
+  "version": "1.0.0",
   "require": {
     "php": ">=8.1",
     "digipolisgent/robo-drush": "^5.0",
@@ -20,7 +20,7 @@
   "conflict": {
     "drupal/drupal": "*"
   },
-  "minimum-stability": "dev",
+  "minimum-stability": "alpha",
   "prefer-stable": true,
   "config": {
     "discard-changes": true,
