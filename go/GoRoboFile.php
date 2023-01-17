@@ -4,10 +4,10 @@ require_once $realDir . '/vendor/autoload.php';
 require_once $realDir . '/web/core/includes/bootstrap.inc';
 require_once $realDir . '/web/core/includes/install.inc';
 
+use Drupal\Component\FileSecurity\FileSecurity;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Site\Settings;
 use Robo\Tasks;
-use Drupal\Component\PhpStorage\FileStorage;
 use DrupalFinder\DrupalFinder;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -959,7 +959,7 @@ EOT;
   protected function addHtaccess($dir, $private = FALSE) {
     $htaccess_path = $dir . '/.htaccess';
     if (!file_exists($htaccess_path) && is_writable($dir)) {
-      $htaccess_lines = \Drupal\Component\FileSecurity\FileSecurity::htaccessLines($private);
+      $htaccess_lines = FileSecurity::htaccessLines($private);
       file_put_contents($htaccess_path, $htaccess_lines);
     }
   }

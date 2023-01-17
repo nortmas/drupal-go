@@ -246,6 +246,7 @@ return [
      */
 //  'view_unpublished'               => '^1.0', // https://www.drupal.org/project/view_unpublished
 //  'access_unpublished'             => '^1.0', // https://www.drupal.org/project/access_unpublished
+//  'override_node_options'          => '^2.0', // https://www.drupal.org/project/override_node_options
 //  'simple_menu_permissions'        => '^1.0', // https://www.drupal.org/project/simple_menu_permissions
     /**
      * Migration.
